@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/widgets/banner_image.dart';
 import 'package:virtual_catalog_app/presentation/widgets/home_grid_products.dart';
 
@@ -16,7 +18,10 @@ class HomeScreen extends StatelessWidget {
         leading: Center(
           child: Text(
             "VIRTUAL CATALOG",
-            style: TextStyle(fontWeight: FontWeight.bold),
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH1,
+              textStyle: TextStyle(fontWeight: FontWeight.bold),
+            ),
             textAlign: TextAlign.center,
           ),
         ),
@@ -25,12 +30,24 @@ class HomeScreen extends StatelessWidget {
           children: [
             TextButton(
               onPressed: () {},
-              child: Text("Home", style: TextStyle(color: Colors.black)),
+              child: Text(
+                "Home",
+                style: GoogleFonts.getFont(
+                  FontNames.fontNameP,
+                  textStyle: TextStyle(color: Colors.black),
+                ),
+              ),
             ),
             SizedBox(width: 10),
             TextButton(
               onPressed: () {},
-              child: Text("Products", style: TextStyle(color: Colors.black)),
+              child: Text(
+                "Products",
+                style: GoogleFonts.getFont(
+                  FontNames.fontNameP,
+                  textStyle: TextStyle(color: Colors.black),
+                ),
+              ),
             ),
           ],
         ),
@@ -43,7 +60,10 @@ class HomeScreen extends StatelessWidget {
                 prefixIcon: Icon(Icons.search, size: 20),
                 prefixIconColor: Color(0xFFB3B8C1),
                 hintText: "Search...",
-                hintStyle: TextStyle(color: Color(0xFFB3B8C1)),
+                hintStyle: GoogleFonts.getFont(
+                  FontNames.fontNameP,
+                  textStyle: TextStyle(color: Color(0xFFB3B8C1)),
+                ),
                 border: UnderlineInputBorder(
                   borderSide: BorderSide(color: Color(0xFFB3B8C1)),
                 ),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:virtual_catalog_app/config/firebase/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:virtual_catalog_app/config/themes/theme_config.dart';
 import 'package:virtual_catalog_app/presentation/screens/home_screen.dart';
 
 void main() async {
@@ -13,6 +14,10 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(debugShowCheckedModeBanner: false, home: HomeScreen());
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      theme: ThemeConfig(selectedColor: 0).getTheme(),
+      home: HomeScreen(),
+    );
   }
 }

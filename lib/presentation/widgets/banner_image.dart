@@ -1,21 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:virtual_catalog_app/config/themes/font_names.dart';
 
 class BannerImage extends StatelessWidget {
   const BannerImage({super.key, required this.size});
 
   final Size size;
-
   @override
   Widget build(BuildContext context) {
     return Container(
       width: double.infinity,
-      height: 800,
+      height: size.height,
       decoration: BoxDecoration(color: Colors.black),
       child: Stack(
         children: [
           Positioned.fill(
             child: Image.asset(
-              "assets/images/banner_catalog.png",
+              "assets/images/banner_catalogo_large.png",
               fit: BoxFit.cover,
             ),
           ),
@@ -37,7 +38,10 @@ class BannerImage extends StatelessWidget {
                 children: [
                   Text(
                     "Autumn Ethereal",
-                    style: TextStyle(color: Colors.white, fontSize: 72),
+                    style: GoogleFonts.getFont(
+                      FontNames.fontNameH1,
+                      textStyle: TextStyle(color: Colors.white, fontSize: 72),
+                    ),
                   ),
                   SizedBox(height: 20),
                   SizedBox(
@@ -45,7 +49,10 @@ class BannerImage extends StatelessWidget {
                     child: Text(
                       "The 2026 Collection. Discover the texture of modern luxury defined by silhouette and grace.",
                       textAlign: TextAlign.center,
-                      style: TextStyle(color: Colors.white, fontSize: 20),
+                      style: GoogleFonts.getFont(
+                        FontNames.fontNameH2,
+                        textStyle: TextStyle(color: Colors.white, fontSize: 20),
+                      ),
                     ),
                   ),
                 ],
