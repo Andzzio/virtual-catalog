@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
@@ -15,6 +17,7 @@ class BannerImage extends StatefulWidget {
 class _BannerImageState extends State<BannerImage> {
   final _pageController = PageController();
   final int _pageCount = 5;
+  Timer? _timer;
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -102,5 +105,30 @@ class _BannerImageState extends State<BannerImage> {
         ],
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _timer = Timer.periodic(Duration(seconds: 5), (timer) {
+      if (_pageController.hasClients) {
+        int nextPage = _pageController.page!.toInt() + 1;
+        if (nextPage >= _pageCount) {
+          nextPage = 0;
+        }
+        _pageController.animateToPage(
+          nextPage,
+          duration: Duration(milliseconds: 300),
+          curve: Curves.easeInOut,
+        );
+      }
+    });
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    _pageController.dispose();
+    super.dispose();
   }
 }

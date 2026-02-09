@@ -21,7 +21,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "The Products",
+          "The Best Sellers",
           style: GoogleFonts.getFont(
             FontNames.fontNameH2,
             textStyle: TextStyle(fontSize: 35),
