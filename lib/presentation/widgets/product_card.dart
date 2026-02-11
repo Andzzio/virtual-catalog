@@ -14,46 +14,43 @@ class ProductCard extends StatelessWidget {
       width: _cardWidth,
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(10),
+        borderRadius: BorderRadius.circular(5),
         boxShadow: [
           BoxShadow(color: Colors.grey, blurRadius: 4, offset: Offset(2, 4)),
         ],
       ),
       child: ClipRRect(
-        borderRadius: BorderRadiusGeometry.circular(10),
+        borderRadius: BorderRadiusGeometry.circular(5),
         child: Column(
           children: [
             Expanded(
-              flex: 7,
               child: SizedBox(
                 width: double.infinity,
+
                 child: Image.asset("assets/images/3a.jpeg", fit: BoxFit.cover),
               ),
             ),
-            Expanded(
-              flex: 1,
-              child: SizedBox(
-                child: Padding(
-                  padding: EdgeInsetsGeometry.all(10),
-                  child: Column(
-                    children: [
-                      Text(
-                        "Mini Black Skirt",
-                        style: GoogleFonts.getFont(
-                          FontNames.fontNameH2,
-                          textStyle: TextStyle(
-                            fontSize: 16,
-                            //fontWeight: FontWeight.bold,
-                          ),
+            SizedBox(
+              child: Padding(
+                padding: EdgeInsetsGeometry.all(10),
+                child: Column(
+                  children: [
+                    Text(
+                      "Mini Black Skirt",
+                      style: GoogleFonts.getFont(
+                        FontNames.fontNameH2,
+                        textStyle: TextStyle(
+                          fontSize: 16,
+                          //fontWeight: FontWeight.bold,
                         ),
                       ),
-                      SizedBox(height: 5),
-                      Text(
-                        "S/. 45.50",
-                        style: GoogleFonts.getFont(FontNames.fontNameP),
-                      ),
-                    ],
-                  ),
+                    ),
+                    SizedBox(height: 5),
+                    Text(
+                      "S/. 45.50",
+                      style: GoogleFonts.getFont(FontNames.fontNameP),
+                    ),
+                  ],
                 ),
               ),
             ),

@@ -3,6 +3,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/widgets/banner_image.dart';
+import 'package:virtual_catalog_app/presentation/widgets/home_grid_products.dart';
 import 'package:virtual_catalog_app/presentation/widgets/home_list_products.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -27,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
         leading: Center(
           child: Text(
-            "SHURUMBA",
+            "VIRTUAL CATALOG",
             style: GoogleFonts.getFont(
               FontNames.fontNameH1,
               textStyle: TextStyle(
@@ -44,7 +45,7 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               onPressed: () {},
               child: Text(
-                "Home",
+                "Inicio",
                 style: GoogleFonts.getFont(
                   FontNames.fontNameP,
                   textStyle: TextStyle(
@@ -57,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               onPressed: () {},
               child: Text(
-                "Products",
+                "Productos",
                 style: GoogleFonts.getFont(
                   FontNames.fontNameP,
                   textStyle: TextStyle(
@@ -80,7 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 prefixIcon: Icon(Icons.search, size: 20),
                 prefixIconColor: Color(0xFFB3B8C1),
 
-                hintText: "Search...",
+                hintText: "Buscar...",
                 hintStyle: GoogleFonts.getFont(
                   FontNames.fontNameP,
                   textStyle: TextStyle(color: Color(0xFFB3B8C1)),
@@ -125,7 +126,13 @@ class _HomeScreenState extends State<HomeScreen> {
             SizedBox(height: 100),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 50),
-              child: Column(children: [HomeListProducts()]),
+              child: Column(
+                children: [
+                  HomeListProducts(),
+                  SizedBox(height: 50),
+                  HomeGridProducts(),
+                ],
+              ),
             ),
           ],
         ),

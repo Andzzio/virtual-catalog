@@ -26,57 +26,68 @@ class _BannerImageState extends State<BannerImage> {
       decoration: BoxDecoration(color: Colors.black),
       child: Stack(
         children: [
-          Positioned.fill(
-            child: PageView.builder(
-              controller: _pageController,
-              itemCount: _pageCount,
-              itemBuilder: (context, index) {
-                return Image.asset(
-                  "assets/images/banner_catalogo_large.png",
-                  fit: BoxFit.cover,
-                );
-              },
-            ),
-          ),
-          Container(
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topCenter,
-                end: Alignment.bottomCenter,
-                colors: [Colors.transparent, Colors.black],
-                stops: [0.5, 1],
-              ),
-            ),
-          ),
-          Positioned.fill(
-            top: 300,
-            child: Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+          PageView.builder(
+            controller: _pageController,
+            itemCount: _pageCount,
+            itemBuilder: (context, index) {
+              return Stack(
                 children: [
-                  Text(
-                    "SHURUMBA",
-                    style: GoogleFonts.getFont(
-                      FontNames.fontNameH1,
-                      textStyle: TextStyle(color: Colors.white, fontSize: 72),
+                  Positioned.fill(
+                    child: Image.asset(
+                      "assets/images/banner_catalogo_large.png",
+                      fit: BoxFit.cover,
                     ),
                   ),
-                  SizedBox(height: 20),
-                  SizedBox(
-                    width: widget.size.width * 0.5,
-                    child: Text(
-                      "The 2026 Collection. Discover the texture of modern luxury defined by silhouette and grace.",
-                      textAlign: TextAlign.center,
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameH2,
-                        textStyle: TextStyle(color: Colors.white, fontSize: 20),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Colors.black],
+                        stops: [0.5, 1],
+                      ),
+                    ),
+                  ),
+                  Positioned.fill(
+                    top: 300,
+                    child: Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            "VIRTUAL CATALOG",
+                            style: GoogleFonts.getFont(
+                              FontNames.fontNameH1,
+                              textStyle: TextStyle(
+                                color: Colors.white,
+                                fontSize: 72,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: 20),
+                          SizedBox(
+                            width: widget.size.width * 0.5,
+                            child: Text(
+                              "La colección 2026. Descubre la textura del lujo moderno definida por la silueta y la gracia.",
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.getFont(
+                                FontNames.fontNameH2,
+                                textStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 20,
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
                 ],
-              ),
-            ),
+              );
+            },
           ),
+
           Positioned(
             bottom: 50,
             left: 0,

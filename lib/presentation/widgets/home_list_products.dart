@@ -12,7 +12,7 @@ class HomeListProducts extends StatefulWidget {
 
 class _HomeListProductsState extends State<HomeListProducts> {
   final double _listHeight = 600;
-  final double _cardWidth = 300;
+  final double _cardWidth = 350;
   final double _cardPadding = 8;
   final _scrollController = ScrollController();
   @override
@@ -21,7 +21,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
-          "The Best Sellers",
+          "Nuestros productos más vendidos",
           style: GoogleFonts.getFont(
             FontNames.fontNameH2,
             textStyle: TextStyle(fontSize: 35),
@@ -30,7 +30,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
         Row(
           children: [
             Text(
-              "Timeless pieces designed for the modern wardrobe",
+              "Piezas atemporales diseñadas para el guardarropa moderno",
               style: GoogleFonts.getFont(
                 FontNames.fontNameH2,
                 textStyle: TextStyle(fontSize: 16, color: Color(0xFF82868B)),
@@ -48,7 +48,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
                 ),
               ),
               child: Text(
-                "View All",
+                "Ver todos",
                 style: GoogleFonts.getFont(
                   FontNames.fontNameP,
                   textStyle: TextStyle(color: Colors.black),
@@ -75,12 +75,10 @@ class _HomeListProductsState extends State<HomeListProducts> {
               ),
               Align(
                 alignment: Alignment.centerLeft,
-                child: FloatingActionButton(
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer,
-                  shape: CircleBorder(),
-                  mini: true,
+                child: IconButton(
+                  color: Colors.white,
+                  disabledColor: Colors.blueGrey,
+                  icon: Icon(Icons.arrow_back),
                   onPressed: () {
                     final double totalCardWidth =
                         _cardWidth + (_cardPadding * 2);
@@ -96,16 +94,14 @@ class _HomeListProductsState extends State<HomeListProducts> {
                       curve: Curves.easeInOut,
                     );
                   },
-                  child: Icon(Icons.arrow_back),
                 ),
               ),
               Align(
                 alignment: Alignment.centerRight,
-                child: FloatingActionButton(
-                  backgroundColor: Theme.of(
-                    context,
-                  ).colorScheme.primaryContainer,
-                  mini: true,
+                child: IconButton(
+                  color: Colors.white,
+                  disabledColor: Colors.blueGrey,
+                  icon: Icon(Icons.arrow_forward),
                   onPressed: () {
                     final double totalCardWidth =
                         _cardWidth + (_cardPadding * 2);
@@ -122,8 +118,6 @@ class _HomeListProductsState extends State<HomeListProducts> {
                       curve: Curves.easeInOut,
                     );
                   },
-                  shape: CircleBorder(),
-                  child: Icon(Icons.arrow_forward),
                 ),
               ),
             ],
