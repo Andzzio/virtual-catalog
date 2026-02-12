@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/domain/entities/product.dart';
+import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product_card.dart';
 
 class HomeGridProducts extends StatefulWidget {
-  const HomeGridProducts({super.key});
+  final ProductProvider provider;
+  const HomeGridProducts({super.key, required this.provider});
 
   @override
   State<HomeGridProducts> createState() => _HomeGridProductsState();
@@ -38,7 +41,9 @@ class _HomeGridProductsState extends State<HomeGridProducts> {
             child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
                 return GridView.builder(
-                  itemCount: 4,
+                  itemCount: widget.provider.products.length >= 4
+                      ? 4
+                      : widget.provider.products.length,
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   gridDelegate: constraints.maxWidth > 700
@@ -55,7 +60,12 @@ class _HomeGridProductsState extends State<HomeGridProducts> {
                           crossAxisSpacing: 20,
                         ),
                   itemBuilder: (context, index) {
-                    return ProductCard(cardWidth: _cardWidth, isPageView: true);
+                    final Product product = widget.provider.products[index];
+                    return ProductCard(
+                      cardWidth: _cardWidth,
+                      isPageView: true,
+                      product: product,
+                    );
                   },
                 );
               },

@@ -1,10 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/domain/entities/product.dart';
+import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product_card.dart';
 
 class HomeListProducts extends StatefulWidget {
-  const HomeListProducts({super.key});
+  final ProductProvider provider;
+  const HomeListProducts({super.key, required this.provider});
 
   @override
   State<HomeListProducts> createState() => _HomeListProductsState();
@@ -65,13 +68,17 @@ class _HomeListProductsState extends State<HomeListProducts> {
               ListView.builder(
                 scrollDirection: Axis.horizontal,
                 controller: _scrollController,
-                itemCount: 10,
+                itemCount: widget.provider.products.length >= 10
+                    ? 10
+                    : widget.provider.products.length,
                 itemBuilder: (context, index) {
+                  final Product product = widget.provider.products[index];
                   return Padding(
                     padding: EdgeInsets.all(_cardPadding),
                     child: ProductCard(
                       cardWidth: _cardWidth,
                       isPageView: false,
+                      product: product,
                     ),
                   );
                 },

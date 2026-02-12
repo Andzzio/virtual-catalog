@@ -2,17 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/domain/entities/product.dart';
 
 class ProductCard extends StatefulWidget {
-  final bool _isPageView;
+  final bool isPageView;
+  final double cardWidth;
+  final Product product;
   const ProductCard({
     super.key,
-    required double cardWidth,
-    required bool isPageView,
-  }) : _cardWidth = cardWidth,
-       _isPageView = isPageView;
-
-  final double _cardWidth;
+    required this.cardWidth,
+    required this.isPageView,
+    required this.product,
+  });
 
   @override
   State<ProductCard> createState() => _ProductCardState();
@@ -23,7 +24,7 @@ class _ProductCardState extends State<ProductCard> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      width: widget._cardWidth,
+      width: widget.cardWidth,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(5),
@@ -36,11 +37,11 @@ class _ProductCardState extends State<ProductCard> {
         child: Column(
           children: [
             Expanded(
-              child: widget._isPageView
+              child: widget.isPageView
                   ? Stack(
                       children: [
                         PageView.builder(
-                          itemCount: 5,
+                          itemCount: widget.product.imageUrl.length,
                           controller: _pageController,
                           itemBuilder: (context, index) {
                             return Stack(
@@ -49,7 +50,7 @@ class _ProductCardState extends State<ProductCard> {
                                   width: double.infinity,
 
                                   child: Image.asset(
-                                    "assets/images/3a.jpeg",
+                                    widget.product.imageUrl[index],
                                     fit: BoxFit.cover,
                                   ),
                                 ),
@@ -60,7 +61,7 @@ class _ProductCardState extends State<ProductCard> {
                                   child: Center(
                                     child: SmoothPageIndicator(
                                       controller: _pageController,
-                                      count: 5,
+                                      count: widget.product.imageUrl.length,
                                       effect: ExpandingDotsEffect(
                                         activeDotColor: Colors.white,
                                         dotHeight: 10,
@@ -83,7 +84,7 @@ class _ProductCardState extends State<ProductCard> {
                                 int nextPage =
                                     _pageController.page!.toInt() - 1;
                                 if (nextPage < 0) {
-                                  nextPage = 4;
+                                  nextPage = widget.product.imageUrl.length - 1;
                                 }
                                 _pageController.animateToPage(
                                   nextPage,
@@ -105,7 +106,8 @@ class _ProductCardState extends State<ProductCard> {
                               if (_pageController.hasClients) {
                                 int nextPage =
                                     _pageController.page!.toInt() + 1;
-                                if (nextPage >= 5) {
+                                if (nextPage >=
+                                    widget.product.imageUrl.length) {
                                   nextPage = 0;
                                 }
                                 _pageController.animateToPage(
@@ -123,7 +125,7 @@ class _ProductCardState extends State<ProductCard> {
                       width: double.infinity,
 
                       child: Image.asset(
-                        "assets/images/3a.jpeg",
+                        widget.product.imageUrl.first,
                         fit: BoxFit.cover,
                       ),
                     ),
@@ -134,7 +136,7 @@ class _ProductCardState extends State<ProductCard> {
                 child: Column(
                   children: [
                     Text(
-                      "Mini Black Skirt",
+                      widget.product.name,
                       style: GoogleFonts.getFont(
                         FontNames.fontNameH2,
                         textStyle: TextStyle(
@@ -145,7 +147,7 @@ class _ProductCardState extends State<ProductCard> {
                     ),
                     SizedBox(height: 5),
                     Text(
-                      "S/. 45.50",
+                      "S/. ${widget.product.price}",
                       style: GoogleFonts.getFont(FontNames.fontNameP),
                     ),
                   ],

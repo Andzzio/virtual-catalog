@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/banner_image.dart';
 import 'package:virtual_catalog_app/presentation/widgets/home_grid_products.dart';
 import 'package:virtual_catalog_app/presentation/widgets/home_list_products.dart';
@@ -18,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isScrolled = false;
   @override
   Widget build(BuildContext context) {
+    final ProductProvider provider = context.watch<ProductProvider>();
     final size = MediaQuery.of(context).size;
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -128,9 +131,9 @@ class _HomeScreenState extends State<HomeScreen> {
               padding: const EdgeInsets.symmetric(horizontal: 50),
               child: Column(
                 children: [
-                  HomeListProducts(),
+                  HomeListProducts(provider: provider),
                   SizedBox(height: 50),
-                  HomeGridProducts(),
+                  HomeGridProducts(provider: provider),
                   SizedBox(height: 50),
                 ],
               ),
