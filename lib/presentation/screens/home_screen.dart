@@ -58,7 +58,7 @@ class _HomeScreenState extends State<HomeScreen> {
             TextButton(
               onPressed: () {},
               child: Text(
-                "Productos",
+                "Catálogo",
                 style: GoogleFonts.getFont(
                   FontNames.fontNameP,
                   textStyle: TextStyle(
@@ -131,7 +131,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   HomeListProducts(),
                   SizedBox(height: 50),
                   HomeGridProducts(),
+                  SizedBox(height: 50),
                 ],
+              ),
+            ),
+            SizedBox(
+              width: double.infinity,
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
+                child: Center(
+                  child: Align(
+                    alignment: Alignment.centerLeft,
+                    child: Text("© 2026 Virtual Catalog"),
+                  ),
+                ),
               ),
             ),
           ],

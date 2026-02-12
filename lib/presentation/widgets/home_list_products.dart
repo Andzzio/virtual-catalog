@@ -69,7 +69,10 @@ class _HomeListProductsState extends State<HomeListProducts> {
                 itemBuilder: (context, index) {
                   return Padding(
                     padding: EdgeInsets.all(_cardPadding),
-                    child: ProductCard(cardWidth: _cardWidth),
+                    child: ProductCard(
+                      cardWidth: _cardWidth,
+                      isPageView: false,
+                    ),
                   );
                 },
               ),

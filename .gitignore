@@ -46,3 +46,6 @@ app.*.map.json
 
 #Firebase
 lib/config/firebase/firebase_options.dart
+
+#Assets Protegidos
+assets/ShurumbaImagenes/

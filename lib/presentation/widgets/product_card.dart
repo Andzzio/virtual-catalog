@@ -1,17 +1,29 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 
-class ProductCard extends StatelessWidget {
-  const ProductCard({super.key, required double cardWidth})
-    : _cardWidth = cardWidth;
+class ProductCard extends StatefulWidget {
+  final bool _isPageView;
+  const ProductCard({
+    super.key,
+    required double cardWidth,
+    required bool isPageView,
+  }) : _cardWidth = cardWidth,
+       _isPageView = isPageView;
 
   final double _cardWidth;
 
   @override
+  State<ProductCard> createState() => _ProductCardState();
+}
+
+class _ProductCardState extends State<ProductCard> {
+  final _pageController = PageController();
+  @override
   Widget build(BuildContext context) {
     return Container(
-      width: _cardWidth,
+      width: widget._cardWidth,
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(5),
@@ -24,11 +36,97 @@ class ProductCard extends StatelessWidget {
         child: Column(
           children: [
             Expanded(
-              child: SizedBox(
-                width: double.infinity,
+              child: widget._isPageView
+                  ? Stack(
+                      children: [
+                        PageView.builder(
+                          itemCount: 5,
+                          controller: _pageController,
+                          itemBuilder: (context, index) {
+                            return Stack(
+                              children: [
+                                SizedBox(
+                                  width: double.infinity,
 
-                child: Image.asset("assets/images/3a.jpeg", fit: BoxFit.cover),
-              ),
+                                  child: Image.asset(
+                                    "assets/images/3a.jpeg",
+                                    fit: BoxFit.cover,
+                                  ),
+                                ),
+                                Positioned(
+                                  left: 0,
+                                  right: 0,
+                                  bottom: 15,
+                                  child: Center(
+                                    child: SmoothPageIndicator(
+                                      controller: _pageController,
+                                      count: 5,
+                                      effect: ExpandingDotsEffect(
+                                        activeDotColor: Colors.white,
+                                        dotHeight: 10,
+                                        dotWidth: 10,
+                                        spacing: 10,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            );
+                          },
+                        ),
+                        Align(
+                          alignment: Alignment.centerLeft,
+                          child: IconButton(
+                            icon: Icon(Icons.arrow_back, color: Colors.white),
+                            onPressed: () {
+                              if (_pageController.hasClients) {
+                                int nextPage =
+                                    _pageController.page!.toInt() - 1;
+                                if (nextPage < 0) {
+                                  nextPage = 4;
+                                }
+                                _pageController.animateToPage(
+                                  nextPage,
+                                  duration: Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.centerRight,
+                          child: IconButton(
+                            icon: Icon(
+                              Icons.arrow_forward,
+                              color: Colors.white,
+                            ),
+                            onPressed: () {
+                              if (_pageController.hasClients) {
+                                int nextPage =
+                                    _pageController.page!.toInt() + 1;
+                                if (nextPage >= 5) {
+                                  nextPage = 0;
+                                }
+                                _pageController.animateToPage(
+                                  nextPage,
+                                  duration: Duration(milliseconds: 300),
+                                  curve: Curves.easeInOut,
+                                );
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    )
+                  : SizedBox(
+                      width: double.infinity,
+
+                      child: Image.asset(
+                        "assets/images/3a.jpeg",
+                        fit: BoxFit.cover,
+                      ),
+                    ),
             ),
             SizedBox(
               child: Padding(

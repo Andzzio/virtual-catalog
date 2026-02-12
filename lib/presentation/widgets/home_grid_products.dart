@@ -32,7 +32,6 @@ class _HomeGridProductsState extends State<HomeGridProducts> {
             textStyle: TextStyle(fontSize: 16, color: Color(0xFF82868B)),
           ),
         ),
-        SizedBox(height: 40),
         Center(
           child: Container(
             constraints: BoxConstraints(maxWidth: 1500),
@@ -56,7 +55,7 @@ class _HomeGridProductsState extends State<HomeGridProducts> {
                           crossAxisSpacing: 20,
                         ),
                   itemBuilder: (context, index) {
-                    return ProductCard(cardWidth: _cardWidth);
+                    return ProductCard(cardWidth: _cardWidth, isPageView: true);
                   },
                 );
               },
