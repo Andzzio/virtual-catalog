@@ -93,23 +93,26 @@ class _BannerImageState extends State<BannerImage> {
             left: 0,
             right: 0,
             child: Center(
-              child: SmoothPageIndicator(
-                controller: _pageController,
-                count: _pageCount,
-                effect: ExpandingDotsEffect(
-                  dotHeight: 10,
-                  dotWidth: 10,
-                  spacing: 10,
-                  activeDotColor: Theme.of(context).colorScheme.primary,
-                  dotColor: Colors.white,
+              child: MouseRegion(
+                cursor: SystemMouseCursors.click,
+                child: SmoothPageIndicator(
+                  controller: _pageController,
+                  count: _pageCount,
+                  effect: ExpandingDotsEffect(
+                    dotHeight: 10,
+                    dotWidth: 10,
+                    spacing: 10,
+                    activeDotColor: Theme.of(context).colorScheme.primary,
+                    dotColor: Colors.white,
+                  ),
+                  onDotClicked: (index) {
+                    _pageController.animateToPage(
+                      index,
+                      duration: Duration(milliseconds: 300),
+                      curve: Curves.easeInOut,
+                    );
+                  },
                 ),
-                onDotClicked: (index) {
-                  _pageController.animateToPage(
-                    index,
-                    duration: Duration(milliseconds: 300),
-                    curve: Curves.easeInOut,
-                  );
-                },
               ),
             ),
           ),

@@ -1,3 +1,5 @@
+import 'package:virtual_catalog_app/domain/entities/product_variant.dart';
+
 class Product {
   final String id;
   final String businessId;
@@ -8,10 +10,10 @@ class Product {
   final DateTime createdAt;
   final DateTime updatedAt;
   final String category;
-  final int stock;
   final bool isAvailable;
   final List<String> imageUrl;
   final double? discountPrice;
+  final List<ProductVariant> variants;
 
   Product({
     required this.id,
@@ -23,9 +25,9 @@ class Product {
     required this.createdAt,
     required this.updatedAt,
     required this.category,
-    required this.stock,
     this.isAvailable = true,
     this.discountPrice,
     this.sku,
+    required this.variants,
   });
 }
