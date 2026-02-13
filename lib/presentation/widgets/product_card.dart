@@ -88,7 +88,7 @@ class _ProductCardState extends State<ProductCard> {
                               alignment: Alignment.centerLeft,
                               child: IconButton(
                                 icon: Icon(
-                                  Icons.arrow_back,
+                                  Icons.arrow_back_ios_rounded,
                                   color: Colors.white,
                                 ),
                                 onPressed: () {
@@ -112,7 +112,7 @@ class _ProductCardState extends State<ProductCard> {
                               alignment: Alignment.centerRight,
                               child: IconButton(
                                 icon: Icon(
-                                  Icons.arrow_forward,
+                                  Icons.arrow_forward_ios_rounded,
                                   color: Colors.white,
                                 ),
                                 onPressed: () {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 
@@ -33,7 +34,9 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TextButton(
-            onPressed: () {},
+            onPressed: () {
+              context.go("/");
+            },
             child: Text(
               "Inicio",
               style: GoogleFonts.getFont(

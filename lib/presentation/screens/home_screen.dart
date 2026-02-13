@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
@@ -8,6 +7,7 @@ import 'package:virtual_catalog_app/presentation/widgets/banner_image.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog_app_bar.dart';
 import 'package:virtual_catalog_app/presentation/widgets/home_grid_products.dart';
 import 'package:virtual_catalog_app/presentation/widgets/home_list_products.dart';
+import 'package:virtual_catalog_app/presentation/widgets/whatsapp_floating_button.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -26,12 +26,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: CatalogAppBar(isScrolled: _isScrolled, size: size),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {},
-        shape: CircleBorder(),
-        backgroundColor: Colors.greenAccent,
-        child: FaIcon(FontAwesomeIcons.whatsapp, color: Colors.white),
-      ),
+      floatingActionButton: WhatsappFloatingButton(),
       body: SingleChildScrollView(
         controller: _scrollController,
         child: Column(
