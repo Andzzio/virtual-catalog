@@ -9,7 +9,8 @@ class ProductDatasourceImpl implements ProductDatasource {
       Product(
         id: "d",
         name: "Maxi Palazzo Rojo",
-        description: "Description 4",
+        description:
+            "Conecta con un estilo natural y chic gracias a este diseño en color rojo ladrillo con motivos de hojas blancas. Confeccionado en ligera seda polca de verano, ofrece una silueta relajada y máxima suavidad al tacto. Combínalo con tops básicos para crear un outfit veraniego inolvidable y lleno de personalidad. Además cuenta con elástico en la parte trasera de la pretina para que se amolde bien a tu cuerpo.",
         price: 40.0,
         imageUrl: [
           "assets/ShurumbaImagenes/1d.jpeg",
@@ -33,7 +34,8 @@ class ProductDatasourceImpl implements ProductDatasource {
       Product(
         id: "e",
         name: "Maxi Palazzo Hojas",
-        description: "Description 5",
+        description:
+            "Aporta elegancia y versatilidad a tu guardarropa con este modelo en base oscura y tonos tierra. Fabricado en fresca seda polca de verano, su caída fluida y estampado de hojas grandes en contraste crean un look sofisticado que no sacrifica la comodidad. Es la prenda ideal para transicionar de un look de oficina a una cena relajada con total estilo. Además cuenta con elástico en la parte trasera de la pretina para que se amolde bien a tu cuerpo.",
         price: 50.0,
         imageUrl: [
           "assets/ShurumbaImagenes/1e.jpeg",
@@ -57,7 +59,8 @@ class ProductDatasourceImpl implements ProductDatasource {
       Product(
         id: "f",
         name: "Maxi Palazzo Naranja",
-        description: "Description 6",
+        description:
+            "Ilumina tu estilo con este pantalón palazzo en un cautivador color mostaza. La tela seda polca de verano garantiza frescura y libertad de movimiento, mientras que su estampado de follaje en tonos blancos y marrones añade un aire moderno y juvenil. Una pieza clave para destacar y sentirte cómoda en cualquier evento de día. Además cuenta con elástico en la parte trasera de la pretina para que se amolde bien a tu cuerpo.",
         price: 60.0,
         imageUrl: [
           "assets/ShurumbaImagenes/1f.jpeg",
@@ -81,7 +84,8 @@ class ProductDatasourceImpl implements ProductDatasource {
       Product(
         id: "g",
         name: "Maxi Palazzo Rosa",
-        description: "Description 7",
+        description:
+            "Luce fresca y radiante con este pantalón de corte amplio y cintura alta, ideal para realzar tu figura. Confeccionado en seda polca de verano, su textura suave y ligera ofrece una caída espectacular. El diseño de fondo blanco con vibrantes estampados botánicos en tonos rosas y naranjas aporta un toque femenino y alegre, perfecto para tus salidas en días soleados. Además cuenta con elástico en la parte trasera de la pretina para que se amolde bien a tu cuerpo.",
         price: 70.0,
         imageUrl: [
           "assets/ShurumbaImagenes/1g.jpeg",
@@ -105,7 +109,8 @@ class ProductDatasourceImpl implements ProductDatasource {
       Product(
         id: "h",
         name: "Maxi Palazzo Rojo",
-        description: "Description 8",
+        description:
+            "Conecta con un estilo natural y chic gracias a este diseño en color rojo ladrillo con motivos de hojas blancas. Confeccionado en ligera seda polca de verano, ofrece una silueta relajada y máxima suavidad al tacto. Combínalo con tops básicos para crear un outfit veraniego inolvidable y lleno de personalidad. Además cuenta con elástico en la parte trasera de la pretina para que se amolde bien a tu cuerpo.",
         price: 80.0,
         imageUrl: [
           "assets/ShurumbaImagenes/1h.jpeg",
@@ -129,7 +134,8 @@ class ProductDatasourceImpl implements ProductDatasource {
       Product(
         id: "i",
         name: "Maxi Palazzo Rayas",
-        description: "Description 9",
+        description:
+            "Libera tu instinto de moda con este espectacular diseño animal print. El patrón de cebra aporta una vibra audaz y sofisticada, perfecta para un look con actitud fierce. Gracias a la suavidad de la seda polca de verano, disfrutarás de una caída ligera y fresca que acompaña cada uno de tus pasos con un movimiento hipnótico. Es el statement piece definitivo para elevar tus básicos y destacar con un estilo único y atemporal. Además cuenta con elástico en la parte trasera de la pretina para que se amolde bien a tu cuerpo.",
         price: 90.0,
         imageUrl: [
           "assets/ShurumbaImagenes/1i.jpeg",
@@ -153,7 +159,8 @@ class ProductDatasourceImpl implements ProductDatasource {
       Product(
         id: "j",
         name: "Maxi Palazzo Selva",
-        description: "Description 10",
+        description:
+            "Desata tu esencia libre con este impactante palazzo de animal print atigrado. Confeccionado en lino shantu, su textura natural y ligeramente rústica aporta un acabado boho-luxe irresistible y mucha frescura. El corte de pierna ancha y cintura alta estiliza tu figura mientras caminas con total fluidez. Es el equilibrio perfecto entre audacia y elegancia orgánica, diseñado para ser el protagonista absoluto de tus looks de temporada. Además cuenta con elástico en la parte trasera de la pretina para que se amolde bien a tu cuerpo.",
         price: 100.0,
         imageUrl: [
           "assets/ShurumbaImagenes/1j.jpeg",
@@ -177,7 +184,8 @@ class ProductDatasourceImpl implements ProductDatasource {
       Product(
         id: "a",
         name: "Black Skirt Mini",
-        description: "Description 1",
+        description:
+            "Únete a la tendencia old money con esta falda-short imprescindible. Su diseño de tablas y cintura alta esculpe una silueta preppy y femenina, mientras que el short interno te regala total libertad de movimiento y seguridad. Confeccionada en resistente tela Catania, mantiene su estructura y vuelo perfecto todo el día. Disponible en un negro clásico y un terracota cálido, es la pieza clave para elevar tus básicos con una vibra juvenil y chic.",
         price: 10.0,
         imageUrl: [
           "assets/ShurumbaImagenes/1a.jpeg",
@@ -199,7 +207,8 @@ class ProductDatasourceImpl implements ProductDatasource {
       Product(
         id: "b",
         name: "Black Skirt",
-        description: "Description 2",
+        description:
+            "Únete a la tendencia old money con esta falda-short imprescindible. Su diseño de tablas y cintura alta esculpe una silueta preppy y femenina, mientras que el short interno te regala total libertad de movimiento y seguridad. Confeccionada en resistente tela Catania, mantiene su estructura y vuelo perfecto todo el día. Disponible en un negro clásico y un terracota cálido, es la pieza clave para elevar tus básicos con una vibra juvenil y chic.",
         price: 20.0,
         imageUrl: [
           "assets/ShurumbaImagenes/1b.jpeg",
@@ -221,7 +230,8 @@ class ProductDatasourceImpl implements ProductDatasource {
       Product(
         id: "c",
         name: "Black Skirt Slim",
-        description: "Description 3",
+        description:
+            "Eleva tu elegancia con esta falda midi de corte lápiz, diseñada para destacar tu silueta de forma sofisticada. Confeccionada en tela Ston, su textura distintiva y ajuste perfecto realzan tus curvas con total comodidad, brindando un acabado impecable y moderno. La abertura lateral aporta ese toque de seducción sutil y movimiento necesario para romper con lo clásico. Disponible en un negro atemporal y un vino intenso, es la pieza versatile-chic que necesitas para transicionar del office look a una noche especial.",
         price: 30.0,
         imageUrl: [
           "assets/ShurumbaImagenes/1c.jpeg",

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog_app_bar.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product_image_section.dart';
+import 'package:virtual_catalog_app/presentation/widgets/product_info_section.dart';
 import 'package:virtual_catalog_app/presentation/widgets/whatsapp_floating_button.dart';
 
 class ProductDetailScreen extends StatelessWidget {
@@ -17,11 +18,19 @@ class ProductDetailScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Row(
-              children: [
-                Expanded(flex: 6, child: ProductImageSection(product: product)),
-                Expanded(flex: 4, child: Text("Hola")),
-              ],
+            IntrinsicHeight(
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 6,
+                    child: ProductImageSection(product: product),
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: ProductInfoSection(product: product),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

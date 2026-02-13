@@ -88,7 +88,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
                 child: IconButton(
                   color: Colors.white,
                   disabledColor: Colors.blueGrey,
-                  icon: Icon(Icons.arrow_back),
+                  icon: Icon(Icons.arrow_back_ios_rounded),
                   onPressed: () {
                     final double totalCardWidth =
                         _cardWidth + (_cardPadding * 2);
@@ -111,7 +111,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
                 child: IconButton(
                   color: Colors.white,
                   disabledColor: Colors.blueGrey,
-                  icon: Icon(Icons.arrow_forward),
+                  icon: Icon(Icons.arrow_forward_ios_rounded),
                   onPressed: () {
                     final double totalCardWidth =
                         _cardWidth + (_cardPadding * 2);

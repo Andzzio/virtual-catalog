@@ -32,17 +32,7 @@ class _ProductCardState extends State<ProductCard> {
         },
         child: Container(
           width: widget.cardWidth,
-          decoration: BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(5),
-            boxShadow: [
-              BoxShadow(
-                color: Colors.grey,
-                blurRadius: 4,
-                offset: Offset(2, 4),
-              ),
-            ],
-          ),
+          decoration: BoxDecoration(color: Colors.transparent),
           child: ClipRRect(
             borderRadius: BorderRadiusGeometry.circular(5),
             child: Column(
