@@ -15,7 +15,6 @@ class HomeGridProducts extends StatefulWidget {
 
 class _HomeGridProductsState extends State<HomeGridProducts> {
   final double _cardWidth = 300;
-  final _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -75,12 +74,5 @@ class _HomeGridProductsState extends State<HomeGridProducts> {
         SizedBox(height: 40),
       ],
     );
-  }
-
-  @override
-  void dispose() {
-    _scrollController.dispose();
-
-    super.dispose();
   }
 }

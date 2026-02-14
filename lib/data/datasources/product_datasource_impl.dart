@@ -115,7 +115,7 @@ class ProductDatasourceImpl implements ProductDatasource {
             name: "Rosa",
             color: 0xFFD8B0BD,
             stock: 20,
-            sizes: ["S", "M", " L"],
+            sizes: ["S", "M", "L"],
           ),
         ],
       ),
@@ -211,7 +211,7 @@ class ProductDatasourceImpl implements ProductDatasource {
         variants: [
           ProductVariant(
             name: "Negro",
-            color: 0x000000,
+            color: 0xFF000000,
             stock: 40,
             sizes: ["S", "L", "XL"],
           ),
@@ -234,7 +234,7 @@ class ProductDatasourceImpl implements ProductDatasource {
         variants: [
           ProductVariant(
             name: "Negro",
-            color: 0x000000,
+            color: 0xFF000000,
             stock: 40,
             sizes: ["S", "M", "L", "XL"],
           ),
@@ -260,7 +260,7 @@ class ProductDatasourceImpl implements ProductDatasource {
         variants: [
           ProductVariant(
             name: "Negro",
-            color: 0x000000,
+            color: 0xFF000000,
             stock: 40,
             sizes: ["S", "M", "L", "XL"],
           ),

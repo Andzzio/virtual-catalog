@@ -164,4 +164,10 @@ class _ProductCardState extends State<ProductCard> {
       ),
     );
   }
+
+  @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
 }

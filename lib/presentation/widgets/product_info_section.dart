@@ -179,7 +179,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
           ),
           SizedBox(height: 10),
           Text(
-            "Stock: ${selectedVariant!.stock} unidades",
+            "Stock: ${selectedVariant != null ? selectedVariant.stock : 0} unidades",
             style: GoogleFonts.getFont(
               FontNames.fontNameP,
               textStyle: TextStyle(fontSize: 17),
