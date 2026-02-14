@@ -88,7 +88,9 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
         ),
         SizedBox(width: 20),
         IconButton(
-          onPressed: () {},
+          onPressed: () {
+            Scaffold.of(context).openEndDrawer();
+          },
           icon: Icon(
             Icons.shopping_cart_rounded,
             color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),

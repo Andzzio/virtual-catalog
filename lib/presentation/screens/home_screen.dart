@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/banner_image.dart';
+import 'package:virtual_catalog_app/presentation/widgets/cart_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog_app_bar.dart';
 import 'package:virtual_catalog_app/presentation/widgets/home_grid_products.dart';
 import 'package:virtual_catalog_app/presentation/widgets/home_list_products.dart';
@@ -26,6 +27,7 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: CatalogAppBar(isScrolled: _isScrolled, size: size),
+      endDrawer: CartDrawer(),
       floatingActionButton: WhatsappFloatingButton(),
       body: SingleChildScrollView(
         controller: _scrollController,

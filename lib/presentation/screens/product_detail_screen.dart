@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
+import 'package:virtual_catalog_app/presentation/widgets/cart_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog_app_bar.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product_image_section.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product_info_section.dart';
@@ -14,6 +15,7 @@ class ProductDetailScreen extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: CatalogAppBar(isScrolled: true, size: size),
+      endDrawer: CartDrawer(),
       floatingActionButton: WhatsappFloatingButton(),
       body: SingleChildScrollView(
         child: Column(
