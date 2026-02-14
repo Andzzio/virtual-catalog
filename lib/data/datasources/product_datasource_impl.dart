@@ -54,6 +54,13 @@ class ProductDatasourceImpl implements ProductDatasource {
             stock: 40,
             sizes: ["S", "M", "L"],
           ),
+          ProductVariant(
+            name: "Hojas Oscuras",
+            color: 0xFFC65F2F,
+            stock: 10,
+            sizes: ["M", "L"],
+            specificPrice: 60,
+          ),
         ],
       ),
       Product(
@@ -99,10 +106,16 @@ class ProductDatasourceImpl implements ProductDatasource {
         category: "category2",
         variants: [
           ProductVariant(
-            name: "BlanquiRosa",
+            name: "Blanco",
             color: 0xFFF1F6E9,
             stock: 40,
             sizes: ["S", "M", "XL"],
+          ),
+          ProductVariant(
+            name: "Rosa",
+            color: 0xFFD8B0BD,
+            stock: 20,
+            sizes: ["S", "M", " L"],
           ),
         ],
       ),
