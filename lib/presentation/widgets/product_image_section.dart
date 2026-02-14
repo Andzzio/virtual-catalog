@@ -12,14 +12,16 @@ class ProductImageSection extends StatefulWidget {
 
 class _ProductImageSectionState extends State<ProductImageSection> {
   final _pageController = PageController();
+  int currentPage = 0;
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
+        spacing: 10,
         children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.8,
+            height: MediaQuery.of(context).size.height * 0.75,
             child: Row(
               children: [
                 IconButton(
@@ -44,6 +46,11 @@ class _ProductImageSectionState extends State<ProductImageSection> {
                       PageView.builder(
                         controller: _pageController,
                         itemCount: widget.product.imageUrl.length,
+                        onPageChanged: (value) {
+                          setState(() {
+                            currentPage = value;
+                          });
+                        },
                         itemBuilder: (context, index) {
                           return Image.asset(widget.product.imageUrl[index]);
                         },
@@ -85,6 +92,52 @@ class _ProductImageSectionState extends State<ProductImageSection> {
                   icon: Icon(Icons.arrow_forward_ios_rounded),
                 ),
               ],
+            ),
+          ),
+
+          Center(
+            child: SizedBox(
+              height: MediaQuery.of(context).size.height * 0.15,
+              child: ListView.builder(
+                shrinkWrap: true,
+                scrollDirection: Axis.horizontal,
+                itemCount: widget.product.imageUrl.length,
+                itemBuilder: (context, index) {
+                  bool isSelected = index == currentPage;
+                  return MouseRegion(
+                    cursor: SystemMouseCursors.click,
+                    child: GestureDetector(
+                      onTap: () {
+                        _pageController.animateToPage(
+                          index,
+                          duration: Duration(milliseconds: 300),
+                          curve: Curves.easeInOut,
+                        );
+                      },
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 5),
+                        width: 100,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: isSelected
+                                ? Colors.black
+                                : Colors.grey.shade300,
+                            width: isSelected ? 2 : 1,
+                          ),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: ClipRRect(
+                          borderRadius: BorderRadius.circular(6),
+                          child: Image.asset(
+                            widget.product.imageUrl[index],
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
             ),
           ),
         ],

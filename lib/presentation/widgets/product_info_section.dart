@@ -21,7 +21,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
         ? widget.product.variants[selectedVariantIndex]
         : null;
     return Padding(
-      padding: EdgeInsets.all(72),
+      padding: EdgeInsets.symmetric(horizontal: 72, vertical: 20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
