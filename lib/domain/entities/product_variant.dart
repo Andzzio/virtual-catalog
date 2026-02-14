@@ -3,12 +3,14 @@ class ProductVariant {
   final int? color;
   final int stock;
   final List<String> sizes;
-  final double? specificPrice;
+  final double price;
+  final double? discountPrice;
 
   ProductVariant({
     required this.name,
     this.color,
-    this.specificPrice,
+    required this.price,
+    this.discountPrice,
     required this.stock,
     required this.sizes,
   });

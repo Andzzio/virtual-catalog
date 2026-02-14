@@ -150,7 +150,7 @@ class _ProductCardState extends State<ProductCard> {
                         ),
                         SizedBox(height: 5),
                         Text(
-                          "S/. ${widget.product.price}",
+                          "S/. ${widget.product.variants.first.price}",
                           style: GoogleFonts.getFont(FontNames.fontNameP),
                         ),
                       ],

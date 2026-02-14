@@ -13,6 +13,7 @@ class ProductInfoSection extends StatefulWidget {
 
 class _ProductInfoSectionState extends State<ProductInfoSection> {
   int selectedVariantIndex = 0;
+  int quantity = 1;
   String? selectedSize;
   @override
   Widget build(BuildContext context) {
@@ -20,7 +21,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
         ? widget.product.variants[selectedVariantIndex]
         : null;
     return Padding(
-      padding: EdgeInsets.all(32),
+      padding: EdgeInsets.all(72),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -34,7 +35,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
           ),
           SizedBox(height: 10),
           Text(
-            "S/. ${selectedVariant?.specificPrice ?? widget.product.price}",
+            "S/. ${selectedVariant?.price ?? 0}",
             style: GoogleFonts.getFont(
               FontNames.fontNameP,
               textStyle: TextStyle(fontSize: 20),
@@ -149,6 +150,9 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                       } else {
                         selectedSize = null;
                       }
+                      if (newVariant.stock < quantity) {
+                        quantity = newVariant.stock;
+                      }
                     });
                   },
                   child: Container(
@@ -184,6 +188,115 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
               FontNames.fontNameP,
               textStyle: TextStyle(fontSize: 17),
             ),
+          ),
+          SizedBox(height: 20),
+          Column(
+            spacing: 20,
+            children: [
+              IntrinsicHeight(
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      flex: 7,
+                      child: FilledButton.icon(
+                        onPressed: () {},
+                        icon: Icon(Icons.shopping_cart),
+                        label: Text("Agregar al Carrito"),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(Colors.black),
+                          foregroundColor: WidgetStatePropertyAll(Colors.white),
+                          shape: WidgetStatePropertyAll(
+                            RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                          ),
+                          minimumSize: WidgetStatePropertyAll(
+                            Size(double.infinity, 70),
+                          ),
+                          overlayColor: WidgetStateProperty.resolveWith((
+                            states,
+                          ) {
+                            if (states.contains(WidgetState.pressed)) {
+                              return Colors.grey.shade700;
+                            }
+                            if (states.contains(WidgetState.hovered)) {
+                              return Colors.grey.shade800;
+                            }
+                            return null;
+                          }),
+                        ),
+                      ),
+                    ),
+                    SizedBox(width: 20),
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            IconButton(
+                              onPressed: quantity > 1
+                                  ? () {
+                                      setState(() {
+                                        quantity--;
+                                      });
+                                    }
+                                  : null,
+                              icon: Icon(Icons.remove, size: 18),
+                            ),
+                            Text(
+                              "$quantity",
+                              style: GoogleFonts.getFont(FontNames.fontNameP),
+                            ),
+                            IconButton(
+                              onPressed:
+                                  quantity < (selectedVariant?.stock ?? 1)
+                                  ? () {
+                                      setState(() {
+                                        quantity++;
+                                      });
+                                    }
+                                  : null,
+                              icon: Icon(Icons.add, size: 18),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              FilledButton(
+                onPressed: () {},
+                style: ButtonStyle(
+                  backgroundColor: WidgetStatePropertyAll(Colors.black),
+                  foregroundColor: WidgetStatePropertyAll(Colors.white),
+                  shape: WidgetStatePropertyAll(
+                    RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  minimumSize: WidgetStatePropertyAll(
+                    Size(double.infinity, 70),
+                  ),
+                  overlayColor: WidgetStateProperty.resolveWith((states) {
+                    if (states.contains(WidgetState.pressed)) {
+                      return Colors.grey.shade700;
+                    }
+                    if (states.contains(WidgetState.hovered)) {
+                      return Colors.grey.shade800;
+                    }
+                    return null;
+                  }),
+                ),
+                child: Text("Comprar Ahora"),
+              ),
+            ],
           ),
         ],
       ),
