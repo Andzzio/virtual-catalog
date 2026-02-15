@@ -6,6 +6,7 @@ import 'package:virtual_catalog_app/config/routers/app_router.dart';
 import 'package:virtual_catalog_app/config/themes/theme_config.dart';
 import 'package:virtual_catalog_app/data/datasources/product_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/repos/product_repository_impl.dart';
+import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 
 void main() async {
@@ -27,6 +28,7 @@ class MainApp extends StatelessWidget {
             ),
           )..loadProducts(),
         ),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
