@@ -17,33 +17,38 @@ class ProductDetailScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     final ProductProvider productProvider = context.watch<ProductProvider>();
-    final Product product = productProvider.products.firstWhere(
-      (product) => product.id == productId,
-    );
+    final Product? product = productProvider.products
+        .where((product) => product.id == productId)
+        .firstOrNull;
+
     return Scaffold(
       appBar: CatalogAppBar(isScrolled: true, size: size),
       endDrawer: CartDrawer(),
       floatingActionButton: WhatsappFloatingButton(),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            IntrinsicHeight(
-              child: Row(
+      body: product == null
+          ? SingleChildScrollView(
+              child: Center(child: CircularProgressIndicator()),
+            )
+          : SingleChildScrollView(
+              child: Column(
                 children: [
-                  Expanded(
-                    flex: 6,
-                    child: ProductImageSection(product: product),
-                  ),
-                  Expanded(
-                    flex: 4,
-                    child: ProductInfoSection(product: product),
+                  IntrinsicHeight(
+                    child: Row(
+                      children: [
+                        Expanded(
+                          flex: 6,
+                          child: ProductImageSection(product: product),
+                        ),
+                        Expanded(
+                          flex: 4,
+                          child: ProductInfoSection(product: product),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }

@@ -2,25 +2,49 @@ import 'package:flutter/material.dart';
 import 'package:virtual_catalog_app/domain/entities/cart_item.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
 import 'package:virtual_catalog_app/domain/entities/product_variant.dart';
+import 'package:virtual_catalog_app/domain/repos/cart_repository.dart';
 
 class CartProvider extends ChangeNotifier {
-  final List<CartItem> _items = [];
-  List<CartItem> get items => List.unmodifiable(_items);
-  int get itemCount => _items.fold(
+  final CartRepository repository;
+
+  CartProvider({required this.repository});
+
+  final Map<String, List<CartItem>> _carts = {};
+  String? _currentSlug;
+
+  List<CartItem> get _currentItems =>
+      _currentSlug != null ? (_carts[_currentSlug] ?? []) : [];
+
+  List<CartItem> get items => List.unmodifiable(_currentItems);
+  int get itemCount => _currentItems.fold(
     0,
     (previousValue, element) => previousValue + element.quantity,
   );
-  bool get isEmpty => _items.isEmpty;
-  double get totalOriginal => _items.fold(
+  bool get isEmpty => _currentItems.isEmpty;
+  double get totalOriginal => _currentItems.fold(
     0,
     (previousValue, element) => previousValue + element.originalSubTotal,
   );
-  double get totalWithDiscounts => _items.fold(
+  double get totalWithDiscounts => _currentItems.fold(
     0,
     (previousValue, element) => previousValue + element.subTotal,
   );
   double get totalSavings => totalOriginal - totalWithDiscounts;
   bool get hasSavings => totalSavings > 0;
+
+  void setBusinessSlug(String slug) async {
+    if (_currentSlug == slug) return;
+    _currentSlug = slug;
+    if (!_carts.containsKey(slug)) {
+      _carts[slug] = await repository.loadCart(slug);
+    }
+    notifyListeners();
+  }
+
+  void _saveToStorage() {
+    if (_currentSlug == null) return;
+    repository.saveCart(_currentSlug!, _currentItems);
+  }
 
   void addItem(
     Product product,
@@ -28,20 +52,21 @@ class CartProvider extends ChangeNotifier {
     String size,
     int quantity,
   ) {
-    final existingIndex = _items.indexWhere(
+    _carts.putIfAbsent(_currentSlug!, () => []);
+    final existingIndex = _currentItems.indexWhere(
       (element) =>
           element.product.id == product.id &&
           element.variant.name == variant.name &&
           element.size == size,
     );
     if (existingIndex != -1) {
-      _items[existingIndex].quantity += quantity;
+      _currentItems[existingIndex].quantity += quantity;
 
-      if (_items[existingIndex].quantity > variant.stock) {
-        _items[existingIndex].quantity = variant.stock;
+      if (_currentItems[existingIndex].quantity > variant.stock) {
+        _currentItems[existingIndex].quantity = variant.stock;
       }
     } else {
-      _items.add(
+      _currentItems.add(
         CartItem(
           product: product,
           variant: variant,
@@ -50,11 +75,13 @@ class CartProvider extends ChangeNotifier {
         ),
       );
     }
+    _saveToStorage();
     notifyListeners();
   }
 
   void removeItem(int index) {
-    _items.removeAt(index);
+    _currentItems.removeAt(index);
+    _saveToStorage();
     notifyListeners();
   }
 
@@ -63,13 +90,15 @@ class CartProvider extends ChangeNotifier {
       removeItem(index);
       return;
     }
-    if (newQuantity > _items[index].variant.stock) return;
-    _items[index].quantity = newQuantity;
+    if (newQuantity > _currentItems[index].variant.stock) return;
+    _currentItems[index].quantity = newQuantity;
+    _saveToStorage();
     notifyListeners();
   }
 
   void clearCart() {
-    _items.clear();
+    _currentItems.clear();
+    _saveToStorage();
     notifyListeners();
   }
 }
