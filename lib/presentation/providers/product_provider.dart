@@ -9,11 +9,14 @@ class ProductProvider extends ChangeNotifier {
 
   List<Product> products = [];
   bool isLoading = false;
+  String? _currentSlug;
 
-  Future<void> loadProducts() async {
+  Future<void> loadProducts(String businessSlug) async {
+    if (_currentSlug == businessSlug && products.isNotEmpty) return;
     isLoading = true;
     notifyListeners();
-    products = await repository.getProducts();
+    _currentSlug = businessSlug;
+    products = await repository.getProducts(businessSlug);
     isLoading = false;
     notifyListeners();
   }

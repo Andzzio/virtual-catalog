@@ -26,7 +26,7 @@ class MainApp extends StatelessWidget {
             repository: ProductRepositoryImpl(
               datasource: ProductDatasourceImpl(),
             ),
-          )..loadProducts(),
+          ),
         ),
         ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
