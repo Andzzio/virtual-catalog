@@ -15,8 +15,10 @@ final appRouter = GoRouter(
       builder: (context, state, child) {
         final slug = state.pathParameters["businessSlug"];
         if (slug != null) {
-          context.read<ProductProvider>().loadProducts(slug);
-          context.read<BusinessProvider>().loadBusiness(slug);
+          WidgetsBinding.instance.addPostFrameCallback((timeStamp) {
+            context.read<ProductProvider>().loadProducts(slug);
+            context.read<BusinessProvider>().loadBusiness(slug);
+          });
         }
         return SelectionArea(child: child);
       },

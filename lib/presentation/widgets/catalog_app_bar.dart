@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 
 class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -14,6 +15,7 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final businessName = context.watch<BusinessProvider>().business?.name ?? "";
     final CartProvider cartProvider = context.watch<CartProvider>();
     return AppBar(
       backgroundColor: _isScrolled ? Colors.white : Colors.transparent,
@@ -22,7 +24,7 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
       centerTitle: true,
       leading: Center(
         child: Text(
-          "VIRTUAL CATALOG",
+          businessName,
           style: GoogleFonts.getFont(
             FontNames.fontNameH1,
             textStyle: TextStyle(

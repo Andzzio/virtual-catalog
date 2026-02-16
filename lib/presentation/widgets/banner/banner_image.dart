@@ -2,8 +2,10 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 
 class BannerImage extends StatefulWidget {
   const BannerImage({super.key, required this.size});
@@ -16,10 +18,14 @@ class BannerImage extends StatefulWidget {
 
 class _BannerImageState extends State<BannerImage> {
   final _pageController = PageController();
-  final int _pageCount = 5;
   Timer? _timer;
+  int _bannerCount = 0;
   @override
   Widget build(BuildContext context) {
+    final businessProvider = context.watch<BusinessProvider>();
+    final banners = businessProvider.business?.banners ?? [];
+    _bannerCount = banners.length;
+    if (banners.isEmpty) return SizedBox(height: widget.size.height);
     return Container(
       width: double.infinity,
       height: widget.size.height,
@@ -28,13 +34,13 @@ class _BannerImageState extends State<BannerImage> {
         children: [
           PageView.builder(
             controller: _pageController,
-            itemCount: _pageCount,
+            itemCount: banners.length,
             itemBuilder: (context, index) {
               return Stack(
                 children: [
                   Positioned.fill(
                     child: Image.asset(
-                      "assets/images/banner_catalogo_large.png",
+                      banners[index].imageUrl,
                       fit: BoxFit.cover,
                     ),
                   ),
@@ -43,7 +49,17 @@ class _BannerImageState extends State<BannerImage> {
                       gradient: LinearGradient(
                         begin: Alignment.topCenter,
                         end: Alignment.bottomCenter,
-                        colors: [Colors.transparent, Colors.black],
+                        colors: [Colors.black54, Colors.transparent],
+                        stops: [0, 0.2],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    decoration: BoxDecoration(
+                      gradient: LinearGradient(
+                        begin: Alignment.topCenter,
+                        end: Alignment.bottomCenter,
+                        colors: [Colors.transparent, Colors.black54],
                         stops: [0.5, 1],
                       ),
                     ),
@@ -55,7 +71,7 @@ class _BannerImageState extends State<BannerImage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
-                            "VIRTUAL CATALOG",
+                            banners[index].title,
                             style: GoogleFonts.getFont(
                               FontNames.fontNameH1,
                               textStyle: TextStyle(
@@ -68,7 +84,7 @@ class _BannerImageState extends State<BannerImage> {
                           SizedBox(
                             width: widget.size.width * 0.5,
                             child: Text(
-                              "La colección 2026. Descubre la textura del lujo moderno definida por la silueta y la gracia.",
+                              banners[index].subtitle,
                               textAlign: TextAlign.center,
                               style: GoogleFonts.getFont(
                                 FontNames.fontNameH2,
@@ -97,7 +113,7 @@ class _BannerImageState extends State<BannerImage> {
                 cursor: SystemMouseCursors.click,
                 child: SmoothPageIndicator(
                   controller: _pageController,
-                  count: _pageCount,
+                  count: banners.length,
                   effect: ExpandingDotsEffect(
                     dotHeight: 10,
                     dotWidth: 10,
@@ -125,9 +141,9 @@ class _BannerImageState extends State<BannerImage> {
   void initState() {
     super.initState();
     _timer = Timer.periodic(Duration(seconds: 5), (timer) {
-      if (_pageController.hasClients) {
+      if (_pageController.hasClients && _bannerCount > 0) {
         int nextPage = _pageController.page!.toInt() + 1;
-        if (nextPage >= _pageCount) {
+        if (nextPage >= _bannerCount) {
           nextPage = 0;
         }
         _pageController.animateToPage(
