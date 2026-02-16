@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/screens/screens.dart';
 
@@ -15,6 +16,7 @@ final appRouter = GoRouter(
         final slug = state.pathParameters["businessSlug"];
         if (slug != null) {
           context.read<ProductProvider>().loadProducts(slug);
+          context.read<BusinessProvider>().loadBusiness(slug);
         }
         return SelectionArea(child: child);
       },

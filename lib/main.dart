@@ -4,8 +4,11 @@ import 'package:virtual_catalog_app/config/firebase/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:virtual_catalog_app/config/routers/app_router.dart';
 import 'package:virtual_catalog_app/config/themes/theme_config.dart';
+import 'package:virtual_catalog_app/data/datasources/business_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/datasources/product_datasource_impl.dart';
+import 'package:virtual_catalog_app/data/repos/business_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/product_repository_impl.dart';
+import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 
@@ -29,6 +32,13 @@ class MainApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider(create: (_) => CartProvider()),
+        ChangeNotifierProvider(
+          create: (_) => BusinessProvider(
+            repository: BusinessRepositoryImpl(
+              datasource: BusinessDatasourceImpl(),
+            ),
+          ),
+        ),
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
