@@ -28,7 +28,9 @@ class _ProductCardState extends State<ProductCard> {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          context.go("/product", extra: widget.product);
+          context.go(
+            "/${widget.product.businessId}/product/${widget.product.id}",
+          );
         },
         child: Container(
           width: widget.cardWidth,

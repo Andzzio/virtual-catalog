@@ -11,7 +11,8 @@ import 'package:virtual_catalog_app/presentation/widgets/product/home_list_produ
 import 'package:virtual_catalog_app/presentation/widgets/whatsapp_floating_button.dart';
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  final String? businessSlug;
+  const HomeScreen({super.key, this.businessSlug});
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();

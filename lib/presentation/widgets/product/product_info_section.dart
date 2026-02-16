@@ -41,7 +41,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
           Row(
             children: [
               Text(
-                "S/. ${selectedVariant?.discountPrice ?? selectedVariant?.price ?? 0.toStringAsFixed(2)}",
+                "S/. ${selectedVariant?.discountPrice ?? selectedVariant?.price ?? 0}",
                 style: GoogleFonts.getFont(
                   FontNames.fontNameP,
                   textStyle: TextStyle(fontSize: 20),
