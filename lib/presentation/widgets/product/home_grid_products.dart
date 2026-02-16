@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
-import 'package:virtual_catalog_app/presentation/widgets/product_card.dart';
+import 'package:virtual_catalog_app/presentation/widgets/product/product_card.dart';
 
 class HomeGridProducts extends StatefulWidget {
   final ProductProvider provider;

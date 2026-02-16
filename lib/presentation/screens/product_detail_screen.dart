@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
-import 'package:virtual_catalog_app/presentation/widgets/cart_drawer.dart';
+import 'package:virtual_catalog_app/presentation/widgets/cart/cart_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog_app_bar.dart';
-import 'package:virtual_catalog_app/presentation/widgets/product_image_section.dart';
-import 'package:virtual_catalog_app/presentation/widgets/product_info_section.dart';
+import 'package:virtual_catalog_app/presentation/widgets/product/product_image_section.dart';
+import 'package:virtual_catalog_app/presentation/widgets/product/product_info_section.dart';
 import 'package:virtual_catalog_app/presentation/widgets/whatsapp_floating_button.dart';
 
 class ProductDetailScreen extends StatelessWidget {

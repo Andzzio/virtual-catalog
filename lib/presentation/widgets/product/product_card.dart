@@ -149,9 +149,29 @@ class _ProductCardState extends State<ProductCard> {
                           ),
                         ),
                         SizedBox(height: 5),
-                        Text(
-                          "S/. ${widget.product.variants.first.price}",
-                          style: GoogleFonts.getFont(FontNames.fontNameP),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              "S/. ${widget.product.variants.first.discountPrice ?? widget.product.variants.first.price}",
+                              style: GoogleFonts.getFont(FontNames.fontNameP),
+                            ),
+                            if (widget.product.variants.first.discountPrice !=
+                                null) ...[
+                              SizedBox(width: 8),
+                              Text(
+                                "S/. ${widget.product.variants.first.price}",
+                                style: GoogleFonts.getFont(
+                                  FontNames.fontNameP,
+                                  textStyle: TextStyle(
+                                    decoration: TextDecoration.lineThrough,
+                                    color: Colors.grey,
+                                    fontSize: 12,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
                       ],
                     ),

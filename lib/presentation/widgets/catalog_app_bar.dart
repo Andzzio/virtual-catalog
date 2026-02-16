@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 
 class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
   const CatalogAppBar({super.key, required bool isScrolled, required this.size})
@@ -12,6 +14,7 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final CartProvider cartProvider = context.watch<CartProvider>();
     return AppBar(
       backgroundColor: _isScrolled ? Colors.white : Colors.transparent,
       toolbarHeight: 65,
@@ -91,9 +94,14 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
           onPressed: () {
             Scaffold.of(context).openEndDrawer();
           },
-          icon: Icon(
-            Icons.shopping_cart_rounded,
-            color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
+          icon: Badge(
+            isLabelVisible: cartProvider.itemCount > 0,
+            label: Text("${cartProvider.itemCount}"),
+            backgroundColor: Colors.grey,
+            child: Icon(
+              Icons.shopping_cart_rounded,
+              color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
+            ),
           ),
         ),
         SizedBox(width: 20),

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
+import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
+import 'package:virtual_catalog_app/presentation/widgets/quantity_selector.dart';
 
 class ProductInfoSection extends StatefulWidget {
   final Product product;
@@ -17,6 +20,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
   String? selectedSize;
   @override
   Widget build(BuildContext context) {
+    final cartProvider = context.read<CartProvider>();
     final selectedVariant = widget.product.variants.isNotEmpty
         ? widget.product.variants[selectedVariantIndex]
         : null;
@@ -34,12 +38,30 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
             ),
           ),
           SizedBox(height: 10),
-          Text(
-            "S/. ${selectedVariant?.price ?? 0}",
-            style: GoogleFonts.getFont(
-              FontNames.fontNameP,
-              textStyle: TextStyle(fontSize: 20),
-            ),
+          Row(
+            children: [
+              Text(
+                "S/. ${selectedVariant?.discountPrice ?? selectedVariant?.price ?? 0.toStringAsFixed(2)}",
+                style: GoogleFonts.getFont(
+                  FontNames.fontNameP,
+                  textStyle: TextStyle(fontSize: 20),
+                ),
+              ),
+              if (selectedVariant?.discountPrice != null) ...[
+                SizedBox(width: 10),
+                Text(
+                  "S/. ${selectedVariant?.price ?? 0}",
+                  style: GoogleFonts.getFont(
+                    FontNames.fontNameP,
+                    textStyle: TextStyle(
+                      fontSize: 16,
+                      decoration: TextDecoration.lineThrough,
+                      color: Colors.grey,
+                    ),
+                  ),
+                ),
+              ],
+            ],
           ),
           SizedBox(height: 15),
           Divider(color: const Color.fromARGB(255, 226, 225, 225)),
@@ -200,7 +222,29 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                     Expanded(
                       flex: 7,
                       child: FilledButton.icon(
-                        onPressed: () {},
+                        onPressed: () {
+                          if (selectedVariant == null) return;
+                          if (selectedSize == null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(content: Text("Selecciona una talla")),
+                            );
+                            return;
+                          }
+                          cartProvider.addItem(
+                            widget.product,
+                            selectedVariant,
+                            selectedSize!,
+                            quantity,
+                          );
+                          setState(() {
+                            quantity = 1;
+                          });
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text("Producto agregado al carrito ✓"),
+                            ),
+                          );
+                        },
                         icon: Icon(Icons.shopping_cart),
                         label: Text("Agregar al Carrito"),
                         style: ButtonStyle(
@@ -231,41 +275,18 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                     SizedBox(width: 20),
                     Expanded(
                       flex: 3,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade300),
-                          borderRadius: BorderRadius.circular(8),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            IconButton(
-                              onPressed: quantity > 1
-                                  ? () {
-                                      setState(() {
-                                        quantity--;
-                                      });
-                                    }
-                                  : null,
-                              icon: Icon(Icons.remove, size: 18),
-                            ),
-                            Text(
-                              "$quantity",
-                              style: GoogleFonts.getFont(FontNames.fontNameP),
-                            ),
-                            IconButton(
-                              onPressed:
-                                  quantity < (selectedVariant?.stock ?? 1)
-                                  ? () {
-                                      setState(() {
-                                        quantity++;
-                                      });
-                                    }
-                                  : null,
-                              icon: Icon(Icons.add, size: 18),
-                            ),
-                          ],
-                        ),
+                      child: QuantitySelector(
+                        quantity: quantity,
+                        onDecrement: quantity > 1
+                            ? () => setState(() {
+                                quantity--;
+                              })
+                            : null,
+                        onIncrement: quantity < (selectedVariant?.stock ?? 1)
+                            ? () => setState(() {
+                                quantity++;
+                              })
+                            : null,
                       ),
                     ),
                   ],
