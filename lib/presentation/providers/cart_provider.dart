@@ -8,30 +8,38 @@ class CartProvider extends ChangeNotifier {
   final CartRepository repository;
 
   CartProvider({required this.repository});
-
+  //Todos los carritos
   final Map<String, List<CartItem>> _carts = {};
+  //Negocio actual
   String? _currentSlug;
-
+  //Items del carrito del negocio actual
   List<CartItem> get _currentItems =>
       _currentSlug != null ? (_carts[_currentSlug] ?? []) : [];
-
+  //getter para acceder al carrito actual desde fuera
   List<CartItem> get items => List.unmodifiable(_currentItems);
+  //getter para acceder a la cantidad de items
   int get itemCount => _currentItems.fold(
     0,
     (previousValue, element) => previousValue + element.quantity,
   );
+  //getter para saber si el carrito está vacío
   bool get isEmpty => _currentItems.isEmpty;
+  //getter para el saber total original sin descuentos
   double get totalOriginal => _currentItems.fold(
     0,
     (previousValue, element) => previousValue + element.originalSubTotal,
   );
+  // getter para saber el total con descuentos
   double get totalWithDiscounts => _currentItems.fold(
     0,
     (previousValue, element) => previousValue + element.subTotal,
   );
+  //getter para saber el ahorro del total
   double get totalSavings => totalOriginal - totalWithDiscounts;
+  //getter para saber si hay ahorros
   bool get hasSavings => totalSavings > 0;
 
+  //método para establecer el slug actual del negocio y cargar el carrito del shared preference
   void setBusinessSlug(String slug) async {
     if (_currentSlug == slug) return;
     _currentSlug = slug;
@@ -41,6 +49,7 @@ class CartProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  //método para guardar el carrito en el shared preference
   void _saveToStorage() {
     if (_currentSlug == null) return;
     repository.saveCart(_currentSlug!, _currentItems);
