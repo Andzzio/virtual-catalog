@@ -146,6 +146,7 @@ class _ProductCardState extends State<ProductCard> {
                             FontNames.fontNameH2,
                             textStyle: TextStyle(
                               fontSize: 16,
+                              overflow: TextOverflow.ellipsis,
                               //fontWeight: FontWeight.bold,
                             ),
                           ),
