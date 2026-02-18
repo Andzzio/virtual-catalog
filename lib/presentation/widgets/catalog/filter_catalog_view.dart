@@ -12,15 +12,15 @@ class FilterCatalogView extends StatefulWidget {
 }
 
 class _FilterCatalogViewState extends State<FilterCatalogView> {
-  String _selectedOrder = "Mayor precio";
   @override
   Widget build(BuildContext context) {
-    final FilterCatalogProvider _filterCatalogProvider = context
+    final FilterCatalogProvider filterCatalogProvider = context
         .watch<FilterCatalogProvider>();
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -57,7 +57,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                         }
                       },
                       child: Text(
-                        _selectedOrder,
+                        filterCatalogProvider.selectedOrder,
                         style: GoogleFonts.getFont(
                           FontNames.fontNameH2,
                           textStyle: TextStyle(fontSize: 15),
@@ -75,9 +75,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                         ),
                       ),
                       onPressed: () {
-                        setState(() {
-                          _selectedOrder = "Relevantes";
-                        });
+                        filterCatalogProvider.selectOrder("Relevantes");
                       },
                     ),
                     MenuItemButton(
@@ -89,9 +87,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                         ),
                       ),
                       onPressed: () {
-                        setState(() {
-                          _selectedOrder = "Mayor precio";
-                        });
+                        filterCatalogProvider.selectOrder("Mayor precio");
                       },
                     ),
                     MenuItemButton(
@@ -103,9 +99,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                         ),
                       ),
                       onPressed: () {
-                        setState(() {
-                          _selectedOrder = "Menor Precio";
-                        });
+                        filterCatalogProvider.selectOrder("Menor Precio");
                       },
                     ),
                   ],
@@ -113,14 +107,43 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
               ],
             ),
             Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Categorías",
                   style: GoogleFonts.getFont(
                     FontNames.fontNameH2,
                     textStyle: TextStyle(fontSize: 15),
+                  ),
+                ),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: List.generate(
+                    filterCatalogProvider.categories.length,
+                    (index) {
+                      return TextButton(
+                        onPressed: () {
+                          filterCatalogProvider.selectCategory(
+                            filterCatalogProvider.categories[index],
+                          );
+                        },
+                        child: Text(
+                          filterCatalogProvider.categories[index],
+                          style: GoogleFonts.getFont(
+                            FontNames.fontNameH2,
+                            textStyle: TextStyle(
+                              fontSize: 15,
+                              fontWeight:
+                                  filterCatalogProvider.categories[index] ==
+                                      filterCatalogProvider.selectedCategory
+                                  ? FontWeight.bold
+                                  : FontWeight.normal,
+                            ),
+                          ),
+                        ),
+                      );
+                    },
                   ),
                 ),
               ],

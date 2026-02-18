@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/filter_catalog_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/product_card.dart';
 
 class CatalogGridView extends StatelessWidget {
@@ -8,7 +8,8 @@ class CatalogGridView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final ProductProvider productProvider = context.watch<ProductProvider>();
+    final FilterCatalogProvider filterCatalogProvider = context
+        .watch<FilterCatalogProvider>();
     return Container(
       padding: EdgeInsets.all(20),
       constraints: BoxConstraints(maxWidth: 1200),
@@ -16,7 +17,7 @@ class CatalogGridView extends StatelessWidget {
         builder: (context, constraints) {
           return GridView.builder(
             shrinkWrap: true,
-            itemCount: productProvider.products.length,
+            itemCount: filterCatalogProvider.filteredProducts.length,
             gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: constraints.maxWidth > 700 ? 4 : 2,
               mainAxisSpacing: 20,
@@ -27,7 +28,7 @@ class CatalogGridView extends StatelessWidget {
               return ProductCard(
                 cardWidth: 300,
                 isPageView: false,
-                product: productProvider.products[index],
+                product: filterCatalogProvider.filteredProducts[index],
               );
             },
           );
