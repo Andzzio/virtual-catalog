@@ -149,8 +149,8 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
               ],
             ),
             Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Precio",
@@ -158,6 +158,13 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                     FontNames.fontNameH2,
                     textStyle: TextStyle(fontSize: 15),
                   ),
+                ),
+                RangeSlider(
+                  min: 0,
+                  max: 100,
+                  values: RangeValues(0, 100),
+                  labels: RangeLabels("0", "100"),
+                  onChanged: (value) {},
                 ),
               ],
             ),

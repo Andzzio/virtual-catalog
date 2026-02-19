@@ -5,9 +5,16 @@ import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/providers/filter_catalog_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/product_card.dart';
 
-class CatalogGridView extends StatelessWidget {
+class CatalogGridView extends StatefulWidget {
   const CatalogGridView({super.key});
 
+  @override
+  State<CatalogGridView> createState() => _CatalogGridViewState();
+}
+
+class _CatalogGridViewState extends State<CatalogGridView> {
+  final TextEditingController _searchController = TextEditingController();
+  final FocusNode _searchFocusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
@@ -33,6 +40,8 @@ class CatalogGridView extends StatelessWidget {
                     height: 43,
                     width: (size.width * 0.2).clamp(250, 500),
                     child: TextField(
+                      controller: _searchController,
+                      focusNode: _searchFocusNode,
                       style: GoogleFonts.getFont(
                         FontNames.fontNameP,
                         textStyle: TextStyle(),
@@ -52,7 +61,12 @@ class CatalogGridView extends StatelessWidget {
                           borderSide: BorderSide.none,
                         ),
                       ),
-                      onSubmitted: (value) {},
+                      onChanged: (value) {
+                        filterCatalogProvider.setSearchQuery(value);
+                      },
+                      onEditingComplete: () {
+                        _searchFocusNode.requestFocus();
+                      },
                     ),
                   ),
                 ],
@@ -82,5 +96,12 @@ class CatalogGridView extends StatelessWidget {
         );
       },
     );
+  }
+
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    _searchController.dispose();
+    super.dispose();
   }
 }
