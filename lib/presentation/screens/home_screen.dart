@@ -27,7 +27,11 @@ class _HomeScreenState extends State<HomeScreen> {
     final size = MediaQuery.of(context).size;
     return Scaffold(
       extendBodyBehindAppBar: true,
-      appBar: CatalogAppBar(isScrolled: _isScrolled, size: size),
+      appBar: CatalogAppBar(
+        isScrolled: _isScrolled,
+        size: size,
+        inCatalogScreen: false,
+      ),
       endDrawer: CartDrawer(),
       floatingActionButton: WhatsappFloatingButton(),
       body: SingleChildScrollView(

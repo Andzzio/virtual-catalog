@@ -7,11 +7,19 @@ import 'package:virtual_catalog_app/presentation/providers/business_provider.dar
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 
 class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
-  const CatalogAppBar({super.key, required bool isScrolled, required this.size})
-    : _isScrolled = isScrolled;
+  final bool inCatalogScreen;
+  const CatalogAppBar({
+    super.key,
+    required bool isScrolled,
+    required this.size,
+    required this.inCatalogScreen,
+  }) : _isScrolled = isScrolled;
 
   final bool _isScrolled;
   final Size size;
+
+  @override
+  Size get preferredSize => Size.fromHeight(65);
 
   @override
   Widget build(BuildContext context) {
@@ -76,29 +84,14 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
         ],
       ),
       actions: [
-        SizedBox(
-          width: size.width * 0.15,
-          height: 40,
-          child: TextField(
-            style: TextStyle(
+        if (!inCatalogScreen)
+          IconButton(
+            onPressed: () {},
+            icon: Icon(
+              Icons.search,
               color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
             ),
-            decoration: InputDecoration(
-              prefixIcon: Icon(Icons.search, size: 20),
-              prefixIconColor: Color(0xFFB3B8C1),
-
-              hintText: "Buscar...",
-              hintStyle: GoogleFonts.getFont(
-                FontNames.fontNameP,
-                textStyle: TextStyle(color: Color(0xFFB3B8C1)),
-              ),
-
-              border: UnderlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFFB3B8C1)),
-              ),
-            ),
           ),
-        ),
         SizedBox(width: 20),
         IconButton(
           onPressed: () {
@@ -126,7 +119,4 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
       ],
     );
   }
-
-  @override
-  Size get preferredSize => Size.fromHeight(65);
 }

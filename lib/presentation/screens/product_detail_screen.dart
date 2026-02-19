@@ -22,7 +22,11 @@ class ProductDetailScreen extends StatelessWidget {
         .firstOrNull;
 
     return Scaffold(
-      appBar: CatalogAppBar(isScrolled: true, size: size),
+      appBar: CatalogAppBar(
+        isScrolled: true,
+        size: size,
+        inCatalogScreen: false,
+      ),
       endDrawer: CartDrawer(),
       floatingActionButton: WhatsappFloatingButton(),
       body: product == null

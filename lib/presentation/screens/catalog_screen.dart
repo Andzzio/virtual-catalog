@@ -5,15 +5,24 @@ import 'package:virtual_catalog_app/presentation/widgets/catalog/filter_catalog_
 import 'package:virtual_catalog_app/presentation/widgets/catalog_app_bar.dart';
 import 'package:virtual_catalog_app/presentation/widgets/whatsapp_floating_button.dart';
 
-class CatalogScreen extends StatelessWidget {
+class CatalogScreen extends StatefulWidget {
   final String? businessSlug;
   const CatalogScreen({super.key, this.businessSlug});
 
   @override
+  State<CatalogScreen> createState() => _CatalogScreenState();
+}
+
+class _CatalogScreenState extends State<CatalogScreen> {
+  @override
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     return Scaffold(
-      appBar: CatalogAppBar(isScrolled: true, size: size),
+      appBar: CatalogAppBar(
+        isScrolled: true,
+        size: size,
+        inCatalogScreen: true,
+      ),
       floatingActionButton: WhatsappFloatingButton(),
       endDrawer: CartDrawer(),
       body: LayoutBuilder(

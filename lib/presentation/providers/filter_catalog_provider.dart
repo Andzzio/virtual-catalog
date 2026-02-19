@@ -5,6 +5,7 @@ import 'package:virtual_catalog_app/presentation/providers/product_provider.dart
 class FilterCatalogProvider extends ChangeNotifier {
   ProductProvider _productProvider;
   List<Product> _products = [];
+  String _searchQuery = "";
   String _selectedOrder = "Relevantes";
   String _selectedCategory = "Todos";
 
@@ -17,8 +18,13 @@ class FilterCatalogProvider extends ChangeNotifier {
 
   String get selectedCategory => _selectedCategory;
 
+  String get searchQuery => _searchQuery;
+
   List<Product> get filteredProducts => _products.where((product) {
-    return true;
+    final matchSearch = product.name.toLowerCase().contains(
+      _searchQuery.toLowerCase(),
+    );
+    return matchSearch;
   }).toList();
 
   List<String> get categories {
@@ -31,6 +37,11 @@ class FilterCatalogProvider extends ChangeNotifier {
     return allCats;
   }
 
+  void setSearchQuery(String query) {
+    _searchQuery = query;
+    notifyListeners();
+  }
+
   void selectCategory(String category) {
     _selectedCategory = category;
     notifyListeners();
@@ -38,6 +49,11 @@ class FilterCatalogProvider extends ChangeNotifier {
 
   void selectOrder(String order) {
     _selectedOrder = order;
+    notifyListeners();
+  }
+
+  void clearSearchQuery() {
+    _searchQuery = "";
     notifyListeners();
   }
 
