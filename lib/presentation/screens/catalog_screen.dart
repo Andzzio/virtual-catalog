@@ -25,17 +25,12 @@ class _CatalogScreenState extends State<CatalogScreen> {
       ),
       floatingActionButton: WhatsappFloatingButton(),
       endDrawer: CartDrawer(),
-      body: LayoutBuilder(
-        builder: (context, constraints) {
-          return Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              if (constraints.maxWidth > 700)
-                Expanded(flex: 3, child: FilterCatalogView()),
-              Expanded(flex: 10, child: CatalogGridView()),
-            ],
-          );
-        },
+      body: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          if (size.width > 1100) Expanded(flex: 3, child: FilterCatalogView()),
+          Expanded(flex: 10, child: CatalogGridView()),
+        ],
       ),
     );
   }

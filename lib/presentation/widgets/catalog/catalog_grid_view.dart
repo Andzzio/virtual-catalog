@@ -13,48 +13,53 @@ class CatalogGridView extends StatelessWidget {
     final Size size = MediaQuery.of(context).size;
     final FilterCatalogProvider filterCatalogProvider = context
         .watch<FilterCatalogProvider>();
-    return Container(
-      padding: EdgeInsets.all(20),
-      constraints: BoxConstraints(maxWidth: 1200),
-      child: Column(
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return Container(
+          padding: EdgeInsets.all(20),
+          constraints: BoxConstraints(maxWidth: 1200),
+          child: Column(
             children: [
-              IconButton(onPressed: () {}, icon: Icon(Icons.filter_alt)),
-              SizedBox(
-                height: 43,
-                width: (size.width * 0.2).clamp(250, 500),
-                child: TextField(
-                  style: GoogleFonts.getFont(
-                    FontNames.fontNameP,
-                    textStyle: TextStyle(),
-                  ),
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(Icons.search, size: 20),
-                    filled: true,
-                    fillColor: Colors.grey.shade200,
-                    hintText: "Buscar...",
-                    hintStyle: GoogleFonts.getFont(
-                      FontNames.fontNameP,
-                      textStyle: TextStyle(),
-                    ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  size.width < 1100
+                      ? IconButton(
+                          onPressed: () {},
+                          icon: Icon(Icons.filter_alt),
+                        )
+                      : SizedBox(),
+                  SizedBox(
+                    height: 43,
+                    width: (size.width * 0.2).clamp(250, 500),
+                    child: TextField(
+                      style: GoogleFonts.getFont(
+                        FontNames.fontNameP,
+                        textStyle: TextStyle(),
+                      ),
+                      decoration: InputDecoration(
+                        prefixIcon: Icon(Icons.search, size: 20),
+                        filled: true,
+                        fillColor: Colors.grey.shade200,
+                        hintText: "Buscar...",
+                        hintStyle: GoogleFonts.getFont(
+                          FontNames.fontNameP,
+                          textStyle: TextStyle(),
+                        ),
 
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                      borderSide: BorderSide.none,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                      onSubmitted: (value) {},
                     ),
                   ),
-                  onSubmitted: (value) {},
-                ),
+                ],
               ),
-            ],
-          ),
-          SizedBox(height: 20),
-          Expanded(
-            child: LayoutBuilder(
-              builder: (context, constraints) {
-                return GridView.builder(
+              SizedBox(height: 20),
+              Expanded(
+                child: GridView.builder(
                   shrinkWrap: true,
                   itemCount: filterCatalogProvider.filteredProducts.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
@@ -70,12 +75,12 @@ class CatalogGridView extends StatelessWidget {
                       product: filterCatalogProvider.filteredProducts[index],
                     );
                   },
-                );
-              },
-            ),
+                ),
+              ),
+            ],
           ),
-        ],
-      ),
+        );
+      },
     );
   }
 }
