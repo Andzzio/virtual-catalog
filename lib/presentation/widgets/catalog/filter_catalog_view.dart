@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
@@ -12,6 +13,10 @@ class FilterCatalogView extends StatefulWidget {
 }
 
 class _FilterCatalogViewState extends State<FilterCatalogView> {
+  final TextEditingController _minController = TextEditingController();
+  final TextEditingController _maxController = TextEditingController();
+  final FocusNode _minFocusNode = FocusNode();
+  final FocusNode _maxFocusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
     final FilterCatalogProvider filterCatalogProvider = context
@@ -159,12 +164,83 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                     textStyle: TextStyle(fontSize: 15),
                   ),
                 ),
-                RangeSlider(
-                  min: 0,
-                  max: 100,
-                  values: RangeValues(0, 100),
-                  labels: RangeLabels("0", "100"),
-                  onChanged: (value) {},
+                SizedBox(height: 10),
+                Row(
+                  children: [
+                    Expanded(
+                      child: TextField(
+                        controller: _minController,
+                        focusNode: _minFocusNode,
+                        style: GoogleFonts.getFont(FontNames.fontNameP),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d{0,2}'),
+                          ),
+                        ],
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade200,
+                          prefixText: "S/. ",
+                          prefixStyle: GoogleFonts.getFont(FontNames.fontNameP),
+                          hintText: "Min",
+                          hintStyle: GoogleFonts.getFont(FontNames.fontNameP),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onEditingComplete: () {
+                          if (_minController.text.isNotEmpty &&
+                              _maxController.text.isEmpty) {
+                            _maxFocusNode.requestFocus();
+                          } else {
+                            _minFocusNode.unfocus();
+                            _maxFocusNode.unfocus();
+                          }
+                        },
+                      ),
+                    ),
+                    Padding(
+                      padding: EdgeInsets.symmetric(horizontal: 20),
+                      child: SizedBox(width: 20, child: Divider()),
+                    ),
+                    Expanded(
+                      child: TextField(
+                        controller: _maxController,
+                        focusNode: _maxFocusNode,
+                        style: GoogleFonts.getFont(FontNames.fontNameP),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.allow(
+                            RegExp(r'^\d*\.?\d{0,2}'),
+                          ),
+                        ],
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: Colors.grey.shade200,
+                          prefixText: "S/. ",
+                          prefixStyle: GoogleFonts.getFont(FontNames.fontNameP),
+                          hintText: "Max",
+                          hintStyle: GoogleFonts.getFont(FontNames.fontNameP),
+
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onEditingComplete: () {
+                          if (_maxController.text.isNotEmpty &&
+                              _minController.text.isEmpty) {
+                            _minFocusNode.requestFocus();
+                          } else {
+                            _minFocusNode.unfocus();
+                            _maxFocusNode.unfocus();
+                          }
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
@@ -198,5 +274,22 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
         ),
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<FilterCatalogProvider>().clearFilters();
+    });
+  }
+
+  @override
+  void dispose() {
+    _minController.dispose();
+    _maxController.dispose();
+    _minFocusNode.dispose();
+    _maxFocusNode.dispose();
+    super.dispose();
   }
 }

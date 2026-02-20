@@ -57,6 +57,13 @@ class FilterCatalogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void clearFilters() {
+    _searchQuery = "";
+    _selectedCategory = "Todos";
+    _selectedOrder = "Relevantes";
+    notifyListeners();
+  }
+
   void _onProductChanged() {
     _products = _productProvider.products;
     notifyListeners();
