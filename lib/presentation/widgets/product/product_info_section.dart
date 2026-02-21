@@ -24,6 +24,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
     final selectedVariant = widget.product.variants.isNotEmpty
         ? widget.product.variants[selectedVariantIndex]
         : null;
+    final size = MediaQuery.of(context).size;
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: 72, vertical: 20),
       child: Column(
@@ -220,13 +221,23 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
                     Expanded(
-                      flex: 7,
+                      flex: size.width < 1200 && size.width > 900 ? 3 : 7,
                       child: FilledButton.icon(
                         onPressed: () {
                           if (selectedVariant == null) return;
                           if (selectedSize == null) {
                             ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(content: Text("Selecciona una talla")),
+                              SnackBar(
+                                content: Text(
+                                  "Selecciona una talla",
+                                  overflow: TextOverflow.ellipsis,
+                                  style: GoogleFonts.getFont(
+                                    FontNames.fontNameP,
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w500,
+                                  ),
+                                ),
+                              ),
                             );
                             return;
                           }
@@ -241,12 +252,28 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                           });
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
-                              content: Text("Producto agregado al carrito ✓"),
+                              content: Text(
+                                "Producto agregado al carrito ✓",
+                                overflow: TextOverflow.ellipsis,
+                                style: GoogleFonts.getFont(
+                                  FontNames.fontNameP,
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                              ),
                             ),
                           );
                         },
                         icon: Icon(Icons.shopping_cart),
-                        label: Text("Agregar al Carrito"),
+                        label: Text(
+                          "Agregar al Carrito",
+                          overflow: TextOverflow.ellipsis,
+                          style: GoogleFonts.getFont(
+                            FontNames.fontNameP,
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
                         style: ButtonStyle(
                           backgroundColor: WidgetStatePropertyAll(Colors.black),
                           foregroundColor: WidgetStatePropertyAll(Colors.white),
@@ -315,7 +342,15 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                     return null;
                   }),
                 ),
-                child: Text("Comprar Ahora"),
+                child: Text(
+                  "Comprar Ahora",
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.getFont(
+                    FontNames.fontNameP,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
               ),
             ],
           ),

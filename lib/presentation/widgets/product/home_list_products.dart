@@ -15,12 +15,15 @@ class HomeListProducts extends StatefulWidget {
 }
 
 class _HomeListProductsState extends State<HomeListProducts> {
-  final double _listHeight = 600;
-  final double _cardWidth = 350;
   final double _cardPadding = 8;
   final _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
+    final Size size = MediaQuery.of(context).size;
+    final double cardWidth = size.width > 800
+        ? 350
+        : (size.width * 0.4).clamp(180, 350);
+    final double listHeight = size.width > 800 ? 600 : cardWidth * (600 / 350);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -32,15 +35,17 @@ class _HomeListProductsState extends State<HomeListProducts> {
           ),
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text(
-              "Piezas atemporales diseñadas para el guardarropa moderno",
-              style: GoogleFonts.getFont(
-                FontNames.fontNameH2,
-                textStyle: TextStyle(fontSize: 16, color: Color(0xFF82868B)),
+            Flexible(
+              child: Text(
+                "Piezas atemporales diseñadas para el guardarropa moderno",
+                style: GoogleFonts.getFont(
+                  FontNames.fontNameH2,
+                  textStyle: TextStyle(fontSize: 16, color: Color(0xFF82868B)),
+                ),
               ),
             ),
-            Spacer(),
             TextButton(
               onPressed: () {
                 final String slug = GoRouterState.of(
@@ -68,7 +73,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
         ),
         SizedBox(height: 40),
         SizedBox(
-          height: _listHeight,
+          height: listHeight,
           child: Stack(
             children: [
               ListView.builder(
@@ -82,7 +87,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
                   return Padding(
                     padding: EdgeInsets.all(_cardPadding),
                     child: ProductCard(
-                      cardWidth: _cardWidth,
+                      cardWidth: cardWidth,
                       isPageView: false,
                       product: product,
                     ),
@@ -97,7 +102,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
                   icon: Icon(Icons.arrow_back_ios_rounded),
                   onPressed: () {
                     final double totalCardWidth =
-                        _cardWidth + (_cardPadding * 2);
+                        cardWidth + (_cardPadding * 2);
                     int currentIndex =
                         (_scrollController.offset / totalCardWidth).round();
 
@@ -120,7 +125,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
                   icon: Icon(Icons.arrow_forward_ios_rounded),
                   onPressed: () {
                     final double totalCardWidth =
-                        _cardWidth + (_cardPadding * 2);
+                        cardWidth + (_cardPadding * 2);
 
                     int currentIndex =
                         (_scrollController.offset / totalCardWidth).round();

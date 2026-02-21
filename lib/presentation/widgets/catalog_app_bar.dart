@@ -23,6 +23,7 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 800;
     final businessName = context.watch<BusinessProvider>().business?.name ?? "";
     final CartProvider cartProvider = context.watch<CartProvider>();
     return AppBar(
@@ -30,59 +31,83 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
       toolbarHeight: 65,
       leadingWidth: size.width * 0.1,
       centerTitle: true,
-      leading: Center(
-        child: Text(
-          businessName,
-          style: GoogleFonts.getFont(
-            FontNames.fontNameH1,
-            textStyle: TextStyle(
-              color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-          textAlign: TextAlign.center,
-        ),
-      ),
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          TextButton(
-            onPressed: () {
-              final slug = GoRouterState.of(
-                context,
-              ).pathParameters["businessSlug"];
-              context.go("/$slug");
-            },
-            child: Text(
-              "Inicio",
-              style: GoogleFonts.getFont(
-                FontNames.fontNameP,
-                textStyle: TextStyle(
-                  color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
+      leading: isMobile
+          ? IconButton(
+              onPressed: () {
+                Scaffold.of(context).openDrawer();
+              },
+              icon: Icon(
+                Icons.menu,
+                color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
+              ),
+            )
+          : Center(
+              child: Text(
+                businessName,
+                style: GoogleFonts.getFont(
+                  FontNames.fontNameH1,
+                  textStyle: TextStyle(
+                    color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                textAlign: TextAlign.center,
               ),
             ),
-          ),
-          SizedBox(width: 10),
-          TextButton(
-            onPressed: () {
-              final String slug = GoRouterState.of(
-                context,
-              ).pathParameters["businessSlug"]!;
-              context.go("/$slug/catalog");
-            },
-            child: Text(
-              "Catálogo",
-              style: GoogleFonts.getFont(
-                FontNames.fontNameP,
-                textStyle: TextStyle(
-                  color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
+      title: isMobile
+          ? Center(
+              child: Text(
+                businessName,
+                style: GoogleFonts.getFont(
+                  FontNames.fontNameH1,
+                  textStyle: TextStyle(
+                    color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
+                textAlign: TextAlign.center,
               ),
+            )
+          : Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                TextButton(
+                  onPressed: () {
+                    final slug = GoRouterState.of(
+                      context,
+                    ).pathParameters["businessSlug"];
+                    context.go("/$slug");
+                  },
+                  child: Text(
+                    "Inicio",
+                    style: GoogleFonts.getFont(
+                      FontNames.fontNameP,
+                      textStyle: TextStyle(
+                        color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(width: 10),
+                TextButton(
+                  onPressed: () {
+                    final String slug = GoRouterState.of(
+                      context,
+                    ).pathParameters["businessSlug"]!;
+                    context.go("/$slug/catalog");
+                  },
+                  child: Text(
+                    "Catálogo",
+                    style: GoogleFonts.getFont(
+                      FontNames.fontNameP,
+                      textStyle: TextStyle(
+                        color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ),
-        ],
-      ),
       actions: [
         if (!inCatalogScreen)
           IconButton(
@@ -105,14 +130,6 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
               Icons.shopping_cart_rounded,
               color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
             ),
-          ),
-        ),
-        SizedBox(width: 20),
-        IconButton(
-          onPressed: () {},
-          icon: Icon(
-            Icons.person_2_rounded,
-            color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
           ),
         ),
         SizedBox(width: 20),

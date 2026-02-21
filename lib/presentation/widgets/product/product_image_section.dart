@@ -15,13 +15,16 @@ class _ProductImageSectionState extends State<ProductImageSection> {
   int currentPage = 0;
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 600;
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
         spacing: 10,
         children: [
           SizedBox(
-            height: MediaQuery.of(context).size.height * 0.75,
+            height: isMobile
+                ? MediaQuery.of(context).size.height * 0.5
+                : MediaQuery.of(context).size.height * 0.75,
             child: Row(
               children: [
                 IconButton(

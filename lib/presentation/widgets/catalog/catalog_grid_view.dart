@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/providers/filter_catalog_provider.dart';
+import 'package:virtual_catalog_app/presentation/widgets/catalog/filter_catalog_view.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/product_card.dart';
 
 class CatalogGridView extends StatefulWidget {
@@ -32,7 +33,21 @@ class _CatalogGridViewState extends State<CatalogGridView> {
                 children: [
                   size.width < 1100
                       ? IconButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            showModalBottomSheet(
+                              context: context,
+                              isScrollControlled: true,
+                              builder: (_) => DraggableScrollableSheet(
+                                expand: false,
+                                initialChildSize: 0.7,
+                                maxChildSize: 0.9,
+                                minChildSize: 0.4,
+                                builder: (_, _) {
+                                  return FilterCatalogView();
+                                },
+                              ),
+                            );
+                          },
                           icon: Icon(Icons.filter_alt),
                         )
                       : SizedBox(),

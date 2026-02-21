@@ -4,6 +4,7 @@ import 'package:virtual_catalog_app/domain/entities/product.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/cart/cart_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog_app_bar.dart';
+import 'package:virtual_catalog_app/presentation/widgets/menu_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/product_image_section.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/product_info_section.dart';
 import 'package:virtual_catalog_app/presentation/widgets/whatsapp_floating_button.dart';
@@ -15,6 +16,7 @@ class ProductDetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 900;
     final size = MediaQuery.of(context).size;
     final ProductProvider productProvider = context.watch<ProductProvider>();
     final Product? product = productProvider.products
@@ -22,6 +24,7 @@ class ProductDetailScreen extends StatelessWidget {
         .firstOrNull;
 
     return Scaffold(
+      drawer: MenuDrawer(),
       appBar: CatalogAppBar(
         isScrolled: true,
         size: size,
@@ -37,18 +40,25 @@ class ProductDetailScreen extends StatelessWidget {
               child: Column(
                 children: [
                   IntrinsicHeight(
-                    child: Row(
-                      children: [
-                        Expanded(
-                          flex: 6,
-                          child: ProductImageSection(product: product),
-                        ),
-                        Expanded(
-                          flex: 4,
-                          child: ProductInfoSection(product: product),
-                        ),
-                      ],
-                    ),
+                    child: isMobile
+                        ? Column(
+                            children: [
+                              ProductImageSection(product: product),
+                              ProductInfoSection(product: product),
+                            ],
+                          )
+                        : Row(
+                            children: [
+                              Expanded(
+                                flex: 6,
+                                child: ProductImageSection(product: product),
+                              ),
+                              Expanded(
+                                flex: 4,
+                                child: ProductInfoSection(product: product),
+                              ),
+                            ],
+                          ),
                   ),
                 ],
               ),

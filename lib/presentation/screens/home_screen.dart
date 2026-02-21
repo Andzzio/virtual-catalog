@@ -6,6 +6,7 @@ import 'package:virtual_catalog_app/presentation/providers/product_provider.dart
 import 'package:virtual_catalog_app/presentation/widgets/banner/banner_image.dart';
 import 'package:virtual_catalog_app/presentation/widgets/cart/cart_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog_app_bar.dart';
+import 'package:virtual_catalog_app/presentation/widgets/menu_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/home_grid_products.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/home_list_products.dart';
 import 'package:virtual_catalog_app/presentation/widgets/whatsapp_floating_button.dart';
@@ -23,10 +24,12 @@ class _HomeScreenState extends State<HomeScreen> {
   bool _isScrolled = false;
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.of(context).size.width < 800;
     final ProductProvider provider = context.watch<ProductProvider>();
     final size = MediaQuery.of(context).size;
     return Scaffold(
       extendBodyBehindAppBar: true,
+      drawer: MenuDrawer(),
       appBar: CatalogAppBar(
         isScrolled: _isScrolled,
         size: size,
@@ -41,7 +44,7 @@ class _HomeScreenState extends State<HomeScreen> {
             BannerImage(size: size),
             SizedBox(height: 100),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 50),
+              padding: EdgeInsets.symmetric(horizontal: isMobile ? 20 : 50),
               child: Column(
                 children: [
                   HomeListProducts(provider: provider),

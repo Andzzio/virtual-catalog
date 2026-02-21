@@ -3,6 +3,7 @@ import 'package:virtual_catalog_app/presentation/widgets/cart/cart_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog/catalog_grid_view.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog/filter_catalog_view.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog_app_bar.dart';
+import 'package:virtual_catalog_app/presentation/widgets/menu_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/whatsapp_floating_button.dart';
 
 class CatalogScreen extends StatefulWidget {
@@ -18,6 +19,7 @@ class _CatalogScreenState extends State<CatalogScreen> {
   Widget build(BuildContext context) {
     final size = MediaQuery.sizeOf(context);
     return Scaffold(
+      drawer: MenuDrawer(),
       appBar: CatalogAppBar(
         isScrolled: true,
         size: size,

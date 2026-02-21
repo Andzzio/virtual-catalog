@@ -72,6 +72,7 @@ class _BannerImageState extends State<BannerImage> {
                         children: [
                           Text(
                             banners[index].title,
+                            textAlign: TextAlign.center,
                             style: GoogleFonts.getFont(
                               FontNames.fontNameH1,
                               textStyle: TextStyle(
