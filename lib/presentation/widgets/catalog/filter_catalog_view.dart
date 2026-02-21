@@ -103,7 +103,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                         ),
                       ),
                       onPressed: () {
-                        filterCatalogProvider.selectOrder("Mayor precio");
+                        filterCatalogProvider.selectOrder("Mayor Precio");
                       },
                     ),
                     MenuItemButton(
@@ -201,10 +201,12 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                             borderSide: BorderSide.none,
                           ),
                         ),
-                        onEditingComplete: () {
+                        onChanged: (_) {
                           final value =
                               double.tryParse(_minController.text) ?? 0;
                           filterCatalogProvider.setMinPrice(value);
+                        },
+                        onEditingComplete: () {
                           if (_minController.text.isNotEmpty &&
                               _maxController.text.isEmpty) {
                             _maxFocusNode.requestFocus();
@@ -243,10 +245,12 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                             borderSide: BorderSide.none,
                           ),
                         ),
-                        onEditingComplete: () {
+                        onChanged: (_) {
                           final value =
                               double.tryParse(_maxController.text) ?? 0;
                           filterCatalogProvider.setMaxPrice(value);
+                        },
+                        onEditingComplete: () {
                           if (_maxController.text.isNotEmpty &&
                               _minController.text.isEmpty) {
                             _minFocusNode.requestFocus();

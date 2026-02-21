@@ -32,12 +32,63 @@ class FilterCatalogProvider extends ChangeNotifier {
 
   bool get isAvailable => _isAvailable;
 
-  List<Product> get filteredProducts => _products.where((product) {
-    final matchSearch = product.name.toLowerCase().contains(
-      _searchQuery.toLowerCase(),
-    );
-    return matchSearch;
-  }).toList();
+  List<Product> get filteredProducts {
+    final filtered = _products.where((product) {
+      final productPrice = product.variants
+          .map((variant) {
+            return variant.discountPrice ?? variant.price;
+          })
+          .reduce((a, b) => a < b ? a : b);
+
+      final matchMinPrice = _minPrice == 0 || productPrice >= _minPrice;
+      final matchMaxPrice = _maxPrice == 0 || productPrice <= _maxPrice;
+
+      final matchSearch = product.name.toLowerCase().contains(
+        _searchQuery.toLowerCase(),
+      );
+      final matchCategory =
+          _selectedCategory == "Todos" || product.category == _selectedCategory;
+
+      final matchSize =
+          _selectedSizes.isEmpty ||
+          product.variants.any((variant) {
+            return variant.sizes.any((size) {
+              return _selectedSizes.contains(size);
+            });
+          });
+      final matchAvailable = !_isAvailable || product.isAvailable;
+      return matchSearch &&
+          matchCategory &&
+          matchMinPrice &&
+          matchMaxPrice &&
+          matchSize &&
+          matchAvailable;
+    }).toList();
+
+    if (_selectedOrder == "Mayor Precio") {
+      filtered.sort((a, b) {
+        final aPrice = a.variants
+            .map((variant) => variant.discountPrice ?? variant.price)
+            .reduce((x, y) => x < y ? x : y);
+        final bPrice = b.variants
+            .map((variant) => variant.discountPrice ?? variant.price)
+            .reduce((x, y) => x < y ? x : y);
+        return bPrice.compareTo(aPrice);
+      });
+    } else if (_selectedOrder == "Menor Precio") {
+      filtered.sort((a, b) {
+        final aPrice = a.variants
+            .map((variant) => variant.discountPrice ?? variant.price)
+            .reduce((x, y) => x < y ? x : y);
+        final bPrice = b.variants
+            .map((variant) => variant.discountPrice ?? variant.price)
+            .reduce((x, y) => x < y ? x : y);
+        return aPrice.compareTo(bPrice);
+      });
+    }
+
+    return filtered;
+  }
 
   List<String> get sizes {
     final allSizes = _products
