@@ -66,9 +66,9 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
           SizedBox(width: 10),
           TextButton(
             onPressed: () {
-              final slug = GoRouterState.of(
+              final String slug = GoRouterState.of(
                 context,
-              ).pathParameters["businessSlug"];
+              ).pathParameters["businessSlug"]!;
               context.go("/$slug/catalog");
             },
             child: Text(

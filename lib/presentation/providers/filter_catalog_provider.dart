@@ -8,6 +8,10 @@ class FilterCatalogProvider extends ChangeNotifier {
   String _searchQuery = "";
   String _selectedOrder = "Relevantes";
   String _selectedCategory = "Todos";
+  double _minPrice = 0;
+  double _maxPrice = 0;
+  final Set<String> _selectedSizes = {};
+  bool _isAvailable = false;
 
   FilterCatalogProvider(this._productProvider) {
     _products = _productProvider.products;
@@ -20,12 +24,30 @@ class FilterCatalogProvider extends ChangeNotifier {
 
   String get searchQuery => _searchQuery;
 
+  double get minPrice => _minPrice;
+
+  double get maxPrice => _maxPrice;
+
+  Set<String> get selectedSizes => _selectedSizes;
+
+  bool get isAvailable => _isAvailable;
+
   List<Product> get filteredProducts => _products.where((product) {
     final matchSearch = product.name.toLowerCase().contains(
       _searchQuery.toLowerCase(),
     );
     return matchSearch;
   }).toList();
+
+  List<String> get sizes {
+    final allSizes = _products
+        .expand((product) => product.variants)
+        .expand((variant) => variant.sizes)
+        .toSet()
+        .toList();
+    allSizes.sort();
+    return allSizes;
+  }
 
   List<String> get categories {
     final allCats = _products
@@ -35,6 +57,30 @@ class FilterCatalogProvider extends ChangeNotifier {
     allCats.sort();
     allCats.insert(0, "Todos");
     return allCats;
+  }
+
+  void toggleAvailable() {
+    _isAvailable = !_isAvailable;
+    notifyListeners();
+  }
+
+  void toggleSize(String size) {
+    if (selectedSizes.contains(size)) {
+      selectedSizes.remove(size);
+    } else {
+      selectedSizes.add(size);
+    }
+    notifyListeners();
+  }
+
+  void setMinPrice(double price) {
+    _minPrice = price;
+    notifyListeners();
+  }
+
+  void setMaxPrice(double price) {
+    _maxPrice = price;
+    notifyListeners();
   }
 
   void setSearchQuery(String query) {
@@ -61,6 +107,10 @@ class FilterCatalogProvider extends ChangeNotifier {
     _searchQuery = "";
     _selectedCategory = "Todos";
     _selectedOrder = "Relevantes";
+    _minPrice = 0;
+    _maxPrice = 0;
+    _selectedSizes.clear();
+    _isAvailable = false;
     notifyListeners();
   }
 

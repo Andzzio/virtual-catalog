@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
-import 'package:virtual_catalog_app/presentation/screens/catalog_screen.dart';
 import 'package:virtual_catalog_app/presentation/screens/screens.dart';
 
 final appRouter = GoRouter(

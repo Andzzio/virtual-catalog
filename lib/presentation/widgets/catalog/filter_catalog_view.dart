@@ -37,7 +37,18 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                     textStyle: TextStyle(fontSize: 20),
                   ),
                 ),
-                IconButton(onPressed: () {}, icon: Icon(Icons.delete)),
+                IconButton(
+                  onPressed: () {
+                    filterCatalogProvider.clearFilters();
+                    if (_minController.text.isNotEmpty) {
+                      _minController.clear();
+                    }
+                    if (_maxController.text.isNotEmpty) {
+                      _maxController.clear();
+                    }
+                  },
+                  icon: Icon(Icons.delete),
+                ),
               ],
             ),
             SizedBox(height: 30),
@@ -191,6 +202,9 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                           ),
                         ),
                         onEditingComplete: () {
+                          final value =
+                              double.tryParse(_minController.text) ?? 0;
+                          filterCatalogProvider.setMinPrice(value);
                           if (_minController.text.isNotEmpty &&
                               _maxController.text.isEmpty) {
                             _maxFocusNode.requestFocus();
@@ -230,6 +244,9 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                           ),
                         ),
                         onEditingComplete: () {
+                          final value =
+                              double.tryParse(_maxController.text) ?? 0;
+                          filterCatalogProvider.setMaxPrice(value);
                           if (_maxController.text.isNotEmpty &&
                               _minController.text.isEmpty) {
                             _minFocusNode.requestFocus();
@@ -245,8 +262,8 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
               ],
             ),
             Divider(),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   "Tallas",
@@ -254,6 +271,42 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                     FontNames.fontNameH2,
                     textStyle: TextStyle(fontSize: 15),
                   ),
+                ),
+                SizedBox(height: 10),
+                Wrap(
+                  children: List.generate(filterCatalogProvider.sizes.length, (
+                    index,
+                  ) {
+                    return Padding(
+                      padding: const EdgeInsets.only(right: 10, bottom: 10),
+                      child: FilterChip(
+                        selected: filterCatalogProvider.selectedSizes.contains(
+                          filterCatalogProvider.sizes[index],
+                        ),
+                        selectedColor: Colors.black,
+                        checkmarkColor: Colors.white,
+                        label: Text(
+                          filterCatalogProvider.sizes[index],
+                          style: GoogleFonts.getFont(
+                            FontNames.fontNameP,
+                            textStyle: TextStyle(
+                              color:
+                                  filterCatalogProvider.selectedSizes.contains(
+                                    filterCatalogProvider.sizes[index],
+                                  )
+                                  ? Colors.white
+                                  : Colors.black,
+                            ),
+                          ),
+                        ),
+                        onSelected: (_) {
+                          filterCatalogProvider.toggleSize(
+                            filterCatalogProvider.sizes[index],
+                          );
+                        },
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),
@@ -267,6 +320,14 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                     FontNames.fontNameH2,
                     textStyle: TextStyle(fontSize: 15),
                   ),
+                ),
+                Checkbox(
+                  activeColor: Colors.black,
+                  side: BorderSide(color: Colors.grey),
+                  value: filterCatalogProvider.isAvailable,
+                  onChanged: (_) {
+                    filterCatalogProvider.toggleAvailable();
+                  },
                 ),
               ],
             ),

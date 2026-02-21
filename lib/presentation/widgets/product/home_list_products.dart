@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
@@ -41,7 +42,12 @@ class _HomeListProductsState extends State<HomeListProducts> {
             ),
             Spacer(),
             TextButton(
-              onPressed: () {},
+              onPressed: () {
+                final String slug = GoRouterState.of(
+                  context,
+                ).pathParameters["businessSlug"]!;
+                context.go("/$slug/catalog");
+              },
               style: ButtonStyle(
                 side: WidgetStatePropertyAll(BorderSide(color: Colors.black)),
                 shape: WidgetStatePropertyAll(
