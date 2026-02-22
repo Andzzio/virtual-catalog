@@ -1,6 +1,8 @@
 import 'package:virtual_catalog_app/domain/datasources/business_datasource.dart';
 import 'package:virtual_catalog_app/domain/entities/banner_item.dart';
 import 'package:virtual_catalog_app/domain/entities/business.dart';
+import 'package:virtual_catalog_app/domain/entities/delivery_method.dart';
+import 'package:virtual_catalog_app/domain/entities/delivery_type.dart';
 
 class BusinessDatasourceImpl implements BusinessDatasource {
   final List<Business> _businesses = [
@@ -22,6 +24,20 @@ class BusinessDatasourceImpl implements BusinessDatasource {
           imageUrl: "assets/images/banner_catalog.png",
           title: "Nuevos Llegados",
           subtitle: "Las últimas tendencias en moda femenina ya están aquí.",
+        ),
+      ],
+      deliveryMethods: [
+        DeliveryMethod(name: "Envio", type: DeliveryType.shipping, price: 10),
+        DeliveryMethod(
+          name: "Recojo en tienda",
+          type: DeliveryType.pickup,
+          price: 0,
+        ),
+        DeliveryMethod(
+          name: "SHALOM",
+          type: DeliveryType.courier,
+          price: 15,
+          description: "Provincias: Todas",
         ),
       ],
     ),
@@ -53,6 +69,20 @@ class BusinessDatasourceImpl implements BusinessDatasource {
           imageUrl: "assets/sabanaImages/e.jpeg",
           title: "Estilo Retro",
           subtitle: "Diseños geométricos con personalidad y carácter.",
+        ),
+      ],
+      deliveryMethods: [
+        DeliveryMethod(name: "Envio", type: DeliveryType.shipping, price: 10),
+        DeliveryMethod(
+          name: "Recojo en tienda",
+          type: DeliveryType.pickup,
+          price: 0,
+        ),
+        DeliveryMethod(
+          name: "Olva",
+          type: DeliveryType.courier,
+          price: 13,
+          description: "Provincias: Arequipa, Iquitos, Puno",
         ),
       ],
     ),

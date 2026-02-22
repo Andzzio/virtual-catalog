@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:virtual_catalog_app/presentation/widgets/cart/cart_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog_app_bar.dart';
+import 'package:virtual_catalog_app/presentation/widgets/checkout/checkout_form_view.dart';
+import 'package:virtual_catalog_app/presentation/widgets/checkout/checkout_summary_view.dart';
 import 'package:virtual_catalog_app/presentation/widgets/menu_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/whatsapp_floating_button.dart';
 
@@ -19,6 +21,13 @@ class CheckoutScreen extends StatelessWidget {
       drawer: MenuDrawer(),
       floatingActionButton: WhatsappFloatingButton(),
       endDrawer: CartDrawer(),
+      body: Row(
+        children: [
+          Expanded(flex: 6, child: CheckoutFormView()),
+          VerticalDivider(),
+          Expanded(flex: 4, child: CheckoutSummaryView()),
+        ],
+      ),
     );
   }
 }
