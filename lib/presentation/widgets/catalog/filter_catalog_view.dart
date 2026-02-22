@@ -342,14 +342,6 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
   }
 
   @override
-  void initState() {
-    super.initState();
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      context.read<FilterCatalogProvider>().clearFilters();
-    });
-  }
-
-  @override
   void dispose() {
     _minController.dispose();
     _maxController.dispose();

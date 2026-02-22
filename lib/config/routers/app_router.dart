@@ -46,8 +46,13 @@ final appRouter = GoRouter(
             GoRoute(
               path: "catalog",
               builder: (context, state) {
-                final slug = state.pathParameters["businessSlug"];
-                return CatalogScreen(businessSlug: slug);
+                return CatalogScreen();
+              },
+            ),
+            GoRoute(
+              path: "checkout",
+              builder: (context, state) {
+                return CheckoutScreen();
               },
             ),
           ],

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/filter_catalog_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/cart/cart_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog/catalog_grid_view.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog/filter_catalog_view.dart';
@@ -7,8 +9,7 @@ import 'package:virtual_catalog_app/presentation/widgets/menu_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/whatsapp_floating_button.dart';
 
 class CatalogScreen extends StatefulWidget {
-  final String? businessSlug;
-  const CatalogScreen({super.key, this.businessSlug});
+  const CatalogScreen({super.key});
 
   @override
   State<CatalogScreen> createState() => _CatalogScreenState();
@@ -35,5 +36,13 @@ class _CatalogScreenState extends State<CatalogScreen> {
         ],
       ),
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<FilterCatalogProvider>().clearFilters();
+    });
   }
 }

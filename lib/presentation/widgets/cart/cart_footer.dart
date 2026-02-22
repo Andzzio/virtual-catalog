@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
@@ -69,7 +70,12 @@ class CartFooter extends StatelessWidget {
           SizedBox(
             width: double.infinity,
             child: FilledButton(
-              onPressed: () {},
+              onPressed: () {
+                final slug = GoRouterState.of(
+                  context,
+                ).pathParameters["businessSlug"];
+                context.go("/$slug/checkout");
+              },
               style: ButtonStyle(
                 backgroundColor: WidgetStatePropertyAll(Colors.black),
                 foregroundColor: WidgetStatePropertyAll(Colors.white),
