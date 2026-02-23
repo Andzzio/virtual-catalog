@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 
 class CartFooter extends StatelessWidget {
@@ -71,6 +73,21 @@ class CartFooter extends StatelessWidget {
             width: double.infinity,
             child: FilledButton(
               onPressed: () {
+                final cartProvider = context.read<CartProvider>();
+                final deliveryMethods =
+                    context
+                        .read<BusinessProvider>()
+                        .business
+                        ?.deliveryMethods ??
+                    [];
+                final paymentMethods =
+                    context.read<BusinessProvider>().business?.paymentMethods ??
+                    [];
+                cartProvider.setBuyCart(
+                  cartProvider.items,
+                  deliveryMethods,
+                  paymentMethods,
+                );
                 final slug = GoRouterState.of(
                   context,
                 ).pathParameters["businessSlug"];

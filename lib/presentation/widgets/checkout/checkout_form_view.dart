@@ -7,6 +7,7 @@ import 'package:virtual_catalog_app/domain/entities/delivery_method.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_type.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 
 class CheckoutFormView extends StatefulWidget {
   const CheckoutFormView({super.key});
@@ -17,20 +18,18 @@ class CheckoutFormView extends StatefulWidget {
 
 class _CheckoutFormViewState extends State<CheckoutFormView> {
   final _formKey = GlobalKey<FormState>();
-  DeliveryMethod? selectedDeliveryMethod;
-  PaymentMethod? selectedPaymentMethod;
   @override
   Widget build(BuildContext context) {
+    final selectedDeliveryMethod = context
+        .watch<CartProvider>()
+        .selectedDeliveryMethod;
     final deliveryMethods =
         context.read<BusinessProvider>().business?.deliveryMethods ?? [];
-    selectedDeliveryMethod ??= deliveryMethods.isNotEmpty
-        ? deliveryMethods.first
-        : null;
     final paymentMethods =
         context.read<BusinessProvider>().business?.paymentMethods ?? [];
-    selectedPaymentMethod ??= paymentMethods.isNotEmpty
-        ? paymentMethods.first
-        : null;
+    final selectedPaymentMethod = context
+        .watch<CartProvider>()
+        .selectedPaymentMethod;
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
@@ -59,9 +58,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
                           onTap: () {
-                            setState(() {
-                              selectedDeliveryMethod = method;
-                            });
+                            context.read<CartProvider>().setDeliveryMethod(
+                              method,
+                            );
                           },
                           child: Column(
                             children: [
@@ -84,10 +83,10 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                           right: BorderSide(color: Colors.grey),
                                         ),
                                   borderRadius:
-                                      paymentMethods.length == 1 && !isSelected
+                                      deliveryMethods.length == 1 && !isSelected
                                       ? BorderRadius.all(Radius.circular(8))
                                       // Último no seleccionado → solo abajo
-                                      : index == paymentMethods.length - 1 &&
+                                      : index == deliveryMethods.length - 1 &&
                                             !isSelected
                                       ? BorderRadius.only(
                                           bottomLeft: Radius.circular(8),
@@ -173,7 +172,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                         : Colors.transparent,
                                     border: Border.all(color: Colors.grey),
                                     borderRadius:
-                                        index == paymentMethods.length - 1
+                                        index == deliveryMethods.length - 1
                                         ? BorderRadius.only(
                                             bottomLeft: Radius.circular(8),
                                             bottomRight: Radius.circular(8),
@@ -365,9 +364,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         cursor: SystemMouseCursors.click,
                         child: GestureDetector(
                           onTap: () {
-                            setState(() {
-                              selectedPaymentMethod = method;
-                            });
+                            context.read<CartProvider>().setPaymentMethod(
+                              method,
+                            );
                           },
                           child: Column(
                             children: [

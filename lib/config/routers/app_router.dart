@@ -51,6 +51,14 @@ final appRouter = GoRouter(
             ),
             GoRoute(
               path: "checkout",
+              redirect: (context, state) {
+                final CartProvider cartProvider = context.read<CartProvider>();
+                if (cartProvider.checkItems.isEmpty) {
+                  final slug = state.pathParameters["businessSlug"];
+                  return "/$slug";
+                }
+                return null;
+              },
               builder: (context, state) {
                 return CheckoutScreen();
               },

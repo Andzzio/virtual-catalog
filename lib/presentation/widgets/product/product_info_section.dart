@@ -3,7 +3,9 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/domain/entities/cart_item.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
+import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/quantity_selector.dart';
 
@@ -322,9 +324,33 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
               ),
               FilledButton(
                 onPressed: () {
+                  final product = widget.product;
+                  if (selectedVariant == null || selectedSize == null) return;
+
+                  final item = CartItem(
+                    product: product,
+                    variant: selectedVariant,
+                    size: selectedSize!,
+                    quantity: quantity,
+                  );
+
                   final slug = GoRouterState.of(
                     context,
                   ).pathParameters["businessSlug"];
+                  final cartProvider = context.read<CartProvider>();
+                  final deliveryMethods =
+                      context
+                          .read<BusinessProvider>()
+                          .business
+                          ?.deliveryMethods ??
+                      [];
+                  final paymentMethods =
+                      context
+                          .read<BusinessProvider>()
+                          .business
+                          ?.paymentMethods ??
+                      [];
+                  cartProvider.setBuyNow(item, deliveryMethods, paymentMethods);
                   context.go("/$slug/checkout");
                 },
                 style: ButtonStyle(

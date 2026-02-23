@@ -30,7 +30,7 @@ class CheckoutSummaryView extends StatelessWidget {
               ),
               SizedBox(height: 20),
               Expanded(child: SummaryItemList(cartProvider: cartProvider)),
-              SummaryFooter(cartProvider: cartProvider),
+              SummaryFooter(),
             ],
           ),
         ),

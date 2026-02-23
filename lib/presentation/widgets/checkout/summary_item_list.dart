@@ -10,9 +10,9 @@ class SummaryItemList extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListView.builder(
-      itemCount: cartProvider.items.length,
+      itemCount: cartProvider.checkItems.length,
       itemBuilder: (context, index) {
-        final item = cartProvider.items[index];
+        final item = cartProvider.checkItems[index];
         return SummaryItemTile(item: item);
       },
     );
