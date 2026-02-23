@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/delivery_method.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
+import 'package:virtual_catalog_app/domain/entities/payment_type.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 
 class CheckoutFormView extends StatefulWidget {
@@ -399,6 +400,47 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                       );
                     }),
                   ),
+                  SizedBox(height: 30),
+                  FilledButton(
+                    onPressed: () {},
+                    style: ButtonStyle(
+                      backgroundColor: WidgetStatePropertyAll(Colors.black),
+                      foregroundColor: WidgetStatePropertyAll(Colors.white),
+                      shape: WidgetStatePropertyAll(
+                        RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      minimumSize: WidgetStatePropertyAll(
+                        Size(double.infinity, 70),
+                      ),
+                      overlayColor: WidgetStateProperty.resolveWith((states) {
+                        if (states.contains(WidgetState.pressed)) {
+                          return Colors.grey.shade700;
+                        }
+                        if (states.contains(WidgetState.hovered)) {
+                          return Colors.grey.shade800;
+                        }
+                        return null;
+                      }),
+                    ),
+                    child: Text(
+                      switch (selectedPaymentMethod?.type) {
+                        PaymentType.whatsapp => "Finalizar por WhatsApp",
+                        PaymentType.bankTransfer => "Finalizar Pedido",
+                        PaymentType.culqi => "Pagar",
+                        PaymentType.yape => "Finalizar Pedido",
+                        null => "Pagar",
+                      },
+                      overflow: TextOverflow.ellipsis,
+                      style: GoogleFonts.getFont(
+                        FontNames.fontNameP,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 100),
                 ],
               ),
             ),
