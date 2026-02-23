@@ -23,9 +23,9 @@ class CheckoutScreen extends StatelessWidget {
       endDrawer: CartDrawer(),
       body: Row(
         children: [
-          Expanded(flex: 6, child: CheckoutFormView()),
+          Expanded(flex: 5, child: CheckoutFormView()),
           VerticalDivider(),
-          Expanded(flex: 4, child: CheckoutSummaryView()),
+          Expanded(flex: 5, child: CheckoutSummaryView()),
         ],
       ),
     );

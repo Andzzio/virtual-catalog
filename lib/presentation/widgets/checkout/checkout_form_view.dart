@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
@@ -15,6 +16,7 @@ class CheckoutFormView extends StatefulWidget {
 }
 
 class _CheckoutFormViewState extends State<CheckoutFormView> {
+  final _formKey = GlobalKey<FormState>();
   DeliveryMethod? selectedDeliveryMethod;
   PaymentMethod? selectedPaymentMethod;
   @override
@@ -31,6 +33,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
         : null;
     return SingleChildScrollView(
       child: Form(
+        key: _formKey,
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
           child: Align(
@@ -204,6 +207,12 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                   Column(
                     children: [
                       DropdownButtonFormField<String>(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Por favor, seleccione un país";
+                          }
+                          return null;
+                        },
                         borderRadius: BorderRadius.all(Radius.circular(8)),
                         decoration: _inputDecoration("País / Región"),
                         items: [
@@ -228,32 +237,80 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         children: [
                           Expanded(
                             child: TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Por favor, ingrese su nombre";
+                                }
+                                return null;
+                              },
                               decoration: _inputDecoration("Nombre"),
                             ),
                           ),
                           SizedBox(width: 10),
                           Expanded(
                             child: TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Por favor, ingrese su apellido";
+                                }
+                                return null;
+                              },
                               decoration: _inputDecoration("Apellido"),
                             ),
                           ),
                         ],
                       ),
                       SizedBox(height: 10),
-                      TextFormField(decoration: _inputDecoration("DNI")),
+                      TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Por favor, ingrese su DNI";
+                          }
+                          if (value.length != 8) {
+                            return "El DNI debe tener 8 dígitos";
+                          }
+                          return null;
+                        },
+                        decoration: _inputDecoration("DNI"),
+                        keyboardType: TextInputType.number,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        maxLength: 8,
+                      ),
                       SizedBox(height: 10),
-                      TextFormField(decoration: _inputDecoration("Dirección")),
+                      TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Por favor, ingrese su dirección";
+                          }
+                          return null;
+                        },
+                        decoration: _inputDecoration("Dirección"),
+                      ),
                       SizedBox(height: 10),
                       Row(
                         children: [
                           Expanded(
                             child: TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Por favor, ingrese su ciudad";
+                                }
+                                return null;
+                              },
                               decoration: _inputDecoration("Ciudad"),
                             ),
                           ),
                           SizedBox(width: 10),
                           Expanded(
                             child: TextFormField(
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return "Por favor, ingrese su región";
+                                }
+                                return null;
+                              },
                               decoration: _inputDecoration("Región"),
                             ),
                           ),
@@ -268,7 +325,23 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         ],
                       ),
                       SizedBox(height: 10),
-                      TextFormField(decoration: _inputDecoration("Teléfono")),
+                      TextFormField(
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return "Por favor, ingrese su teléfono";
+                          }
+                          if (value.length != 9) {
+                            return "El teléfono debe tener 9 dígitos";
+                          }
+                          return null;
+                        },
+                        decoration: _inputDecoration("Teléfono"),
+                        keyboardType: TextInputType.phone,
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
+                        maxLength: 9,
+                      ),
                       SizedBox(height: 10),
                       TextFormField(
                         decoration: _inputDecoration("Notas (opcional)"),
@@ -402,7 +475,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                   ),
                   SizedBox(height: 30),
                   FilledButton(
-                    onPressed: () {},
+                    onPressed: () {
+                      if (_formKey.currentState!.validate()) {}
+                    },
                     style: ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(Colors.black),
                       foregroundColor: WidgetStatePropertyAll(Colors.white),
@@ -453,6 +528,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
   InputDecoration _inputDecoration(String hintText) {
     return InputDecoration(
       hintText: hintText,
+      counterText: "",
       hintStyle: GoogleFonts.getFont(
         FontNames.fontNameH2,
         textStyle: TextStyle(fontSize: 13, color: Colors.grey.shade800),
@@ -470,6 +546,10 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
         borderRadius: BorderRadius.circular(8),
       ),
       errorBorder: OutlineInputBorder(
+        borderSide: BorderSide(color: Colors.redAccent),
+        borderRadius: BorderRadius.circular(8),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
         borderSide: BorderSide(color: Colors.redAccent),
         borderRadius: BorderRadius.circular(8),
       ),
