@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 enum DeliveryType {
-  shipping(label: "Envio", icon: Icons.local_shipping),
+  shipping(label: "Envío", icon: Icons.local_shipping),
   pickup(label: "Recojo en tienda", icon: Icons.store),
   courier(label: "Agencia de envío", icon: Icons.inventory_2);
 

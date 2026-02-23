@@ -4,13 +4,13 @@ import 'package:virtual_catalog_app/domain/entities/delivery_type.dart';
 class DeliveryMethodModel {
   final String name;
   final String type;
-  final int? price;
+  final int price;
   final String? description;
 
   DeliveryMethodModel({
     required this.name,
     required this.type,
-    this.price,
+    required this.price,
     this.description,
   });
   factory DeliveryMethodModel.fromJson(Map<String, dynamic> json) {

@@ -3,6 +3,8 @@ import 'package:virtual_catalog_app/domain/entities/banner_item.dart';
 import 'package:virtual_catalog_app/domain/entities/business.dart';
 import 'package:virtual_catalog_app/domain/entities/delivery_method.dart';
 import 'package:virtual_catalog_app/domain/entities/delivery_type.dart';
+import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
+import 'package:virtual_catalog_app/domain/entities/payment_type.dart';
 
 class BusinessDatasourceImpl implements BusinessDatasource {
   final List<Business> _businesses = [
@@ -27,7 +29,7 @@ class BusinessDatasourceImpl implements BusinessDatasource {
         ),
       ],
       deliveryMethods: [
-        DeliveryMethod(name: "Envio", type: DeliveryType.shipping, price: 10),
+        DeliveryMethod(name: "Envío", type: DeliveryType.shipping, price: 10),
         DeliveryMethod(
           name: "Recojo en tienda",
           type: DeliveryType.pickup,
@@ -38,6 +40,23 @@ class BusinessDatasourceImpl implements BusinessDatasource {
           type: DeliveryType.courier,
           price: 15,
           description: "Provincias: Todas",
+        ),
+      ],
+      paymentMethods: [
+        PaymentMethod(
+          name: "WhatsApp",
+          type: PaymentType.whatsapp,
+          description: "Coordina tu pago por WhatsApp",
+        ),
+        PaymentMethod(
+          name: "Depósito BCP",
+          type: PaymentType.bankTransfer,
+          description: "Cuenta BCP: 123-456-789 a nombre de SHURUMBA SAC",
+        ),
+        PaymentMethod(
+          name: "Culqi",
+          type: PaymentType.culqi,
+          description: "Próximamente",
         ),
       ],
     ),
@@ -72,7 +91,7 @@ class BusinessDatasourceImpl implements BusinessDatasource {
         ),
       ],
       deliveryMethods: [
-        DeliveryMethod(name: "Envio", type: DeliveryType.shipping, price: 10),
+        DeliveryMethod(name: "Envío", type: DeliveryType.shipping, price: 10),
         DeliveryMethod(
           name: "Recojo en tienda",
           type: DeliveryType.pickup,
@@ -83,6 +102,23 @@ class BusinessDatasourceImpl implements BusinessDatasource {
           type: DeliveryType.courier,
           price: 13,
           description: "Provincias: Arequipa, Iquitos, Puno",
+        ),
+      ],
+      paymentMethods: [
+        PaymentMethod(
+          name: "WhatsApp",
+          type: PaymentType.whatsapp,
+          description: "Coordina tu pago por WhatsApp",
+        ),
+        PaymentMethod(
+          name: "Yape",
+          type: PaymentType.yape,
+          description: "Número: 908574674",
+        ),
+        PaymentMethod(
+          name: "Culqi",
+          type: PaymentType.culqi,
+          description: "Próximamente",
         ),
       ],
     ),
