@@ -325,7 +325,16 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
               FilledButton(
                 onPressed: () {
                   final product = widget.product;
-                  if (selectedVariant == null || selectedSize == null) return;
+                  if (selectedVariant == null || selectedSize == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          "Debes seleccionar una talla y una variante",
+                        ),
+                      ),
+                    );
+                    return;
+                  }
 
                   final item = CartItem(
                     product: product,
