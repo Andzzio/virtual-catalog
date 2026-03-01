@@ -559,7 +559,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                             sb.writeln("\u{1F4DD} Notas: ${noteCtrl.text}");
 
                             final url = Uri.parse(
-                              "https://wa.me/$phone?text=${Uri.encodeComponent(sb.toString())}",
+                              "https://api.whatsapp.com/send?phone=$phone&text=${Uri.encodeComponent(sb.toString())}",
                             );
                             if (await canLaunchUrl(url)) {
                               await launchUrl(
