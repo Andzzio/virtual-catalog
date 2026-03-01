@@ -553,7 +553,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                             sb.writeln();
                             sb.writeln("\u{1F4B3} Método de pago: WhatsApp");
                             sb.writeln(
-                              "\u{1F69A} Método de envío: ${cartProvider.selectedDeliveryMethod?.name}",
+                              "\u{1F69A} Método de entrega: ${cartProvider.selectedDeliveryMethod?.name}",
                             );
                             sb.writeln();
                             sb.writeln("\u{1F4DD} Notas: ${noteCtrl.text}");
