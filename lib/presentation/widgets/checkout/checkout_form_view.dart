@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/delivery_method.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
@@ -18,15 +19,26 @@ class CheckoutFormView extends StatefulWidget {
 
 class _CheckoutFormViewState extends State<CheckoutFormView> {
   final _formKey = GlobalKey<FormState>();
+  final nameCtrl = TextEditingController();
+  final lastNameCtrl = TextEditingController();
+  final dniCtrl = TextEditingController();
+  final addressCtrl = TextEditingController();
+  final cityCtrl = TextEditingController();
+  final regionCtrl = TextEditingController();
+  final zipCtrl = TextEditingController();
+  final phoneCtrl = TextEditingController();
+  final noteCtrl = TextEditingController();
+  String? _selectedCountry;
   @override
   Widget build(BuildContext context) {
+    final cartProvider = context.read<CartProvider>();
+    final businessProvider = context.read<BusinessProvider>();
+    final phone = businessProvider.business?.whatsappNumber;
     final selectedDeliveryMethod = context
         .watch<CartProvider>()
         .selectedDeliveryMethod;
-    final deliveryMethods =
-        context.read<BusinessProvider>().business?.deliveryMethods ?? [];
-    final paymentMethods =
-        context.read<BusinessProvider>().business?.paymentMethods ?? [];
+    final deliveryMethods = businessProvider.business?.deliveryMethods ?? [];
+    final paymentMethods = businessProvider.business?.paymentMethods ?? [];
     final selectedPaymentMethod = context
         .watch<CartProvider>()
         .selectedPaymentMethod;
@@ -229,13 +241,18 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                             ),
                           ),
                         ],
-                        onChanged: (value) {},
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedCountry = value;
+                          });
+                        },
                       ),
                       SizedBox(height: 10),
                       Row(
                         children: [
                           Expanded(
                             child: TextFormField(
+                              controller: nameCtrl,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return "Por favor, ingrese su nombre";
@@ -248,6 +265,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           SizedBox(width: 10),
                           Expanded(
                             child: TextFormField(
+                              controller: lastNameCtrl,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return "Por favor, ingrese su apellido";
@@ -261,6 +279,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                       ),
                       SizedBox(height: 10),
                       TextFormField(
+                        controller: dniCtrl,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return "Por favor, ingrese su DNI";
@@ -279,6 +298,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                       ),
                       SizedBox(height: 10),
                       TextFormField(
+                        controller: addressCtrl,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return "Por favor, ingrese su dirección";
@@ -292,6 +312,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         children: [
                           Expanded(
                             child: TextFormField(
+                              controller: cityCtrl,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return "Por favor, ingrese su ciudad";
@@ -304,6 +325,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           SizedBox(width: 10),
                           Expanded(
                             child: TextFormField(
+                              controller: regionCtrl,
                               validator: (value) {
                                 if (value == null || value.isEmpty) {
                                   return "Por favor, ingrese su región";
@@ -316,6 +338,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           SizedBox(width: 10),
                           Expanded(
                             child: TextFormField(
+                              controller: zipCtrl,
                               decoration: _inputDecoration(
                                 "Código postal (opcional)",
                               ),
@@ -325,6 +348,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                       ),
                       SizedBox(height: 10),
                       TextFormField(
+                        controller: phoneCtrl,
                         validator: (value) {
                           if (value == null || value.isEmpty) {
                             return "Por favor, ingrese su teléfono";
@@ -343,6 +367,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                       ),
                       SizedBox(height: 10),
                       TextFormField(
+                        controller: noteCtrl,
                         decoration: _inputDecoration("Notas (opcional)"),
                       ),
                     ],
@@ -474,8 +499,87 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                   ),
                   SizedBox(height: 30),
                   FilledButton(
-                    onPressed: () {
-                      if (_formKey.currentState!.validate()) {}
+                    onPressed: () async {
+                      if (_formKey.currentState!.validate()) {
+                        switch (selectedPaymentMethod?.type) {
+                          case PaymentType.whatsapp:
+                            if (phone == null) {
+                              debugPrint("Phone es null");
+                              return;
+                            }
+
+                            final String businessName =
+                                businessProvider.business?.name ?? "Negocio";
+                            final StringBuffer sb = StringBuffer();
+                            sb.writeln(
+                              "\u{1F6D2} *Nuevo Pedido - $businessName*",
+                            );
+                            sb.writeln();
+                            sb.writeln("\u{1F464} *Datos del cliente:*");
+                            sb.writeln(
+                              "- Nombre: ${nameCtrl.text} ${lastNameCtrl.text}",
+                            );
+                            sb.writeln("- DNI: ${dniCtrl.text}");
+                            sb.writeln("- Teléfono: ${phoneCtrl.text}");
+                            sb.writeln("- Dirección: ${addressCtrl.text}");
+                            sb.writeln("- País: $_selectedCountry");
+                            sb.writeln("- Ciudad: ${cityCtrl.text}");
+                            sb.writeln("- Región: ${regionCtrl.text}");
+                            sb.writeln("- Código Postal: ${zipCtrl.text}");
+                            sb.writeln();
+                            sb.writeln("\u{1F4E6} *Productos:*");
+                            for (
+                              int i = 0;
+                              i < cartProvider.checkItems.length;
+                              i++
+                            ) {
+                              final item = cartProvider.checkItems[i];
+
+                              sb.writeln(
+                                "${i + 1}. ${item.product.name} - ${item.variant.name}, ${item.size} x ${item.quantity} -> S/. ${item.subTotal.toStringAsFixed(2)}",
+                              );
+                            }
+                            sb.writeln();
+                            sb.writeln("\u{1F4B0} *Resumen:*");
+                            sb.writeln(
+                              "- Subtotal: S/. ${cartProvider.checkItemsTotalWithDiscounts.toStringAsFixed(2)}",
+                            );
+                            sb.writeln(
+                              "- Envío: S/. ${cartProvider.selectedDeliveryMethod?.price.toStringAsFixed(2)}",
+                            );
+                            sb.writeln(
+                              "- Total: S/. ${cartProvider.checkoutGrandTotal.toStringAsFixed(2)}",
+                            );
+                            sb.writeln();
+                            sb.writeln("\u{1F4B3} Método de pago: WhatsApp");
+                            sb.writeln(
+                              "\u{1F69A} Método de envío: ${cartProvider.selectedDeliveryMethod?.name}",
+                            );
+                            sb.writeln();
+                            sb.writeln("\u{1F4DD} Notas: ${noteCtrl.text}");
+
+                            final url = Uri.parse(
+                              "https://wa.me/$phone?text=${Uri.encodeComponent(sb.toString())}",
+                            );
+                            if (await canLaunchUrl(url)) {
+                              await launchUrl(
+                                url,
+                                mode: LaunchMode.externalApplication,
+                              );
+                            } else {
+                              debugPrint("No se pudo abrir whatsapp");
+                            }
+                            break;
+                          case PaymentType.bankTransfer:
+                            break;
+                          case PaymentType.culqi:
+                            break;
+                          case PaymentType.yape:
+                            break;
+                          default:
+                            break;
+                        }
+                      }
                     },
                     style: ButtonStyle(
                       backgroundColor: WidgetStatePropertyAll(Colors.black),
@@ -553,5 +657,19 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
         borderRadius: BorderRadius.circular(8),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    nameCtrl.dispose();
+    lastNameCtrl.dispose();
+    dniCtrl.dispose();
+    addressCtrl.dispose();
+    cityCtrl.dispose();
+    regionCtrl.dispose();
+    zipCtrl.dispose();
+    phoneCtrl.dispose();
+    noteCtrl.dispose();
+    super.dispose();
   }
 }
