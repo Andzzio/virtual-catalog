@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
+import 'package:virtual_catalog_app/presentation/widgets/app_dialog.dart';
 
 class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
   final bool inCatalogScreen;
@@ -111,7 +112,14 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         if (!inCatalogScreen)
           IconButton(
-            onPressed: () {},
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (context) {
+                  return AppDialog();
+                },
+              );
+            },
             icon: Icon(
               Icons.search,
               color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
