@@ -46,7 +46,16 @@ final appRouter = GoRouter(
             GoRoute(
               path: "catalog",
               builder: (context, state) {
-                return CatalogScreen();
+                final params = state.uri.queryParameters;
+                return CatalogScreen(
+                  initialSearch: params["search"],
+                  initialCategory: params["category"],
+                  initialSort: params["sort"],
+                  initialMinPrice: double.tryParse(params["minPrice"] ?? ""),
+                  initialMaxPrice: double.tryParse(params["maxPrice"] ?? ""),
+                  initialSizes: params["sizes"]?.split(",").toSet(),
+                  initialAvailable: params["available"] == "true" ? true : null,
+                );
               },
             ),
             GoRoute(

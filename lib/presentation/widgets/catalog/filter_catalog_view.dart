@@ -1,12 +1,32 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
-import 'package:virtual_catalog_app/presentation/providers/filter_catalog_provider.dart';
+import 'package:virtual_catalog_app/presentation/utils/filter_catalog.dart';
 
 class FilterCatalogView extends StatefulWidget {
-  const FilterCatalogView({super.key});
+  final String? search;
+  final String selectedCategory;
+  final String selectedOrder;
+  final double minPrice;
+  final double maxPrice;
+  final Set<String> selectedSizes;
+  final bool isAvailable;
+  final List<String> categories;
+  final List<String> sizes;
+  const FilterCatalogView({
+    super.key,
+    this.search,
+    required this.selectedCategory,
+    required this.selectedOrder,
+    required this.minPrice,
+    required this.maxPrice,
+    required this.selectedSizes,
+    required this.isAvailable,
+    required this.categories,
+    required this.sizes,
+  });
 
   @override
   State<FilterCatalogView> createState() => _FilterCatalogViewState();
@@ -19,8 +39,6 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
   final FocusNode _maxFocusNode = FocusNode();
   @override
   Widget build(BuildContext context) {
-    final FilterCatalogProvider filterCatalogProvider = context
-        .watch<FilterCatalogProvider>();
     return SingleChildScrollView(
       child: Padding(
         padding: EdgeInsets.all(20),
@@ -39,7 +57,10 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                 ),
                 IconButton(
                   onPressed: () {
-                    filterCatalogProvider.clearFilters();
+                    final slug = GoRouterState.of(
+                      context,
+                    ).pathParameters["businessSlug"];
+                    context.replace("/$slug/catalog");
                     if (_minController.text.isNotEmpty) {
                       _minController.clear();
                     }
@@ -73,7 +94,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                         }
                       },
                       child: Text(
-                        filterCatalogProvider.selectedOrder,
+                        widget.selectedOrder,
                         style: GoogleFonts.getFont(
                           FontNames.fontNameH2,
                           textStyle: TextStyle(fontSize: 15),
@@ -91,7 +112,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                         ),
                       ),
                       onPressed: () {
-                        filterCatalogProvider.selectOrder("Relevantes");
+                        return _replaceUrl(sort: "Relevantes");
                       },
                     ),
                     MenuItemButton(
@@ -103,7 +124,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                         ),
                       ),
                       onPressed: () {
-                        filterCatalogProvider.selectOrder("Mayor Precio");
+                        return _replaceUrl(sort: "Mayor Precio");
                       },
                     ),
                     MenuItemButton(
@@ -115,7 +136,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                         ),
                       ),
                       onPressed: () {
-                        filterCatalogProvider.selectOrder("Menor Precio");
+                        return _replaceUrl(sort: "Menor Precio");
                       },
                     ),
                   ],
@@ -135,32 +156,27 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                 ),
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: List.generate(
-                    filterCatalogProvider.categories.length,
-                    (index) {
-                      return TextButton(
-                        onPressed: () {
-                          filterCatalogProvider.selectCategory(
-                            filterCatalogProvider.categories[index],
-                          );
-                        },
-                        child: Text(
-                          filterCatalogProvider.categories[index],
-                          style: GoogleFonts.getFont(
-                            FontNames.fontNameH2,
-                            textStyle: TextStyle(
-                              fontSize: 15,
-                              fontWeight:
-                                  filterCatalogProvider.categories[index] ==
-                                      filterCatalogProvider.selectedCategory
-                                  ? FontWeight.bold
-                                  : FontWeight.normal,
-                            ),
+                  children: List.generate(widget.categories.length, (index) {
+                    return TextButton(
+                      onPressed: () {
+                        return _replaceUrl(category: widget.categories[index]);
+                      },
+                      child: Text(
+                        widget.categories[index],
+                        style: GoogleFonts.getFont(
+                          FontNames.fontNameH2,
+                          textStyle: TextStyle(
+                            fontSize: 15,
+                            fontWeight:
+                                widget.categories[index] ==
+                                    widget.selectedCategory
+                                ? FontWeight.bold
+                                : FontWeight.normal,
                           ),
                         ),
-                      );
-                    },
-                  ),
+                      ),
+                    );
+                  }),
                 ),
               ],
             ),
@@ -201,12 +217,10 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                             borderSide: BorderSide.none,
                           ),
                         ),
-                        onChanged: (_) {
+                        onEditingComplete: () {
                           final value =
                               double.tryParse(_minController.text) ?? 0;
-                          filterCatalogProvider.setMinPrice(value);
-                        },
-                        onEditingComplete: () {
+                          _replaceUrl(minPrice: value);
                           if (_minController.text.isNotEmpty &&
                               _maxController.text.isEmpty) {
                             _maxFocusNode.requestFocus();
@@ -245,12 +259,10 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                             borderSide: BorderSide.none,
                           ),
                         ),
-                        onChanged: (_) {
+                        onEditingComplete: () {
                           final value =
                               double.tryParse(_maxController.text) ?? 0;
-                          filterCatalogProvider.setMaxPrice(value);
-                        },
-                        onEditingComplete: () {
+                          _replaceUrl(maxPrice: value);
                           if (_maxController.text.isNotEmpty &&
                               _minController.text.isEmpty) {
                             _minFocusNode.requestFocus();
@@ -278,25 +290,23 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                 ),
                 SizedBox(height: 10),
                 Wrap(
-                  children: List.generate(filterCatalogProvider.sizes.length, (
-                    index,
-                  ) {
+                  children: List.generate(widget.sizes.length, (index) {
                     return Padding(
                       padding: const EdgeInsets.only(right: 10, bottom: 10),
                       child: FilterChip(
-                        selected: filterCatalogProvider.selectedSizes.contains(
-                          filterCatalogProvider.sizes[index],
+                        selected: widget.selectedSizes.contains(
+                          widget.sizes[index],
                         ),
                         selectedColor: Colors.black,
                         checkmarkColor: Colors.white,
                         label: Text(
-                          filterCatalogProvider.sizes[index],
+                          widget.sizes[index],
                           style: GoogleFonts.getFont(
                             FontNames.fontNameP,
                             textStyle: TextStyle(
                               color:
-                                  filterCatalogProvider.selectedSizes.contains(
-                                    filterCatalogProvider.sizes[index],
+                                  widget.selectedSizes.contains(
+                                    widget.sizes[index],
                                   )
                                   ? Colors.white
                                   : Colors.black,
@@ -304,9 +314,15 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                           ),
                         ),
                         onSelected: (_) {
-                          filterCatalogProvider.toggleSize(
-                            filterCatalogProvider.sizes[index],
+                          final newSizes = Set<String>.from(
+                            widget.selectedSizes,
                           );
+                          if (newSizes.contains(widget.sizes[index])) {
+                            newSizes.remove(widget.sizes[index]);
+                          } else {
+                            newSizes.add(widget.sizes[index]);
+                          }
+                          _replaceUrl(sizes: newSizes);
                         },
                       ),
                     );
@@ -328,15 +344,39 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                 Checkbox(
                   activeColor: Colors.black,
                   side: BorderSide(color: Colors.grey),
-                  value: filterCatalogProvider.isAvailable,
+                  value: widget.isAvailable,
                   onChanged: (_) {
-                    filterCatalogProvider.toggleAvailable();
+                    _replaceUrl(available: !widget.isAvailable);
                   },
                 ),
               ],
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  void _replaceUrl({
+    String? search,
+    String? category,
+    String? sort,
+    double? minPrice,
+    double? maxPrice,
+    Set<String>? sizes,
+    bool? available,
+  }) {
+    final slug = GoRouterState.of(context).pathParameters["businessSlug"];
+    context.replace(
+      FilterCatalog.buildCatalogUrl(
+        slug,
+        search: search ?? widget.search,
+        category: category ?? widget.selectedCategory,
+        sort: sort ?? widget.selectedOrder,
+        minPrice: minPrice ?? widget.minPrice,
+        maxPrice: maxPrice ?? widget.maxPrice,
+        sizes: sizes ?? widget.selectedSizes,
+        available: available ?? widget.isAvailable,
       ),
     );
   }

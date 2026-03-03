@@ -1,13 +1,36 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
-import 'package:virtual_catalog_app/presentation/providers/filter_catalog_provider.dart';
+import 'package:virtual_catalog_app/domain/entities/product.dart';
+import 'package:virtual_catalog_app/presentation/utils/filter_catalog.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog/filter_catalog_view.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/product_card.dart';
 
 class CatalogGridView extends StatefulWidget {
-  const CatalogGridView({super.key});
+  final List<Product> products;
+  final String? search;
+  final String? selectedCategory;
+  final String? selectedOrder;
+  final double? minPrice;
+  final double? maxPrice;
+  final Set<String>? selectedSizes;
+  final bool? isAvailable;
+  final List<String> categories;
+  final List<String> sizes;
+  const CatalogGridView({
+    super.key,
+    required this.products,
+    this.search,
+    this.selectedCategory,
+    this.selectedOrder,
+    this.minPrice,
+    this.maxPrice,
+    this.selectedSizes,
+    this.isAvailable,
+    required this.categories,
+    required this.sizes,
+  });
 
   @override
   State<CatalogGridView> createState() => _CatalogGridViewState();
@@ -19,8 +42,6 @@ class _CatalogGridViewState extends State<CatalogGridView> {
   @override
   Widget build(BuildContext context) {
     final Size size = MediaQuery.of(context).size;
-    final FilterCatalogProvider filterCatalogProvider = context
-        .watch<FilterCatalogProvider>();
     return LayoutBuilder(
       builder: (context, constraints) {
         return Container(
@@ -43,7 +64,19 @@ class _CatalogGridViewState extends State<CatalogGridView> {
                                 maxChildSize: 0.9,
                                 minChildSize: 0.4,
                                 builder: (_, _) {
-                                  return FilterCatalogView();
+                                  return FilterCatalogView(
+                                    search: widget.search,
+                                    selectedCategory:
+                                        widget.selectedCategory ?? "Todos",
+                                    selectedOrder:
+                                        widget.selectedOrder ?? "Relevantes",
+                                    minPrice: widget.minPrice ?? 0,
+                                    maxPrice: widget.maxPrice ?? 0,
+                                    selectedSizes: widget.selectedSizes ?? {},
+                                    isAvailable: widget.isAvailable ?? false,
+                                    categories: widget.categories,
+                                    sizes: widget.sizes,
+                                  );
                                 },
                               ),
                             );
@@ -76,8 +109,23 @@ class _CatalogGridViewState extends State<CatalogGridView> {
                           borderSide: BorderSide.none,
                         ),
                       ),
-                      onChanged: (value) {
-                        filterCatalogProvider.setSearchQuery(value);
+                      onChanged: (value) {},
+                      onSubmitted: (value) {
+                        final slug = GoRouterState.of(
+                          context,
+                        ).pathParameters["businessSlug"];
+                        context.replace(
+                          FilterCatalog.buildCatalogUrl(
+                            slug,
+                            search: value,
+                            category: widget.selectedCategory,
+                            sort: widget.selectedOrder,
+                            minPrice: widget.minPrice,
+                            maxPrice: widget.maxPrice,
+                            sizes: widget.selectedSizes,
+                            available: widget.isAvailable,
+                          ),
+                        );
                       },
                       onEditingComplete: () {
                         _searchFocusNode.requestFocus();
@@ -90,7 +138,7 @@ class _CatalogGridViewState extends State<CatalogGridView> {
               Expanded(
                 child: GridView.builder(
                   shrinkWrap: true,
-                  itemCount: filterCatalogProvider.filteredProducts.length,
+                  itemCount: widget.products.length,
                   gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                     crossAxisCount: constraints.maxWidth > 700 ? 4 : 2,
                     mainAxisSpacing: 20,
@@ -101,7 +149,7 @@ class _CatalogGridViewState extends State<CatalogGridView> {
                     return ProductCard(
                       cardWidth: 300,
                       isPageView: false,
-                      product: filterCatalogProvider.filteredProducts[index],
+                      product: widget.products[index],
                     );
                   },
                 ),

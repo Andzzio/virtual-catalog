@@ -165,6 +165,25 @@ class FilterCatalogProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  void applyParams({
+    String? search,
+    String? category,
+    String? sort,
+    double? minPrice,
+    double? maxPrice,
+    Set<String>? sizes,
+    bool? available,
+  }) {
+    if (search != null && search.isNotEmpty) _searchQuery = search;
+    if (category != null && category.isNotEmpty) _selectedCategory = category;
+    if (sort != null && sort.isNotEmpty) _selectedOrder = sort;
+    if (minPrice != null) _minPrice = minPrice;
+    if (maxPrice != null) _maxPrice = maxPrice;
+    if (sizes != null && sizes.isNotEmpty) _selectedSizes.addAll(sizes);
+    if (available != null) _isAvailable = available;
+    notifyListeners();
+  }
+
   void _onProductChanged() {
     _products = _productProvider.products;
     notifyListeners();
