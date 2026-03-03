@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/firebase/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -12,7 +13,6 @@ import 'package:virtual_catalog_app/data/repos/cart_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/product_repository_impl.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
-import 'package:virtual_catalog_app/presentation/providers/filter_catalog_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 
 void main() async {
@@ -45,14 +45,6 @@ class MainApp extends StatelessWidget {
               datasource: BusinessDatasourceImpl(),
             ),
           ),
-        ),
-        ChangeNotifierProxyProvider<ProductProvider, FilterCatalogProvider>(
-          create: (context) =>
-              FilterCatalogProvider(context.read<ProductProvider>()),
-          update: (context, value, previous) {
-            previous!.updateProvider(value);
-            return previous;
-          },
         ),
       ],
       child: MaterialApp.router(

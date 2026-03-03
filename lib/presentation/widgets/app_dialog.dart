@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
-import 'package:virtual_catalog_app/presentation/providers/filter_catalog_provider.dart'
-    show FilterCatalogProvider;
+import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
+import 'package:virtual_catalog_app/presentation/utils/filter_catalog.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/product_card.dart';
 
 class AppDialog extends StatefulWidget {
@@ -17,9 +18,11 @@ class AppDialog extends StatefulWidget {
 class _AppDialogState extends State<AppDialog> {
   final _searchController = TextEditingController();
   final _searchFocusNode = FocusNode();
+  String _query = "";
   @override
   Widget build(BuildContext context) {
-    final filterCatalogProvider = context.watch<FilterCatalogProvider>();
+    final allProducts = context.watch<ProductProvider>().products;
+    final filtered = FilterCatalog.filterProducts(allProducts, search: _query);
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: SizedBox(
@@ -45,7 +48,7 @@ class _AppDialogState extends State<AppDialog> {
                 border: OutlineInputBorder(borderSide: BorderSide.none),
               ),
               onChanged: (value) {
-                filterCatalogProvider.setSearchQuery(value);
+                setState(() => _query = value);
               },
               onEditingComplete: () {
                 _searchFocusNode.requestFocus();
@@ -58,17 +61,13 @@ class _AppDialogState extends State<AppDialog> {
                   Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: GridView.builder(
-                      itemCount:
-                          filterCatalogProvider.filteredProducts.length < 8
-                          ? filterCatalogProvider.filteredProducts.length
-                          : 8,
+                      itemCount: filtered.length < 8 ? filtered.length : 8,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                         crossAxisCount: 4,
                         childAspectRatio: 0.7,
                       ),
                       itemBuilder: (context, index) {
-                        final Product product =
-                            filterCatalogProvider.filteredProducts[index];
+                        final Product product = filtered[index];
                         return Padding(
                           padding: const EdgeInsets.all(8.0),
                           child: ProductCard(
@@ -80,14 +79,28 @@ class _AppDialogState extends State<AppDialog> {
                       },
                     ),
                   ),
-                  if (filterCatalogProvider.filteredProducts.length > 8)
+                  if (filtered.length > 8 && _query.isNotEmpty)
                     Positioned(
                       bottom: 15,
                       left: 0,
                       right: 0,
                       child: Center(
                         child: ElevatedButton(
-                          onPressed: () {},
+                          onPressed: () {
+                            final uri = GoRouter.of(
+                              context,
+                            ).routeInformationProvider.value.uri;
+                            final slug = uri.pathSegments.isNotEmpty
+                                ? uri.pathSegments.first
+                                : null;
+                            Navigator.pop(context);
+                            context.go(
+                              FilterCatalog.buildCatalogUrl(
+                                slug,
+                                search: _query,
+                              ),
+                            );
+                          },
                           style: ButtonStyle(
                             padding: WidgetStatePropertyAll(
                               EdgeInsets.symmetric(

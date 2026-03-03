@@ -114,7 +114,7 @@ class _CatalogGridViewState extends State<CatalogGridView> {
                         final slug = GoRouterState.of(
                           context,
                         ).pathParameters["businessSlug"];
-                        context.replace(
+                        context.go(
                           FilterCatalog.buildCatalogUrl(
                             slug,
                             search: value,
@@ -159,6 +159,14 @@ class _CatalogGridViewState extends State<CatalogGridView> {
         );
       },
     );
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.search != null) {
+      _searchController.text = widget.search!;
+    }
   }
 
   @override

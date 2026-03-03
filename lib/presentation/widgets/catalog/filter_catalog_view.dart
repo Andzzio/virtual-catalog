@@ -367,7 +367,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
     bool? available,
   }) {
     final slug = GoRouterState.of(context).pathParameters["businessSlug"];
-    context.replace(
+    context.go(
       FilterCatalog.buildCatalogUrl(
         slug,
         search: search ?? widget.search,
