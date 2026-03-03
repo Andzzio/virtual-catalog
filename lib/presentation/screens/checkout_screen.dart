@@ -24,8 +24,10 @@ class CheckoutScreen extends StatelessWidget {
       body: Row(
         children: [
           Expanded(flex: 5, child: CheckoutFormView()),
-          VerticalDivider(),
-          Expanded(flex: 5, child: CheckoutSummaryView()),
+          if (size.width > 800) ...[
+            VerticalDivider(),
+            Expanded(flex: 5, child: CheckoutSummaryView()),
+          ],
         ],
       ),
     );

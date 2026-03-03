@@ -60,7 +60,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                     final slug = GoRouterState.of(
                       context,
                     ).pathParameters["businessSlug"];
-                    context.replace("/$slug/catalog");
+                    context.go("/$slug/catalog");
                     if (_minController.text.isNotEmpty) {
                       _minController.clear();
                     }

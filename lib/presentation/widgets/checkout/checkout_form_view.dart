@@ -9,6 +9,7 @@ import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_type.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
+import 'package:virtual_catalog_app/presentation/widgets/checkout/checkout_summary_view.dart';
 
 class CheckoutFormView extends StatefulWidget {
   const CheckoutFormView({super.key});
@@ -42,6 +43,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
     final selectedPaymentMethod = context
         .watch<CartProvider>()
         .selectedPaymentMethod;
+    final size = MediaQuery.sizeOf(context);
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
@@ -54,6 +56,27 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+                  if (size.width < 800)
+                    ExpansionTile(
+                      tilePadding: EdgeInsets.zero,
+                      shape: Border(),
+                      title: Text(
+                        "RESUMEN DEL PEDIDO",
+                        style: GoogleFonts.getFont(
+                          FontNames.fontNameP,
+                          textStyle: TextStyle(fontSize: 12),
+                        ),
+                      ),
+                      children: [
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: SizedBox(
+                            height: size.height * 0.7,
+                            child: CheckoutSummaryView(),
+                          ),
+                        ),
+                      ],
+                    ),
                   Text(
                     "Métodos de Entrega",
                     style: GoogleFonts.getFont(
