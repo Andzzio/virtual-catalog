@@ -5,6 +5,7 @@ import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
 import 'package:virtual_catalog_app/presentation/utils/filter_catalog.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog/filter_catalog_view.dart';
+import 'package:virtual_catalog_app/presentation/widgets/empty_state_widget.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/product_card.dart';
 
 class CatalogGridView extends StatefulWidget {
@@ -136,23 +137,25 @@ class _CatalogGridViewState extends State<CatalogGridView> {
               ),
               SizedBox(height: 20),
               Expanded(
-                child: GridView.builder(
-                  shrinkWrap: true,
-                  itemCount: widget.products.length,
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: constraints.maxWidth > 700 ? 4 : 2,
-                    mainAxisSpacing: 20,
-                    crossAxisSpacing: 20,
-                    childAspectRatio: 0.6,
-                  ),
-                  itemBuilder: (context, index) {
-                    return ProductCard(
-                      cardWidth: 300,
-                      isPageView: false,
-                      product: widget.products[index],
-                    );
-                  },
-                ),
+                child: widget.products.isEmpty
+                    ? EmptyStateWidget()
+                    : GridView.builder(
+                        shrinkWrap: true,
+                        itemCount: widget.products.length,
+                        gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                          crossAxisCount: constraints.maxWidth > 700 ? 4 : 2,
+                          mainAxisSpacing: 20,
+                          crossAxisSpacing: 20,
+                          childAspectRatio: 0.6,
+                        ),
+                        itemBuilder: (context, index) {
+                          return ProductCard(
+                            cardWidth: 300,
+                            isPageView: false,
+                            product: widget.products[index],
+                          );
+                        },
+                      ),
               ),
             ],
           ),

@@ -6,6 +6,7 @@ import 'package:provider/provider.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
+import 'package:virtual_catalog_app/presentation/widgets/catalog_image.dart';
 
 class BannerImage extends StatefulWidget {
   const BannerImage({super.key, required this.size});
@@ -25,7 +26,7 @@ class _BannerImageState extends State<BannerImage> {
     final businessProvider = context.watch<BusinessProvider>();
     final banners = businessProvider.business?.banners ?? [];
     _bannerCount = banners.length;
-    if (banners.isEmpty) return SizedBox(height: widget.size.height);
+    if (banners.isEmpty) return SizedBox.shrink();
     return Container(
       width: double.infinity,
       height: widget.size.height,
@@ -39,10 +40,7 @@ class _BannerImageState extends State<BannerImage> {
               return Stack(
                 children: [
                   Positioned.fill(
-                    child: Image.asset(
-                      banners[index].imageUrl,
-                      fit: BoxFit.cover,
-                    ),
+                    child: CatalogImage(imageUrl: banners[index].imageUrl),
                   ),
                   Container(
                     decoration: BoxDecoration(

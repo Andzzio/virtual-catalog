@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/cart_item.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
+import 'package:virtual_catalog_app/presentation/widgets/catalog_image.dart';
 import 'package:virtual_catalog_app/presentation/widgets/quantity_selector.dart';
 
 class CartItemTile extends StatelessWidget {
@@ -21,11 +22,10 @@ class CartItemTile extends StatelessWidget {
         children: [
           ClipRRect(
             borderRadius: BorderRadius.circular(4),
-            child: Image.asset(
-              item.product.imageUrl[0],
+            child: CatalogImage(
+              imageUrl: item.product.imageUrl[0],
               width: 80,
               height: 100,
-              fit: BoxFit.cover,
             ),
           ),
           SizedBox(width: 12),

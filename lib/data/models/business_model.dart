@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:virtual_catalog_app/data/models/banner_item_model.dart';
 import 'package:virtual_catalog_app/data/models/delivery_method_model.dart';
 import 'package:virtual_catalog_app/data/models/payment_method_model.dart';
@@ -23,6 +24,26 @@ class BusinessModel {
     required this.deliveryMethods,
     required this.paymentMethods,
   });
+
+  factory BusinessModel.fromFirestore(DocumentSnapshot doc) {
+    final json = doc.data() as Map<String, dynamic>;
+    return BusinessModel(
+      slug: doc.id,
+      name: json["name"],
+      description: json["description"] ?? "",
+      logoUrl: json["logoUrl"] ?? "",
+      whatsappNumber: json["whatsappNumber"],
+      banners: (json["banners"] as List? ?? [])
+          .map((b) => BannerItemModel.fromJson(b as Map<String, dynamic>))
+          .toList(),
+      deliveryMethods: (json["deliveryMethods"] as List? ?? [])
+          .map((d) => DeliveryMethodModel.fromJson(d as Map<String, dynamic>))
+          .toList(),
+      paymentMethods: (json["paymentMethods"] as List? ?? [])
+          .map((p) => PaymentMethodModel.fromJson(p as Map<String, dynamic>))
+          .toList(),
+    );
+  }
 
   factory BusinessModel.fromJson(Map<String, dynamic> json) {
     return BusinessModel(

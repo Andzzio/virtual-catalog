@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
+import 'package:virtual_catalog_app/presentation/widgets/catalog_image.dart';
 
 class ProductImageSection extends StatefulWidget {
   final Product product;
@@ -16,6 +17,27 @@ class _ProductImageSectionState extends State<ProductImageSection> {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 600;
+
+    if (widget.product.imageUrl.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20),
+        child: Container(
+          height: isMobile
+              ? MediaQuery.of(context).size.height * 0.5
+              : MediaQuery.of(context).size.height * 0.75,
+          width: double.infinity,
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(8),
+          ),
+          child: Center(
+            child: Icon(Icons.image_not_supported,
+                color: Colors.grey, size: 64),
+          ),
+        ),
+      );
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Column(
@@ -55,7 +77,9 @@ class _ProductImageSectionState extends State<ProductImageSection> {
                           });
                         },
                         itemBuilder: (context, index) {
-                          return Image.asset(widget.product.imageUrl[index]);
+                          return CatalogImage(
+                            imageUrl: widget.product.imageUrl[index],
+                          );
                         },
                       ),
                       Positioned(
@@ -131,9 +155,8 @@ class _ProductImageSectionState extends State<ProductImageSection> {
                         ),
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(6),
-                          child: Image.asset(
-                            widget.product.imageUrl[index],
-                            fit: BoxFit.cover,
+                          child: CatalogImage(
+                            imageUrl: widget.product.imageUrl[index],
                           ),
                         ),
                       ),

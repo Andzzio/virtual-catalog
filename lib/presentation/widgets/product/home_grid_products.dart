@@ -17,6 +17,7 @@ class _HomeGridProductsState extends State<HomeGridProducts> {
   final double _cardWidth = 300;
   @override
   Widget build(BuildContext context) {
+    if (widget.provider.products.isEmpty) return SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [

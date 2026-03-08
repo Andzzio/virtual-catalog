@@ -12,9 +12,11 @@ class FilterCatalog {
     bool? available,
   }) {
     final filtered = products.where((product) {
-      final productPrice = product.variants
-          .map((v) => v.discountPrice ?? v.price)
-          .reduce((a, b) => a < b ? a : b);
+      final productPrice = product.variants.isEmpty
+          ? 0.0
+          : product.variants
+              .map((v) => v.discountPrice ?? v.price)
+              .reduce((a, b) => a < b ? a : b);
       final matchSearch =
           search == null ||
           search.isEmpty ||
@@ -41,22 +43,30 @@ class FilterCatalog {
     }).toList();
     if (sort == "Mayor Precio") {
       filtered.sort((a, b) {
-        final aPrice = a.variants
-            .map((v) => v.discountPrice ?? v.price)
-            .reduce((x, y) => x < y ? x : y);
-        final bPrice = b.variants
-            .map((v) => v.discountPrice ?? v.price)
-            .reduce((x, y) => x < y ? x : y);
+        final aPrice = a.variants.isEmpty
+            ? 0.0
+            : a.variants
+                .map((v) => v.discountPrice ?? v.price)
+                .reduce((x, y) => x < y ? x : y);
+        final bPrice = b.variants.isEmpty
+            ? 0.0
+            : b.variants
+                .map((v) => v.discountPrice ?? v.price)
+                .reduce((x, y) => x < y ? x : y);
         return bPrice.compareTo(aPrice);
       });
     } else if (sort == "Menor Precio") {
       filtered.sort((a, b) {
-        final aPrice = a.variants
-            .map((v) => v.discountPrice ?? v.price)
-            .reduce((x, y) => x < y ? x : y);
-        final bPrice = b.variants
-            .map((v) => v.discountPrice ?? v.price)
-            .reduce((x, y) => x < y ? x : y);
+        final aPrice = a.variants.isEmpty
+            ? 0.0
+            : a.variants
+                .map((v) => v.discountPrice ?? v.price)
+                .reduce((x, y) => x < y ? x : y);
+        final bPrice = b.variants.isEmpty
+            ? 0.0
+            : b.variants
+                .map((v) => v.discountPrice ?? v.price)
+                .reduce((x, y) => x < y ? x : y);
         return aPrice.compareTo(bPrice);
       });
     }

@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:virtual_catalog_app/data/models/product_variant_model.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
 
@@ -27,6 +28,25 @@ class ProductModel {
     required this.imageUrl,
     required this.variants,
   });
+
+  factory ProductModel.fromFirestore(DocumentSnapshot doc) {
+    final json = doc.data() as Map<String, dynamic>;
+    return ProductModel(
+      id: doc.id,
+      businessId: json['businessId'],
+      sku: json["sku"],
+      name: json["name"],
+      description: json["description"],
+      createdAt: (json["createdAt"] as Timestamp).toDate(),
+      updatedAt: (json["updatedAt"] as Timestamp).toDate(),
+      category: json["category"],
+      isAvailable: json["isAvailable"] ?? true,
+      imageUrl: List<String>.from(json["imageUrls"] ?? []),
+      variants: (json["variants"] as List? ?? [])
+          .map((v) => ProductVariantModel.fromJson(v as Map<String, dynamic>))
+          .toList(),
+    );
+  }
 
   factory ProductModel.fromJson(Map<String, dynamic> json) {
     return ProductModel(
