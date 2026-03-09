@@ -28,7 +28,7 @@ final appRouter = GoRouter(
         } else {
           if (isGoingToLogin || isGoingToAdmin) {
             final slug = state.pathParameters["businessSlug"];
-            return "/$slug/admin/dashboard";
+            return "/$slug/admin/panel";
           }
         }
         return null;
@@ -41,6 +41,13 @@ final appRouter = GoRouter(
           builder: (context, state) {
             final slug = state.pathParameters["businessSlug"]!;
             return AdminLoginScreen(businessSlug: slug);
+          },
+        ),
+        GoRoute(
+          path: "panel",
+          builder: (context, state) {
+            final businessSlug = state.pathParameters["businessSlug"]!;
+            return AdminPanelScreen(businessSlug: businessSlug);
           },
         ),
       ],

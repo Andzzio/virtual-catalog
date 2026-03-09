@@ -9,6 +9,7 @@ import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_type.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/checkout/checkout_summary_view.dart';
 
 class CheckoutFormView extends StatefulWidget {
@@ -524,6 +525,56 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                   FilledButton(
                     onPressed: () async {
                       if (_formKey.currentState!.validate()) {
+                        showDialog(
+                          context: context,
+                          barrierDismissible: false,
+                          builder: (_) =>
+                              Center(child: CircularProgressIndicator()),
+                        );
+
+                        final productRepo = context
+                            .read<ProductProvider>()
+                            .repository;
+                        final latestProducts = await productRepo.getProducts(
+                          businessProvider.business!.slug,
+                        );
+
+                        bool priceChanged = false;
+
+                        for (var cartItem in cartProvider.checkItems) {
+                          final realProduct = latestProducts.firstWhere(
+                            (p) => p.id == cartItem.product.id,
+                            orElse: () => cartItem.product,
+                          );
+
+                          final realVariant = realProduct.variants.firstWhere(
+                            (v) => v.name == cartItem.variant.name,
+                            orElse: () => cartItem.variant,
+                          );
+
+                          if (realVariant.price != cartItem.variant.price) {
+                            priceChanged = true;
+                            break;
+                          }
+                        }
+
+                        if (priceChanged) {
+                          if (context.mounted) Navigator.pop(context);
+                          if (context.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  "Los precios han sido actualizados por el vendedor. Por favor revisa tu carrito nuevamente",
+                                ),
+                                backgroundColor: Colors.orange,
+                              ),
+                            );
+                          }
+                          return;
+                        }
+
+                        if (context.mounted) Navigator.pop(context);
+
                         switch (selectedPaymentMethod?.type) {
                           case PaymentType.whatsapp:
                             if (phone == null) {

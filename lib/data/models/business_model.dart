@@ -6,6 +6,7 @@ import 'package:virtual_catalog_app/domain/entities/business.dart';
 
 class BusinessModel {
   final String slug;
+  final String ownerId;
   final String name;
   final String description;
   final String logoUrl;
@@ -16,6 +17,7 @@ class BusinessModel {
 
   BusinessModel({
     required this.slug,
+    required this.ownerId,
     required this.name,
     required this.description,
     required this.logoUrl,
@@ -29,6 +31,7 @@ class BusinessModel {
     final json = doc.data() as Map<String, dynamic>;
     return BusinessModel(
       slug: doc.id,
+      ownerId: json["ownerId"] ?? "",
       name: json["name"],
       description: json["description"] ?? "",
       logoUrl: json["logoUrl"] ?? "",
@@ -48,6 +51,7 @@ class BusinessModel {
   factory BusinessModel.fromJson(Map<String, dynamic> json) {
     return BusinessModel(
       slug: json['slug'],
+      ownerId: json['ownerId'] ?? "",
       name: json['name'],
       description: json['description'],
       logoUrl: json['logoUrl'],
@@ -66,6 +70,7 @@ class BusinessModel {
 
   Map<String, dynamic> toJson() => {
     'slug': slug,
+    'ownerId': ownerId,
     'name': name,
     'description': description,
     'logoUrl': logoUrl,
@@ -77,6 +82,7 @@ class BusinessModel {
 
   Business toEntity() => Business(
     slug: slug,
+    ownerId: ownerId,
     name: name,
     description: description,
     logoUrl: logoUrl,
@@ -89,6 +95,7 @@ class BusinessModel {
   factory BusinessModel.fromEntity(Business entity) {
     return BusinessModel(
       slug: entity.slug,
+      ownerId: entity.ownerId,
       name: entity.name,
       description: entity.description,
       logoUrl: entity.logoUrl,
