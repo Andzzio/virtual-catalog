@@ -6,6 +6,7 @@ import 'package:virtual_catalog_app/presentation/providers/business_provider.dar
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/screens/screens.dart';
+import 'package:virtual_catalog_app/presentation/widgets/empty_state_widget.dart';
 
 final appRouter = GoRouter(
   initialLocation: "/shurumba",
@@ -17,18 +18,18 @@ final appRouter = GoRouter(
       path: "/:businessSlug/admin",
       redirect: (context, state) {
         final isAuth = context.read<AuthProvider>().isAuthenticated;
-
-        final isGoingToLogin = state.matchedLocation.endsWith("/login");
-        final isGoingToAdmin = state.matchedLocation.endsWith("/admin");
+        final slug = state.pathParameters["businessSlug"]!;
+        final location = state.uri.path;
+        final isGoingToLogin = location.endsWith("/login");
+        final isGoingToAdmin =
+            location == "/$slug/admin" || location == "/$slug/admin/";
         if (!isAuth) {
           if (!isGoingToLogin) {
-            final slug = state.pathParameters["businessSlug"];
             return "/$slug/admin/login";
           }
         } else {
           if (isGoingToLogin || isGoingToAdmin) {
-            final slug = state.pathParameters["businessSlug"];
-            return "/$slug/admin/panel";
+            return "/$slug/admin/dashboard";
           }
         }
         return null;
@@ -43,12 +44,49 @@ final appRouter = GoRouter(
             return AdminLoginScreen(businessSlug: slug);
           },
         ),
-        GoRoute(
-          path: "panel",
-          builder: (context, state) {
-            final businessSlug = state.pathParameters["businessSlug"]!;
-            return AdminPanelScreen(businessSlug: businessSlug);
+        ShellRoute(
+          builder: (context, state, child) {
+            final slug = state.pathParameters["businessSlug"]!;
+            return AdminPanelScreen(businessSlug: slug, child: child);
           },
+          routes: [
+            GoRoute(
+              path: "dashboard",
+              builder: (context, state) {
+                return EmptyStateWidget(
+                  title: "Dashboard",
+                  subtitle: "Proximamente",
+                );
+              },
+            ),
+            GoRoute(
+              path: "products",
+              builder: (context, state) {
+                return EmptyStateWidget(
+                  title: "Productos",
+                  subtitle: "Proximamente",
+                );
+              },
+            ),
+            GoRoute(
+              path: "banners",
+              builder: (context, state) {
+                return EmptyStateWidget(
+                  title: "Banners",
+                  subtitle: "Proximamente",
+                );
+              },
+            ),
+            GoRoute(
+              path: "settings",
+              builder: (context, state) {
+                return EmptyStateWidget(
+                  title: "Configuración",
+                  subtitle: "Proximamente",
+                );
+              },
+            ),
+          ],
         ),
       ],
     ),

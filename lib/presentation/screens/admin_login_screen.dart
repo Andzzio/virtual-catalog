@@ -137,7 +137,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                                   business.ownerId == user.uid) {
                                 // ignore: use_build_context_synchronously
                                 context.go(
-                                  "/${widget.businessSlug}/admin/panel",
+                                  "/${widget.businessSlug}/admin/dashboard",
                                 );
                               } else {
                                 await authProvider.logout();

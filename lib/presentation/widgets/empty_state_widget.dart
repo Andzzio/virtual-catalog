@@ -20,6 +20,7 @@ class EmptyStateWidget extends StatelessWidget {
       child: Padding(
         padding: EdgeInsets.symmetric(vertical: 60),
         child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Icon(icon, size: 64, color: Colors.grey[400]),
             SizedBox(height: 16),

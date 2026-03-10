@@ -1,34 +1,23 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'package:virtual_catalog_app/presentation/providers/auth_provider.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/admin_left_side.dart';
 
 class AdminPanelScreen extends StatelessWidget {
   final String businessSlug;
-  const AdminPanelScreen({super.key, required this.businessSlug});
+  final Widget child;
+  const AdminPanelScreen({
+    super.key,
+    required this.businessSlug,
+    required this.child,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Admin Dashboard Placeholder'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () async {
-              await context.read<AuthProvider>().logout();
-              if (context.mounted) {
-                context.go('/$businessSlug/admin/login');
-              }
-            },
-          ),
+      body: Row(
+        children: [
+          Expanded(flex: 2, child: AdminLeftSide(businessSlug: businessSlug)),
+          Expanded(flex: 8, child: child),
         ],
-      ),
-      body: const Center(
-        child: Text(
-          '¡Bienvenido al Panel de Control!',
-          style: TextStyle(fontSize: 24),
-        ),
       ),
     );
   }
