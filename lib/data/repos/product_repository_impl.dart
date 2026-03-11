@@ -13,7 +13,22 @@ class ProductRepositoryImpl implements ProductRepository {
   }
 
   @override
-  Future<Product?> getProductById(String businessSlug, String productId) {
+  Future<Product?> getProductById(String businessSlug, String productId) async {
     return datasource.getProductById(businessSlug, productId);
+  }
+
+  @override
+  Future<String> addProduct(String businessSlug, Product product) async {
+    return datasource.addProduct(businessSlug, product);
+  }
+
+  @override
+  Future<void> deleteProduct(String businessSlug, String productId) async {
+    return datasource.deleteProduct(businessSlug, productId);
+  }
+
+  @override
+  Future<void> updateProduct(String businessSlug, Product product) async {
+    return datasource.updateProduct(businessSlug, product);
   }
 }

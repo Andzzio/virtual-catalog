@@ -118,11 +118,24 @@ class _AdminProductTableState extends State<AdminProductTable> {
                               ),
                             ),
                             DataCell(
-                              Text(
-                                product.name,
-                                style: GoogleFonts.getFont(
-                                  FontNames.fontNameH2,
-                                ),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Text(
+                                    product.name,
+                                    style: GoogleFonts.getFont(
+                                      FontNames.fontNameH2,
+                                    ),
+                                  ),
+                                  if (product.sku != "" && product.sku != null)
+                                    Text(
+                                      product.sku!,
+                                      style: GoogleFonts.getFont(
+                                        FontNames.fontNameH2,
+                                      ),
+                                    ),
+                                ],
                               ),
                             ),
                             DataCell(

@@ -27,4 +27,27 @@ class ProductDatasourceImpl implements ProductDatasource {
 
     return product;
   }
+
+  @override
+  Future<String> addProduct(String businessSlug, Product product) async {
+    final model = ProductModel.fromEntity(product);
+    final docRef = await _db
+        .collection("products")
+        .add(model.toFirestore(isNew: true));
+    return docRef.id;
+  }
+
+  @override
+  Future<void> deleteProduct(String businessSlug, String productId) async {
+    await _db.collection("products").doc(productId).delete();
+  }
+
+  @override
+  Future<void> updateProduct(String businessSlug, Product product) async {
+    final model = ProductModel.fromEntity(product);
+    await _db
+        .collection("products")
+        .doc(product.id)
+        .update(model.toFirestore(isNew: false));
+  }
 }

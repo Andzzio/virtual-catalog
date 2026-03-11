@@ -80,6 +80,19 @@ class ProductModel {
     'variants': variants.map((v) => v.toJson()).toList(),
   };
 
+  Map<String, dynamic> toFirestore({bool isNew = true}) => {
+    'businessId': businessId,
+    'sku': sku,
+    'name': name,
+    'description': description,
+    'updatedAt': FieldValue.serverTimestamp(),
+    if (isNew) 'createdAt': FieldValue.serverTimestamp(),
+    'category': category,
+    'isAvailable': isAvailable,
+    'imageUrls': imageUrl,
+    'variants': variants.map((v) => v.toJson()).toList(),
+  };
+
   Product toEntity() => Product(
     id: id,
     businessId: businessId,
