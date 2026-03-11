@@ -7,6 +7,7 @@ import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/screens/screens.dart';
 import 'package:virtual_catalog_app/presentation/widgets/empty_state_widget.dart';
+import '../../presentation/widgets/admin/products/admin_products_view.dart';
 
 final appRouter = GoRouter(
   initialLocation: "/shurumba",
@@ -47,6 +48,10 @@ final appRouter = GoRouter(
         ShellRoute(
           builder: (context, state, child) {
             final slug = state.pathParameters["businessSlug"]!;
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              context.read<ProductProvider>().loadProducts(slug);
+            });
+
             return AdminPanelScreen(businessSlug: slug, child: child);
           },
           routes: [
@@ -62,10 +67,7 @@ final appRouter = GoRouter(
             GoRoute(
               path: "products",
               builder: (context, state) {
-                return EmptyStateWidget(
-                  title: "Productos",
-                  subtitle: "Proximamente",
-                );
+                return AdminProductsView();
               },
             ),
             GoRoute(
