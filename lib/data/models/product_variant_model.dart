@@ -1,13 +1,16 @@
 import 'package:virtual_catalog_app/domain/entities/product_variant.dart';
 
 class ProductVariantModel {
+  final String? sku;
   final String name;
   final int? color;
   final int stock;
   final List<String> sizes;
   final double price;
   final double? discountPrice;
+
   ProductVariantModel({
+    this.sku,
     required this.name,
     this.color,
     required this.stock,
@@ -18,6 +21,7 @@ class ProductVariantModel {
 
   factory ProductVariantModel.fromJson(Map<String, dynamic> json) {
     return ProductVariantModel(
+      sku: json['sku'],
       name: json['name'],
       color: json['color'],
       stock: json['stock'],
@@ -30,6 +34,7 @@ class ProductVariantModel {
   }
 
   Map<String, dynamic> toJson() => {
+    'sku': sku,
     'name': name,
     'color': color,
     'stock': stock,
@@ -39,6 +44,7 @@ class ProductVariantModel {
   };
 
   ProductVariant toEntity() => ProductVariant(
+    sku: sku,
     name: name,
     color: color,
     stock: stock,
@@ -49,6 +55,7 @@ class ProductVariantModel {
 
   factory ProductVariantModel.fromEntity(ProductVariant entity) {
     return ProductVariantModel(
+      sku: entity.sku,
       name: entity.name,
       color: entity.color,
       stock: entity.stock,

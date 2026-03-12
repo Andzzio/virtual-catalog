@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/firebase/firebase_options.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -59,6 +58,7 @@ class MainApp extends StatelessWidget {
       ],
       child: MaterialApp.router(
         debugShowCheckedModeBanner: false,
+        title: "Virtual Catalog",
         theme: ThemeConfig(selectedColor: 0).getTheme(),
         routerConfig: appRouter,
       ),

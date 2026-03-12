@@ -67,8 +67,17 @@ final appRouter = GoRouter(
             GoRoute(
               path: "products",
               builder: (context, state) {
-                return AdminProductsView();
+                final slug = state.pathParameters["businessSlug"]!;
+                return AdminProductsView(businessSlug: slug);
               },
+              routes: [
+                GoRoute(
+                  path: "create",
+                  builder: (context, state) {
+                    return AdminCreateProductsScreen();
+                  },
+                ),
+              ],
             ),
             GoRoute(
               path: "banners",

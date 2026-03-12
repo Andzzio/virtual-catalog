@@ -1,3 +1,4 @@
+export 'package:virtual_catalog_app/presentation/screens/admin_create_products_screen.dart';
 export 'package:virtual_catalog_app/presentation/screens/admin_panel_screen.dart';
 export 'package:virtual_catalog_app/presentation/screens/admin_login_screen.dart';
 export 'package:virtual_catalog_app/presentation/screens/checkout_screen.dart';

@@ -24,4 +24,17 @@ class CloudinaryService {
       "publicId": response.data["public_id"],
     };
   }
+
+  Future<List<Map<String, String>>> uploadMultipleImages(
+    List<Uint8List> imagesBytes,
+    List<String> fileNames,
+  ) async {
+    final results = <Map<String, String>>[];
+
+    for (int i = 0; i < imagesBytes.length; i++) {
+      final result = await (uploadImage(imagesBytes[i], fileNames[i]));
+      results.add(result);
+    }
+    return results;
+  }
 }

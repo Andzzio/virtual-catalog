@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 
 import 'admin_product_table.dart';
 
 class AdminProductsView extends StatelessWidget {
-  const AdminProductsView({super.key});
+  final String businessSlug;
+  const AdminProductsView({super.key, required this.businessSlug});
 
   @override
   Widget build(BuildContext context) {
@@ -42,7 +44,9 @@ class AdminProductsView extends StatelessWidget {
               ),
               Spacer(),
               ElevatedButton.icon(
-                onPressed: () {},
+                onPressed: () {
+                  context.go("/$businessSlug/admin/products/create");
+                },
                 icon: Icon(Icons.add),
                 style: ElevatedButton.styleFrom(
                   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),

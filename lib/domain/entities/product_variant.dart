@@ -1,4 +1,5 @@
 class ProductVariant {
+  final String? sku;
   final String name;
   final int? color;
   final int stock;
@@ -7,6 +8,7 @@ class ProductVariant {
   final double? discountPrice;
 
   ProductVariant({
+    this.sku,
     required this.name,
     this.color,
     required this.price,
