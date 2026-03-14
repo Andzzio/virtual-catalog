@@ -62,6 +62,12 @@ class _AdminVariantCardState extends State<AdminVariantCard> {
                       ),
                       onChanged: (value) =>
                           widget.onUpdate(widget.index, "name", value),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "El nombre es obligatorio";
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),
@@ -134,6 +140,12 @@ class _AdminVariantCardState extends State<AdminVariantCard> {
                       decoration: _inputDecoration(hintText: "ej. 100.00..."),
                       onChanged: (value) =>
                           widget.onUpdate(widget.index, "origPrice", value),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "El precio es obligatorio";
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),
@@ -258,6 +270,12 @@ class _AdminVariantCardState extends State<AdminVariantCard> {
                       decoration: _inputDecoration(hintText: "ej. 100..."),
                       onChanged: (value) =>
                           widget.onUpdate(widget.index, "stock", value),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "El stock es obligatorio";
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),

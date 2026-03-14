@@ -3,7 +3,18 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 
 class AdminCreateProductFormSide extends StatelessWidget {
-  const AdminCreateProductFormSide({super.key});
+  final Function(String) onNameChanged;
+  final Function(String) onCategoryChanged;
+  final Function(String) onSkuChanged;
+  final Function(String) onDescriptionChanged;
+
+  const AdminCreateProductFormSide({
+    super.key,
+    required this.onNameChanged,
+    required this.onCategoryChanged,
+    required this.onSkuChanged,
+    required this.onDescriptionChanged,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -27,6 +38,13 @@ class AdminCreateProductFormSide extends StatelessWidget {
           SizedBox(height: 10),
           TextFormField(
             decoration: _inputDecoration(hintText: "ej. Camiseta Amarilla..."),
+            onChanged: (value) => onNameChanged(value),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "El nombre es obligatorio";
+              }
+              return null;
+            },
           ),
           SizedBox(height: 20),
           Row(
@@ -47,6 +65,13 @@ class AdminCreateProductFormSide extends StatelessWidget {
                       decoration: _inputDecoration(
                         hintText: "ej. Pantalones...",
                       ),
+                      onChanged: (value) => onCategoryChanged(value),
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return "La categoría es obligatoria";
+                        }
+                        return null;
+                      },
                     ),
                   ],
                 ),
@@ -66,6 +91,7 @@ class AdminCreateProductFormSide extends StatelessWidget {
                     SizedBox(height: 10),
                     TextFormField(
                       decoration: _inputDecoration(hintText: "VC-001..."),
+                      onChanged: (value) => onSkuChanged(value),
                     ),
                   ],
                 ),
@@ -87,6 +113,13 @@ class AdminCreateProductFormSide extends StatelessWidget {
                   "Describe las características y materiales del producto...",
             ),
             maxLines: 5,
+            onChanged: (value) => onDescriptionChanged(value),
+            validator: (value) {
+              if (value == null || value.isEmpty) {
+                return "La descripción es obligatoria";
+              }
+              return null;
+            },
           ),
         ],
       ),

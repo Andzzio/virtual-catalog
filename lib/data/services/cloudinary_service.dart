@@ -1,9 +1,10 @@
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class CloudinaryService {
-  static const String _cloudName = "doj9jse8d";
-  static const String _uploadPreset = "virtual_catalog";
+  final String _cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
+  final String _uploadPreset = dotenv.env['CLOUDINARY_UPLOAD_PRESET'] ?? '';
 
   final Dio _dio = Dio();
 
@@ -29,12 +30,11 @@ class CloudinaryService {
     List<Uint8List> imagesBytes,
     List<String> fileNames,
   ) async {
-    final results = <Map<String, String>>[];
-
-    for (int i = 0; i < imagesBytes.length; i++) {
-      final result = await (uploadImage(imagesBytes[i], fileNames[i]));
-      results.add(result);
-    }
-    return results;
+    return Future.wait(
+      List.generate(
+        imagesBytes.length,
+        (i) => uploadImage(imagesBytes[i], fileNames[i]),
+      ),
+    );
   }
 }

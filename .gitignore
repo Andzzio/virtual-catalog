@@ -50,3 +50,6 @@ lib/config/firebase/firebase_options.dart
 #Assets Protegidos
 assets/ShurumbaImagenes/
 assets/sabanaImages/
+
+# Entorno
+.env
