@@ -53,3 +53,6 @@ assets/sabanaImages/
 
 # Entorno
 .env
+
+#Firebase caché
+.firebase/
