@@ -64,32 +64,30 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
           ),
           SizedBox(width: 15),
           Expanded(
-            child: ScrollConfiguration(
-              behavior: ScrollConfiguration.of(context).copyWith(
-                dragDevices: {
-                  PointerDeviceKind.mouse,
-                  PointerDeviceKind.touch,
-                  PointerDeviceKind.stylus,
-                  PointerDeviceKind.trackpad,
-                },
-              ),
-              child: ReorderableListView.builder(
-                itemCount: widget.images.length,
-                scrollDirection: Axis.horizontal,
-                proxyDecorator: (child, index, animation) {
-                  return Material(
-                    elevation: 6,
-                    color: Colors.transparent,
-                    borderRadius: BorderRadius.circular(8),
-                    child: child,
-                  );
-                },
-                itemBuilder: (context, index) {
-                  final bytes = widget.images[index];
-                  return ReorderableDelayedDragStartListener(
-                    key: ValueKey("drag_${index}_${bytes.hashCode}"),
-                    index: index,
-                    child: Container(
+            child: SelectionContainer.disabled(
+              child: ScrollConfiguration(
+                behavior: ScrollConfiguration.of(context).copyWith(
+                  dragDevices: {
+                    PointerDeviceKind.mouse,
+                    PointerDeviceKind.touch,
+                    PointerDeviceKind.stylus,
+                    PointerDeviceKind.trackpad,
+                  },
+                ),
+                child: ReorderableListView.builder(
+                  itemCount: widget.images.length,
+                  scrollDirection: Axis.horizontal,
+                  proxyDecorator: (child, index, animation) {
+                    return Material(
+                      elevation: 6,
+                      color: Colors.transparent,
+                      borderRadius: BorderRadius.circular(8),
+                      child: child,
+                    );
+                  },
+                  itemBuilder: (context, index) {
+                    final bytes = widget.images[index];
+                    return Container(
                       key: ValueKey("img_${index}_${bytes.hashCode}"),
                       width: 120,
                       margin: EdgeInsets.only(right: 15),
@@ -132,20 +130,48 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                               ),
                             ),
                           ),
+                          Positioned(
+                            left: 6,
+                            top: 6,
+                            child: ReorderableDragStartListener(
+                              index: index,
+                              child: MouseRegion(
+                                cursor: SystemMouseCursors.grab,
+                                child: Container(
+                                  padding: EdgeInsets.all(4),
+                                  decoration: BoxDecoration(
+                                    color: const Color.fromARGB(
+                                      232,
+                                      255,
+                                      255,
+                                      255,
+                                    ),
+                                    shape: BoxShape.circle,
+                                    boxShadow: [BoxShadow(blurRadius: 4)],
+                                  ),
+                                  child: Icon(
+                                    Icons.drag_indicator,
+                                    size: 14,
+                                    color: Colors.grey[800],
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
                         ],
                       ),
-                    ),
-                  );
-                },
-                onReorder: (oldIndex, newIndex) {
-                  if (oldIndex < newIndex) {
-                    newIndex -= 1;
-                  }
-                  List<Uint8List> copy = List.from(widget.images);
-                  final Uint8List item = copy.removeAt(oldIndex);
-                  copy.insert(newIndex, item);
-                  widget.onImagesChanged(copy);
-                },
+                    );
+                  },
+                  onReorder: (oldIndex, newIndex) {
+                    if (oldIndex < newIndex) {
+                      newIndex -= 1;
+                    }
+                    List<Uint8List> copy = List.from(widget.images);
+                    final Uint8List item = copy.removeAt(oldIndex);
+                    copy.insert(newIndex, item);
+                    widget.onImagesChanged(copy);
+                  },
+                ),
               ),
             ),
           ),
