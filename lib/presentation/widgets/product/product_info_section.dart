@@ -29,7 +29,10 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
         : null;
     final size = MediaQuery.of(context).size;
     return Padding(
-      padding: EdgeInsets.symmetric(horizontal: 72, vertical: 20),
+      padding: EdgeInsets.symmetric(
+        horizontal: size.width < 600 ? 20 : 72,
+        vertical: 20,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

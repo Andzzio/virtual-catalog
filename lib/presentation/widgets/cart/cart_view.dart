@@ -20,14 +20,17 @@ class CartView extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
           child: Row(
             children: [
-              Text(
-                "Carrito de Compras",
-                style: GoogleFonts.getFont(
-                  FontNames.fontNameH2,
-                  textStyle: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w400,
+              Expanded(
+                child: Text(
+                  "Carrito de Compras",
+                  style: GoogleFonts.getFont(
+                    FontNames.fontNameH2,
+                    textStyle: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.w400,
+                    ),
                   ),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
               SizedBox(width: 8),

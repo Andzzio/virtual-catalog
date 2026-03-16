@@ -20,16 +20,31 @@ class QuantitySelector extends StatelessWidget {
         border: Border.all(color: Colors.grey.shade300),
         borderRadius: BorderRadius.circular(8),
       ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: [
-          IconButton(
-            onPressed: onDecrement,
-            icon: Icon(Icons.remove, size: 18),
-          ),
-          Text("$quantity", style: GoogleFonts.getFont(FontNames.fontNameP)),
-          IconButton(onPressed: onIncrement, icon: Icon(Icons.add, size: 18)),
-        ],
+      child: FittedBox(
+        fit: BoxFit.scaleDown,
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            IconButton(
+              onPressed: onDecrement,
+              icon: Icon(Icons.remove, size: 18),
+            ),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Text(
+                "$quantity",
+                style: GoogleFonts.getFont(
+                  FontNames.fontNameP,
+                  textStyle: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ),
+            ),
+            IconButton(onPressed: onIncrement, icon: Icon(Icons.add, size: 18)),
+          ],
+        ),
       ),
     );
   }

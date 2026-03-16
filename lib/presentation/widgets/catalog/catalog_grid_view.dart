@@ -55,8 +55,9 @@ class _CatalogGridViewState extends State<CatalogGridView> {
                 children: [
                   size.width < 1100
                       ? IconButton(
-                          onPressed: () {
-                            showModalBottomSheet(
+                          onPressed: () async {
+                            final slug = GoRouterState.of(context).pathParameters["businessSlug"] ?? "";
+                            final String? resultUrl = await showModalBottomSheet<String>(
                               context: context,
                               isScrollControlled: true,
                               builder: (_) => DraggableScrollableSheet(
@@ -66,6 +67,7 @@ class _CatalogGridViewState extends State<CatalogGridView> {
                                 minChildSize: 0.4,
                                 builder: (_, _) {
                                   return FilterCatalogView(
+                                    slug: slug,
                                     search: widget.search,
                                     selectedCategory:
                                         widget.selectedCategory ?? "Todos",
@@ -81,56 +83,61 @@ class _CatalogGridViewState extends State<CatalogGridView> {
                                 },
                               ),
                             );
+
+                            if (resultUrl != null && context.mounted) {
+                              context.go(resultUrl);
+                            }
                           },
                           icon: Icon(Icons.filter_alt),
                         )
                       : SizedBox(),
-                  SizedBox(
-                    height: 43,
-                    width: (size.width * 0.2).clamp(250, 500),
-                    child: TextField(
-                      controller: _searchController,
-                      focusNode: _searchFocusNode,
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameP,
-                        textStyle: TextStyle(),
-                      ),
-                      decoration: InputDecoration(
-                        prefixIcon: Icon(Icons.search, size: 20),
-                        filled: true,
-                        fillColor: Colors.grey.shade200,
-                        hintText: "Buscar...",
-                        hintStyle: GoogleFonts.getFont(
+                  Expanded(
+                    child: SizedBox(
+                      height: 43,
+                      child: TextField(
+                        controller: _searchController,
+                        focusNode: _searchFocusNode,
+                        style: GoogleFonts.getFont(
                           FontNames.fontNameP,
                           textStyle: TextStyle(),
                         ),
-
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(8),
-                          borderSide: BorderSide.none,
-                        ),
-                      ),
-                      onChanged: (value) {},
-                      onSubmitted: (value) {
-                        final slug = GoRouterState.of(
-                          context,
-                        ).pathParameters["businessSlug"];
-                        context.go(
-                          FilterCatalog.buildCatalogUrl(
-                            slug,
-                            search: value,
-                            category: widget.selectedCategory,
-                            sort: widget.selectedOrder,
-                            minPrice: widget.minPrice,
-                            maxPrice: widget.maxPrice,
-                            sizes: widget.selectedSizes,
-                            available: widget.isAvailable,
+                        decoration: InputDecoration(
+                          prefixIcon: Icon(Icons.search, size: 20),
+                          filled: true,
+                          fillColor: Colors.grey.shade200,
+                          hintText: "Buscar...",
+                          hintStyle: GoogleFonts.getFont(
+                            FontNames.fontNameP,
+                            textStyle: TextStyle(),
                           ),
-                        );
-                      },
-                      onEditingComplete: () {
-                        _searchFocusNode.requestFocus();
-                      },
+
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                            borderSide: BorderSide.none,
+                          ),
+                        ),
+                        onChanged: (value) {},
+                        onSubmitted: (value) {
+                          final slug = GoRouterState.of(
+                            context,
+                          ).pathParameters["businessSlug"];
+                          context.go(
+                            FilterCatalog.buildCatalogUrl(
+                              slug,
+                              search: value,
+                              category: widget.selectedCategory,
+                              sort: widget.selectedOrder,
+                              minPrice: widget.minPrice,
+                              maxPrice: widget.maxPrice,
+                              sizes: widget.selectedSizes,
+                              available: widget.isAvailable,
+                            ),
+                          );
+                        },
+                        onEditingComplete: () {
+                          _searchFocusNode.requestFocus();
+                        },
+                      ),
                     ),
                   ),
                 ],

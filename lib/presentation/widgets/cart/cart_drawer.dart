@@ -8,7 +8,9 @@ class CartDrawer extends StatelessWidget {
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
     return Drawer(
-      width: (size.width * 0.3).clamp(350, 500),
+      width: size.width < 600
+          ? size.width * 0.85
+          : (size.width * 0.3).clamp(350, 500).toDouble(),
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadiusGeometry.all(Radius.circular(8)),
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/utils/filter_catalog.dart';
@@ -61,6 +62,7 @@ class CatalogScreen extends StatelessWidget {
             Expanded(
               flex: 3,
               child: FilterCatalogView(
+                slug: GoRouterState.of(context).pathParameters["businessSlug"] ?? "",
                 search: initialSearch,
                 selectedCategory: initialCategory ?? "Todos",
                 selectedOrder: initialSort ?? "Relevantes",

@@ -6,6 +6,7 @@ import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/utils/filter_catalog.dart';
 
 class FilterCatalogView extends StatefulWidget {
+  final String slug;
   final String? search;
   final String selectedCategory;
   final String selectedOrder;
@@ -17,6 +18,7 @@ class FilterCatalogView extends StatefulWidget {
   final List<String> sizes;
   const FilterCatalogView({
     super.key,
+    required this.slug,
     this.search,
     required this.selectedCategory,
     required this.selectedOrder,
@@ -57,10 +59,13 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                 ),
                 IconButton(
                   onPressed: () {
-                    final slug = GoRouterState.of(
-                      context,
-                    ).pathParameters["businessSlug"];
-                    context.go("/$slug/catalog");
+                    final url = "/${widget.slug}/catalog";
+                    final route = ModalRoute.of(context);
+                    if (route != null && route is PopupRoute) {
+                      Navigator.of(context).pop(url);
+                    } else {
+                      context.go(url);
+                    }
                     if (_minController.text.isNotEmpty) {
                       _minController.clear();
                     }
@@ -366,19 +371,23 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
     Set<String>? sizes,
     bool? available,
   }) {
-    final slug = GoRouterState.of(context).pathParameters["businessSlug"];
-    context.go(
-      FilterCatalog.buildCatalogUrl(
-        slug,
-        search: search ?? widget.search,
-        category: category ?? widget.selectedCategory,
-        sort: sort ?? widget.selectedOrder,
-        minPrice: minPrice ?? widget.minPrice,
-        maxPrice: maxPrice ?? widget.maxPrice,
-        sizes: sizes ?? widget.selectedSizes,
-        available: available ?? widget.isAvailable,
-      ),
+    final url = FilterCatalog.buildCatalogUrl(
+      widget.slug,
+      search: search ?? widget.search,
+      category: category ?? widget.selectedCategory,
+      sort: sort ?? widget.selectedOrder,
+      minPrice: minPrice ?? widget.minPrice,
+      maxPrice: maxPrice ?? widget.maxPrice,
+      sizes: sizes ?? widget.selectedSizes,
+      available: available ?? widget.isAvailable,
     );
+    
+    final route = ModalRoute.of(context);
+    if (route != null && route is PopupRoute) {
+      Navigator.of(context).pop(url);
+    } else {
+      context.go(url);
+    }
   }
 
   @override

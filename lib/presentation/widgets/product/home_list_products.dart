@@ -38,12 +38,18 @@ class _HomeListProductsState extends State<HomeListProducts> {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Flexible(
-              child: Text(
-                "Piezas atemporales diseñadas para el guardarropa moderno",
-                style: GoogleFonts.getFont(
-                  FontNames.fontNameH2,
-                  textStyle: TextStyle(fontSize: 16, color: Color(0xFF82868B)),
+            Expanded(
+              child: Padding(
+                padding: const EdgeInsets.only(right: 20),
+                child: Text(
+                  "Piezas atemporales diseñadas para el guardarropa moderno",
+                  style: GoogleFonts.getFont(
+                    FontNames.fontNameH2,
+                    textStyle: TextStyle(
+                      fontSize: 16,
+                      color: Color(0xFF82868B),
+                    ),
+                  ),
                 ),
               ),
             ),

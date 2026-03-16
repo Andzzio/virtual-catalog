@@ -21,13 +21,15 @@ class _AppDialogState extends State<AppDialog> {
   String _query = "";
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+    final isMobile = size.width < 600;
     final allProducts = context.watch<ProductProvider>().products;
     final filtered = FilterCatalog.filterProducts(allProducts, search: _query);
     return Dialog(
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       child: SizedBox(
-        width: 1000,
-        height: 800,
+        width: isMobile ? size.width * 0.95 : 1000,
+        height: isMobile ? size.height * 0.8 : 800,
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -63,7 +65,7 @@ class _AppDialogState extends State<AppDialog> {
                     child: GridView.builder(
                       itemCount: filtered.length < 8 ? filtered.length : 8,
                       gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 4,
+                        crossAxisCount: isMobile ? 2 : 4,
                         childAspectRatio: 0.7,
                       ),
                       itemBuilder: (context, index) {

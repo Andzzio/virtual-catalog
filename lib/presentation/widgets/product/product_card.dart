@@ -162,8 +162,9 @@ class _ProductCardState extends State<ProductCard> {
                         ),
                         if (widget.product.variants.isNotEmpty) ...[
                           SizedBox(height: 5),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
+                          Wrap(
+                            alignment: WrapAlignment.center,
+                            crossAxisAlignment: WrapCrossAlignment.center,
                             children: [
                               Text(
                                 "S/. ${widget.product.variants.first.discountPrice ?? widget.product.variants.first.price}",
