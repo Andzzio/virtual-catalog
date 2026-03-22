@@ -20,10 +20,8 @@ import 'package:virtual_catalog_app/presentation/providers/product_provider.dart
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await dotenv.load(fileName: ".env");
+  await dotenv.load(fileName: "env");
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
-  debugPrint("Cloud: ${dotenv.env['CLOUDINARY_CLOUD_NAME']}");
-  debugPrint("Preset: ${dotenv.env['CLOUDINARY_UPLOAD_PRESET']}");
 
   runApp(const MainApp());
 }

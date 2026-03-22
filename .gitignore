@@ -52,7 +52,7 @@ assets/ShurumbaImagenes/
 assets/sabanaImages/
 
 # Entorno
-.env
+env
 
 #Firebase caché
 .firebase/
