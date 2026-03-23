@@ -5,9 +5,22 @@ import 'package:virtual_catalog_app/config/themes/font_names.dart';
 
 import 'admin_product_table.dart';
 
-class AdminProductsView extends StatelessWidget {
+class AdminProductsView extends StatefulWidget {
   final String businessSlug;
   const AdminProductsView({super.key, required this.businessSlug});
+
+  @override
+  State<AdminProductsView> createState() => _AdminProductsViewState();
+}
+
+class _AdminProductsViewState extends State<AdminProductsView> {
+  final TextEditingController _searchCtrl = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +58,7 @@ class AdminProductsView extends StatelessWidget {
               Spacer(),
               ElevatedButton.icon(
                 onPressed: () {
-                  context.go("/$businessSlug/admin/products/create");
+                  context.go("/${widget.businessSlug}/admin/products/create");
                 },
                 icon: Icon(Icons.add),
                 style: ElevatedButton.styleFrom(
@@ -73,44 +86,23 @@ class AdminProductsView extends StatelessWidget {
             ),
             child: Row(
               children: [
-                Expanded(child: TextField(decoration: _inputDecoration())),
-                SizedBox(width: 15),
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                    side: BorderSide(color: Color(0xFFE2E2E2)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadiusGeometry.circular(8),
-                    ),
-                  ),
-                  icon: Icon(Icons.filter_alt),
-                  label: Text(
-                    "Filtrar",
-                    style: GoogleFonts.getFont(FontNames.fontNameH2),
-                  ),
-                ),
-                SizedBox(width: 15),
-                OutlinedButton.icon(
-                  onPressed: () {},
-                  style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                    side: BorderSide(color: Color(0xFFE2E2E2)),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadiusGeometry.circular(8),
-                    ),
-                  ),
-                  icon: Icon(Icons.sort),
-                  label: Text(
-                    "Ordenar",
-                    style: GoogleFonts.getFont(FontNames.fontNameH2),
+                Expanded(
+                  child: TextField(
+                    controller: _searchCtrl,
+                    onChanged: (value) => setState(() {}),
+                    decoration: _inputDecoration(),
                   ),
                 ),
               ],
             ),
           ),
           SizedBox(height: 20),
-          Expanded(child: AdminProductTable()),
+          Expanded(
+            child: AdminProductTable(
+              businessSlug: widget.businessSlug,
+              searchQuery: _searchCtrl.text,
+            ),
+          ),
         ],
       ),
     );

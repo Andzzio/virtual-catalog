@@ -17,7 +17,8 @@ class _HomeGridProductsState extends State<HomeGridProducts> {
   final double _cardWidth = 300;
   @override
   Widget build(BuildContext context) {
-    if (widget.provider.products.isEmpty) return SizedBox.shrink();
+    final activeProducts = widget.provider.products.where((p) => p.isAvailable).toList();
+    if (activeProducts.isEmpty) return SizedBox.shrink();
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -41,9 +42,9 @@ class _HomeGridProductsState extends State<HomeGridProducts> {
             child: LayoutBuilder(
               builder: (BuildContext context, BoxConstraints constraints) {
                 return GridView.builder(
-                  itemCount: widget.provider.products.length >= 4
+                  itemCount: activeProducts.length >= 4
                       ? 4
-                      : widget.provider.products.length,
+                      : activeProducts.length,
                   physics: NeverScrollableScrollPhysics(),
                   shrinkWrap: true,
                   gridDelegate: constraints.maxWidth > 700
@@ -60,7 +61,7 @@ class _HomeGridProductsState extends State<HomeGridProducts> {
                           crossAxisSpacing: 20,
                         ),
                   itemBuilder: (context, index) {
-                    final Product product = widget.provider.products[index];
+                    final Product product = activeProducts[index];
                     return ProductCard(
                       cardWidth: _cardWidth,
                       isPageView: true,

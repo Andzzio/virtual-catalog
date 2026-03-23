@@ -8,10 +8,14 @@ import 'package:virtual_catalog_app/config/themes/font_names.dart';
 class ImagePickerUploader extends StatefulWidget {
   final List<Uint8List> images;
   final Function(List<Uint8List>) onImagesChanged;
+  final List<String> existingUrls;
+  final Function(List<String>)? onExistingUrlsChanged;
   const ImagePickerUploader({
     super.key,
     required this.images,
     required this.onImagesChanged,
+    this.existingUrls = const [],
+    this.onExistingUrlsChanged,
   });
 
   @override
@@ -74,21 +78,15 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                     PointerDeviceKind.trackpad,
                   },
                 ),
-                child: ReorderableListView.builder(
-                  itemCount: widget.images.length,
+                child: ListView.builder(
                   scrollDirection: Axis.horizontal,
-                  proxyDecorator: (child, index, animation) {
-                    return Material(
-                      elevation: 6,
-                      color: Colors.transparent,
-                      borderRadius: BorderRadius.circular(8),
-                      child: child,
-                    );
-                  },
+                  itemCount: widget.existingUrls.length + widget.images.length,
                   itemBuilder: (context, index) {
-                    final bytes = widget.images[index];
+                    final isExisting = index < widget.existingUrls.length;
                     return Container(
-                      key: ValueKey("img_${index}_${bytes.hashCode}"),
+                      key: ValueKey(isExisting
+                          ? "url_$index"
+                          : "img_${index - widget.existingUrls.length}"),
                       width: 120,
                       margin: EdgeInsets.only(right: 15),
                       child: Stack(
@@ -97,9 +95,16 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Color(0xffe2e2e2)),
+                                border:
+                                    Border.all(color: Color(0xffe2e2e2)),
                                 image: DecorationImage(
-                                  image: MemoryImage(bytes),
+                                  image: isExisting
+                                      ? NetworkImage(
+                                              widget.existingUrls[index])
+                                          as ImageProvider
+                                      : MemoryImage(widget.images[
+                                          index -
+                                              widget.existingUrls.length]),
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -109,16 +114,19 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                             top: 6,
                             right: 6,
                             child: InkWell(
-                              onTap: () => _removeImage(index),
+                              onTap: () {
+                                if (isExisting) {
+                                  _removeExistingUrl(index);
+                                } else {
+                                  _removeImage(
+                                      index - widget.existingUrls.length);
+                                }
+                              },
                               child: Container(
                                 padding: EdgeInsets.all(4),
                                 decoration: BoxDecoration(
                                   color: const Color.fromARGB(
-                                    232,
-                                    255,
-                                    255,
-                                    255,
-                                  ),
+                                    232, 255, 255, 255),
                                   shape: BoxShape.circle,
                                   boxShadow: [BoxShadow(blurRadius: 4)],
                                 ),
@@ -130,46 +138,9 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                               ),
                             ),
                           ),
-                          Positioned(
-                            left: 6,
-                            top: 6,
-                            child: ReorderableDragStartListener(
-                              index: index,
-                              child: MouseRegion(
-                                cursor: SystemMouseCursors.grab,
-                                child: Container(
-                                  padding: EdgeInsets.all(4),
-                                  decoration: BoxDecoration(
-                                    color: const Color.fromARGB(
-                                      232,
-                                      255,
-                                      255,
-                                      255,
-                                    ),
-                                    shape: BoxShape.circle,
-                                    boxShadow: [BoxShadow(blurRadius: 4)],
-                                  ),
-                                  child: Icon(
-                                    Icons.drag_indicator,
-                                    size: 14,
-                                    color: Colors.grey[800],
-                                  ),
-                                ),
-                              ),
-                            ),
-                          ),
                         ],
                       ),
                     );
-                  },
-                  onReorder: (oldIndex, newIndex) {
-                    if (oldIndex < newIndex) {
-                      newIndex -= 1;
-                    }
-                    List<Uint8List> copy = List.from(widget.images);
-                    final Uint8List item = copy.removeAt(oldIndex);
-                    copy.insert(newIndex, item);
-                    widget.onImagesChanged(copy);
                   },
                 ),
               ),
@@ -200,5 +171,13 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
     List<Uint8List> newImages = List.from(widget.images);
     newImages.removeAt(index);
     widget.onImagesChanged(newImages);
+  }
+
+  void _removeExistingUrl(int index) {
+    if (widget.onExistingUrlsChanged != null) {
+      List<String> newUrls = List.from(widget.existingUrls);
+      newUrls.removeAt(index);
+      widget.onExistingUrlsChanged!(newUrls);
+    }
   }
 }

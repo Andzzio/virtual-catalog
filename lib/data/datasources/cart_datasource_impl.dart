@@ -11,8 +11,14 @@ class CartDatasourceImpl implements CartDatasource {
     final prefs = await SharedPreferences.getInstance();
     final stored = prefs.getString("cart_$slug");
     if (stored == null) return [];
-    final List<dynamic> jsonList = jsonDecode(stored);
-    return jsonList.map((j) => CartItemModel.fromJson(j).toEntity()).toList();
+    try {
+      final List<dynamic> jsonList = jsonDecode(stored);
+      return jsonList.map((j) => CartItemModel.fromJson(j).toEntity()).toList();
+    } catch (e) {
+      // Si la data está corrupta o el modelo cambió, evitar que crasheé
+      await prefs.remove("cart_$slug");
+      return [];
+    }
   }
 
   @override

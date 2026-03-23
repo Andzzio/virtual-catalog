@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -559,7 +560,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         }
 
                         if (priceChanged) {
-                          if (context.mounted) Navigator.pop(context);
+                          if (context.mounted) Navigator.of(context).pop();
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -573,7 +574,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           return;
                         }
 
-                        if (context.mounted) Navigator.pop(context);
+                        if (context.mounted) Navigator.of(context).pop();
 
                         switch (selectedPaymentMethod?.type) {
                           case PaymentType.whatsapp:
@@ -640,15 +641,147 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                 url,
                                 mode: LaunchMode.externalApplication,
                               );
+                              if (!context.mounted) return;
+                              cartProvider.clearBuy();
+                              if (cartProvider.mode == CartMode.buyCart) {
+                                cartProvider.clearCart();
+                              }
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "✅ ¡Pedido enviado por WhatsApp!",
+                                  ),
+                                ),
+                              );
+                              final slug =
+                                  businessProvider.business?.slug ?? "";
+                              context.go("/$slug");
                             } else {
-                              debugPrint("No se pudo abrir whatsapp");
+                              if (!context.mounted) return;
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text(
+                                    "❌ No se pudo abrir WhatsApp en este dispositivo.",
+                                  ),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
                             }
                             break;
                           case PaymentType.bankTransfer:
-                            break;
                           case PaymentType.culqi:
-                            break;
                           case PaymentType.yape:
+                            if (!context.mounted) return;
+                            final confirmed = await showDialog<bool>(
+                              context: context,
+                              builder: (dialogContext) => AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                title: Text(
+                                  "Confirmar Pago",
+                                  style: GoogleFonts.getFont(
+                                    FontNames.fontNameH2,
+                                    textStyle: const TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                                content: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      "Has seleccionado ${selectedPaymentMethod?.name}. Por favor, lee las instrucciones:",
+                                      style: GoogleFonts.getFont(
+                                        FontNames.fontNameH2,
+                                      ),
+                                    ),
+                                    SizedBox(height: 15),
+                                    Container(
+                                      padding: EdgeInsets.all(15),
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[100],
+                                        borderRadius: BorderRadius.circular(8),
+                                        border: Border.all(
+                                          color: Colors.grey[300]!,
+                                        ),
+                                      ),
+                                      child: Text(
+                                        selectedPaymentMethod?.description ?? "",
+                                        style: GoogleFonts.getFont(
+                                          FontNames.fontNameH2,
+                                          textStyle: TextStyle(
+                                            fontStyle: FontStyle.italic,
+                                            color: Colors.grey[800],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 15),
+                                    Text(
+                                      "Al finalizar, tu pedido será registrado y el administrador se pondrá en contacto contigo para verificar el pago.",
+                                      style: GoogleFonts.getFont(
+                                        FontNames.fontNameH2,
+                                        textStyle: TextStyle(
+                                          fontSize: 13,
+                                          color: Colors.grey[600],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed:
+                                        () => Navigator.of(
+                                          dialogContext,
+                                        ).pop(false),
+                                    child: Text(
+                                      "Cancelar",
+                                      style: GoogleFonts.getFont(
+                                        FontNames.fontNameH2,
+                                      ),
+                                    ),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed:
+                                        () => Navigator.of(
+                                          dialogContext,
+                                        ).pop(true),
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Colors.black,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(8),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      "Finalizar",
+                                      style: GoogleFonts.getFont(
+                                        FontNames.fontNameH2,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            );
+
+                            if (confirmed == true) {
+                              if (!context.mounted) return;
+                              cartProvider.clearBuy();
+                              if (cartProvider.mode == CartMode.buyCart) {
+                                cartProvider.clearCart();
+                              }
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("✅ ¡Pedido finalizado!"),
+                                ),
+                              );
+                              final slug =
+                                  businessProvider.business?.slug ?? "";
+                              context.go("/$slug");
+                            }
                             break;
                           default:
                             break;

@@ -12,6 +12,7 @@ class FilterCatalog {
     bool? available,
   }) {
     final filtered = products.where((product) {
+      if (!product.isAvailable) return false;
       final productPrice = product.variants.isEmpty
           ? 0.0
           : product.variants
@@ -33,13 +34,13 @@ class FilterCatalog {
           sizes == null ||
           sizes.isEmpty ||
           product.variants.any((v) => v.sizes.any((s) => sizes.contains(s)));
-      final matchAvailable = available != true || product.isAvailable;
+      final matchHasStock = available != true || product.variants.any((v) => v.stock > 0);
       return matchSearch &&
           matchCategory &&
           matchMinPrice &&
           matchMaxPrice &&
           matchSize &&
-          matchAvailable;
+          matchHasStock;
     }).toList();
     if (sort == "Mayor Precio") {
       filtered.sort((a, b) {

@@ -11,4 +11,9 @@ class BusinessRepositoryImpl implements BusinessRepository {
   Future<Business?> getBusinessBySlug(String slug) {
     return datasource.getBusinessBySlug(slug);
   }
+
+  @override
+  Future<void> updateBusiness(String slug, Business business) {
+    return datasource.updateBusiness(slug, business);
+  }
 }

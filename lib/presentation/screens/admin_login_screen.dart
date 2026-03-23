@@ -6,6 +6,7 @@ import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/providers/auth_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 
+
 class AdminLoginScreen extends StatefulWidget {
   final String businessSlug;
   const AdminLoginScreen({super.key, required this.businessSlug});
@@ -19,6 +20,38 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
   final TextEditingController emailCtrl = TextEditingController();
   final TextEditingController passCtrl = TextEditingController();
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
+  Future<void> _resetPassword(BuildContext context) async {
+    final email = emailCtrl.text.trim();
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Ingresa tu correo en el campo superior primero"),
+        ),
+      );
+      return;
+    }
+
+    try {
+      await context.read<AuthProvider>().authRepository.resetPassword(email);
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Correo de recuperación enviado a $email"),
+          backgroundColor: Colors.green,
+        ),
+      );
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text("Error: no se pudo enviar el correo de recuperación."),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -125,7 +158,17 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                               password,
                             );
 
-                            if (success && mounted) {
+                            if (!success && context.mounted) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text(authProvider.errorMsg),
+                                  backgroundColor: Colors.redAccent,
+                                ),
+                              );
+                              return;
+                            }
+
+                            if (success && context.mounted) {
                               await businessProvider.loadBusiness(
                                 widget.businessSlug,
                               );
@@ -185,7 +228,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 ),
                 SizedBox(height: 20),
                 TextButton(
-                  onPressed: () {},
+                  onPressed: () => _resetPassword(context),
                   child: Text(
                     "Olvidé mi contraseña",
                     style: GoogleFonts.getFont(FontNames.fontNameH2),

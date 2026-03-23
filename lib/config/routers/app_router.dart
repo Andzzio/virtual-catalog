@@ -6,6 +6,8 @@ import 'package:virtual_catalog_app/presentation/providers/business_provider.dar
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/screens/screens.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/banners/admin_banners_view.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/settings/admin_settings_view.dart';
 import 'package:virtual_catalog_app/presentation/widgets/empty_state_widget.dart';
 import '../../presentation/widgets/admin/products/admin_products_view.dart';
 
@@ -50,6 +52,7 @@ final appRouter = GoRouter(
             final slug = state.pathParameters["businessSlug"]!;
             WidgetsBinding.instance.addPostFrameCallback((_) {
               context.read<ProductProvider>().loadProducts(slug);
+              context.read<BusinessProvider>().loadBusiness(slug);
             });
 
             return AdminPanelScreen(businessSlug: slug, child: child);
@@ -77,24 +80,33 @@ final appRouter = GoRouter(
                     return AdminCreateProductsScreen();
                   },
                 ),
+                GoRoute(
+                  path: "edit/:productId",
+                  builder: (context, state) {
+                    final productId = state.pathParameters["productId"]!;
+                    final products =
+                        context.read<ProductProvider>().products;
+                    final product = products.firstWhere(
+                      (p) => p.id == productId,
+                      orElse: () => products.first,
+                    );
+                    return AdminCreateProductsScreen(product: product);
+                  },
+                ),
               ],
             ),
             GoRoute(
               path: "banners",
               builder: (context, state) {
-                return EmptyStateWidget(
-                  title: "Banners",
-                  subtitle: "Proximamente",
-                );
+                final slug = state.pathParameters["businessSlug"]!;
+                return AdminBannersView(businessSlug: slug);
               },
             ),
             GoRoute(
               path: "settings",
               builder: (context, state) {
-                return EmptyStateWidget(
-                  title: "Configuración",
-                  subtitle: "Proximamente",
-                );
+                final slug = state.pathParameters["businessSlug"]!;
+                return AdminSettingsView(businessSlug: slug);
               },
             ),
           ],

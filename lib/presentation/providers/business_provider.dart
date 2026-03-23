@@ -22,4 +22,22 @@ class BusinessProvider extends ChangeNotifier {
     isLoading = false;
     notifyListeners();
   }
+
+  Future<void> updateBusiness(Business updated) async {
+    final backup = business;
+    business = updated;
+    notifyListeners();
+    try {
+      await repository.updateBusiness(updated.slug, updated);
+    } catch (e) {
+      business = backup;
+      notifyListeners();
+      rethrow;
+    }
+  }
+
+  void forceReload() {
+    _currentSlug = null;
+    business = null;
+  }
 }

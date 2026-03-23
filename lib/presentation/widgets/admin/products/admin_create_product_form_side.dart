@@ -7,6 +7,10 @@ class AdminCreateProductFormSide extends StatelessWidget {
   final Function(String) onCategoryChanged;
   final Function(String) onSkuChanged;
   final Function(String) onDescriptionChanged;
+  final String? initialName;
+  final String? initialCategory;
+  final String? initialSku;
+  final String? initialDescription;
 
   const AdminCreateProductFormSide({
     super.key,
@@ -14,6 +18,10 @@ class AdminCreateProductFormSide extends StatelessWidget {
     required this.onCategoryChanged,
     required this.onSkuChanged,
     required this.onDescriptionChanged,
+    this.initialName,
+    this.initialCategory,
+    this.initialSku,
+    this.initialDescription,
   });
 
   @override
@@ -37,6 +45,7 @@ class AdminCreateProductFormSide extends StatelessWidget {
           ),
           SizedBox(height: 10),
           TextFormField(
+            initialValue: initialName,
             decoration: _inputDecoration(hintText: "ej. Camiseta Amarilla..."),
             onChanged: (value) => onNameChanged(value),
             validator: (value) {
@@ -62,6 +71,7 @@ class AdminCreateProductFormSide extends StatelessWidget {
                     ),
                     SizedBox(height: 10),
                     TextFormField(
+                      initialValue: initialCategory,
                       decoration: _inputDecoration(
                         hintText: "ej. Pantalones...",
                       ),
@@ -90,6 +100,7 @@ class AdminCreateProductFormSide extends StatelessWidget {
                     ),
                     SizedBox(height: 10),
                     TextFormField(
+                      initialValue: initialSku,
                       decoration: _inputDecoration(hintText: "VC-001..."),
                       onChanged: (value) => onSkuChanged(value),
                     ),
@@ -108,6 +119,7 @@ class AdminCreateProductFormSide extends StatelessWidget {
           ),
           SizedBox(height: 10),
           TextFormField(
+            initialValue: initialDescription,
             decoration: _inputDecoration(
               hintText:
                   "Describe las características y materiales del producto...",

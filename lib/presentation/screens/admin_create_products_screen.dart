@@ -17,7 +17,8 @@ import '../widgets/admin/products/admin_create_products_variants_info.dart';
 import '../widgets/admin/products/image_picker_uploader.dart';
 
 class AdminCreateProductsScreen extends StatefulWidget {
-  const AdminCreateProductsScreen({super.key});
+  final Product? product;
+  const AdminCreateProductsScreen({super.key, this.product});
 
   @override
   State<AdminCreateProductsScreen> createState() =>
@@ -29,22 +30,58 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
 
   final _formKey = GlobalKey<FormState>();
 
-  String productName = "";
-  String category = "";
-  String productSku = "";
-  String description = "";
+  late String productName;
+  late String category;
+  late String productSku;
+  late String description;
+  late List<String> existingImageUrls;
 
-  List<Map<String, dynamic>> variants = [
-    {
-      "name": "",
-      "sku": "",
-      "origPrice": "",
-      "discountPrice": "",
-      "stock": "",
-      "sizes": [],
-      "colorInt": Colors.blueAccent.toARGB32(),
-    },
-  ];
+  late List<Map<String, dynamic>> variants;
+
+  List<Uint8List> selectedImages = [];
+
+  bool get isEditing => widget.product != null;
+
+  @override
+  void initState() {
+    super.initState();
+    final p = widget.product;
+    if (p != null) {
+      productName = p.name;
+      category = p.category;
+      productSku = p.sku ?? "";
+      description = p.description;
+      existingImageUrls = List.from(p.imageUrl);
+      variants = p.variants
+          .map((v) => <String, dynamic>{
+                "name": v.name,
+                "sku": v.sku ?? "",
+                "origPrice": v.price.toString(),
+                "discountPrice": v.discountPrice.toString(),
+                "stock": v.stock.toString(),
+                "sizes": List<String>.from(v.sizes),
+                "colorInt": v.color,
+              })
+          .toList();
+    } else {
+      productName = "";
+      category = "";
+      productSku = "";
+      description = "";
+      existingImageUrls = [];
+      variants = [
+        {
+          "name": "",
+          "sku": "",
+          "origPrice": "",
+          "discountPrice": "",
+          "stock": "",
+          "sizes": [],
+          "colorInt": Colors.blueAccent.toARGB32(),
+        },
+      ];
+    }
+  }
 
   void _addVariant() {
     setState(() {
@@ -86,25 +123,32 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
         builder: (context) =>
             Center(child: CircularProgressIndicator(color: Colors.black)),
       );
-      final fileNames = List.generate(
-        selectedImages.length,
-        (index) =>
-            "prod_${business.slug}_${DateTime.now().millisecondsSinceEpoch}_$index.jpg",
-      );
 
-      final uploadResults = await _cloudinary.uploadMultipleImages(
-        selectedImages,
-        fileNames,
-      );
-      final urls = uploadResults.map((r) => r["url"]!).toList();
+      // Upload only new images
+      List<String> newUploadedUrls = [];
+      if (selectedImages.isNotEmpty) {
+        final fileNames = List.generate(
+          selectedImages.length,
+          (index) =>
+              "prod_${business.slug}_${DateTime.now().millisecondsSinceEpoch}_$index.jpg",
+        );
+        final uploadResults = await _cloudinary.uploadMultipleImages(
+          selectedImages,
+          fileNames,
+        );
+        newUploadedUrls = uploadResults.map((r) => r["url"]!).toList();
+      }
+
+      // Combine existing URLs + newly uploaded
+      final allUrls = [...existingImageUrls, ...newUploadedUrls];
 
       final product = Product(
-        id: "",
+        id: isEditing ? widget.product!.id : "",
         name: productName,
         description: description,
-        imageUrl: urls,
+        imageUrl: allUrls,
         businessId: business.slug,
-        createdAt: DateTime.now(),
+        createdAt: isEditing ? widget.product!.createdAt : DateTime.now(),
         updatedAt: DateTime.now(),
         category: category,
         sku: productSku.isEmpty ? null : productSku,
@@ -123,25 +167,40 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
             )
             .toList(),
       );
-      if (!mounted) return;
-      await context.read<ProductProvider>().addProduct(business.slug, product);
 
       if (!mounted) return;
-      context.pop();
-      context.pop();
-      //
+
+      if (isEditing) {
+        await context
+            .read<ProductProvider>()
+            .updateProduct(business.slug, product);
+      } else {
+        await context
+            .read<ProductProvider>()
+            .addProduct(business.slug, product);
+      }
+
+      if (!mounted) return;
+      Navigator.of(context).pop(); // Close loading dialog
+      context.pop(); // Go back to products list
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ ¡Producto creado con éxito!")),
+        SnackBar(
+          content: Text(
+            isEditing
+                ? "✅ ¡Producto actualizado!"
+                : "✅ ¡Producto creado con éxito!",
+          ),
+        ),
       );
     } catch (e) {
-      if (mounted) context.pop(); // Quitar Loading
+      if (mounted) Navigator.of(context).pop(); // Close loading dialog
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("❌ Error crítico: $e")));
     }
   }
 
-  List<Uint8List> selectedImages = [];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -155,7 +214,7 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
           ElevatedButton.icon(
             onPressed: () {
               if (!_formKey.currentState!.validate()) return;
-              if (selectedImages.isEmpty) {
+              if (selectedImages.isEmpty && existingImageUrls.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text("Selecciona al menos una imagen")),
                 );
@@ -189,18 +248,21 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
               ),
             ),
             label: Text(
-              "Guardar Producto",
+              isEditing ? "Guardar Cambios" : "Guardar Producto",
               style: GoogleFonts.getFont(FontNames.fontNameH2),
             ),
           ),
           SizedBox(width: 10),
         ],
       ),
-      body: SingleChildScrollView(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final horizontalPadding = constraints.maxWidth > 900 ? 150.0 : (constraints.maxWidth > 600 ? 40.0 : 16.0);
+          return SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 150, vertical: 20),
+            padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 20),
             child: Column(
               children: [
                 Row(
@@ -211,11 +273,16 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
                     Expanded(
                       flex: 3,
                       child: AdminCreateProductFormSide(
+                        initialName: isEditing ? productName : null,
+                        initialCategory: isEditing ? category : null,
+                        initialSku: isEditing ? productSku : null,
+                        initialDescription: isEditing ? description : null,
                         onNameChanged: (val) =>
                             setState(() => productName = val),
                         onCategoryChanged: (val) =>
                             setState(() => category = val),
-                        onSkuChanged: (val) => setState(() => productSku = val),
+                        onSkuChanged: (val) =>
+                            setState(() => productSku = val),
                         onDescriptionChanged: (val) =>
                             setState(() => description = val),
                       ),
@@ -234,9 +301,15 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
                       flex: 3,
                       child: ImagePickerUploader(
                         images: selectedImages,
+                        existingUrls: existingImageUrls,
                         onImagesChanged: (newImages) {
                           setState(() {
                             selectedImages = newImages;
+                          });
+                        },
+                        onExistingUrlsChanged: (newUrls) {
+                          setState(() {
+                            existingImageUrls = newUrls;
                           });
                         },
                       ),
@@ -271,6 +344,8 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
             ),
           ),
         ),
+      );
+        },
       ),
     );
   }

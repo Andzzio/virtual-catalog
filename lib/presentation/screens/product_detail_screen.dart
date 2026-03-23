@@ -20,7 +20,7 @@ class ProductDetailScreen extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     final ProductProvider productProvider = context.watch<ProductProvider>();
     final Product? product = productProvider.products
-        .where((product) => product.id == productId)
+        .where((product) => product.id == productId && product.isAvailable)
         .firstOrNull;
 
     return Scaffold(
@@ -33,8 +33,10 @@ class ProductDetailScreen extends StatelessWidget {
       endDrawer: CartDrawer(),
       floatingActionButton: WhatsappFloatingButton(),
       body: product == null
-          ? SingleChildScrollView(
-              child: Center(child: CircularProgressIndicator()),
+          ? Center(
+              child: productProvider.isLoading 
+                ? const CircularProgressIndicator()
+                : const Text("Producto no encontrado o no disponible."),
             )
           : SingleChildScrollView(
               child: Column(

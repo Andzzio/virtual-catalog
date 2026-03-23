@@ -19,7 +19,8 @@ class _HomeListProductsState extends State<HomeListProducts> {
   final _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-    if (widget.provider.products.isEmpty) return SizedBox.shrink();
+    final activeProducts = widget.provider.products.where((p) => p.isAvailable).toList();
+    if (activeProducts.isEmpty) return SizedBox.shrink();
     final Size size = MediaQuery.of(context).size;
     final double cardWidth = size.width > 800
         ? 350
@@ -86,11 +87,11 @@ class _HomeListProductsState extends State<HomeListProducts> {
               ListView.builder(
                 scrollDirection: Axis.horizontal,
                 controller: _scrollController,
-                itemCount: widget.provider.products.length >= 10
+                itemCount: activeProducts.length >= 10
                     ? 10
-                    : widget.provider.products.length,
+                    : activeProducts.length,
                 itemBuilder: (context, index) {
-                  final Product product = widget.provider.products[index];
+                  final Product product = activeProducts[index];
                   return Padding(
                     padding: EdgeInsets.all(_cardPadding),
                     child: ProductCard(

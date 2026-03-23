@@ -27,4 +27,9 @@ class AuthRepositoryImpl implements AuthRepository {
   Future<void> logout() async {
     return datasource.logout();
   }
+
+  @override
+  Future<void> resetPassword(String email) async {
+    return datasource.resetPassword(email);
+  }
 }

@@ -12,4 +12,10 @@ class BusinessDatasourceImpl implements BusinessDatasource {
     if (!doc.exists) return null;
     return BusinessModel.fromFirestore(doc).toEntity();
   }
+
+  @override
+  Future<void> updateBusiness(String slug, Business business) async {
+    final model = BusinessModel.fromEntity(business);
+    await _db.collection("businesses").doc(slug).update(model.toJson());
+  }
 }
