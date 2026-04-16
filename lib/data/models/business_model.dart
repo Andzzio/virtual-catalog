@@ -14,6 +14,8 @@ class BusinessModel {
   final List<BannerItemModel> banners;
   final List<DeliveryMethodModel> deliveryMethods;
   final List<PaymentMethodModel> paymentMethods;
+  final bool showDesktopLogo;
+  final bool showMobileLogo;
 
   BusinessModel({
     required this.slug,
@@ -25,6 +27,8 @@ class BusinessModel {
     required this.banners,
     required this.deliveryMethods,
     required this.paymentMethods,
+    required this.showDesktopLogo,
+    required this.showMobileLogo,
   });
 
   factory BusinessModel.fromFirestore(DocumentSnapshot doc) {
@@ -32,10 +36,10 @@ class BusinessModel {
     return BusinessModel(
       slug: doc.id,
       ownerId: json["ownerId"] ?? "",
-      name: json["name"],
+      name: json["name"] ?? "",
       description: json["description"] ?? "",
       logoUrl: json["logoUrl"] ?? "",
-      whatsappNumber: json["whatsappNumber"],
+      whatsappNumber: json["whatsappNumber"] ?? "",
       banners: (json["banners"] as List? ?? [])
           .map((b) => BannerItemModel.fromJson(b as Map<String, dynamic>))
           .toList(),
@@ -45,14 +49,16 @@ class BusinessModel {
       paymentMethods: (json["paymentMethods"] as List? ?? [])
           .map((p) => PaymentMethodModel.fromJson(p as Map<String, dynamic>))
           .toList(),
+      showDesktopLogo: json['showDesktopLogo'] ?? true,
+      showMobileLogo: json['showMobileLogo'] ?? true,
     );
   }
 
   factory BusinessModel.fromJson(Map<String, dynamic> json) {
     return BusinessModel(
-      slug: json['slug'],
+      slug: json['slug'] ?? "",
       ownerId: json['ownerId'] ?? "",
-      name: json['name'],
+      name: json['name'] ?? "",
       description: json['description'],
       logoUrl: json['logoUrl'],
       whatsappNumber: json['whatsappNumber'],
@@ -65,6 +71,8 @@ class BusinessModel {
       paymentMethods: (json["paymentMethods"] as List)
           .map((p) => PaymentMethodModel.fromJson(p))
           .toList(),
+      showDesktopLogo: json['showDesktopLogo'] ?? true,
+      showMobileLogo: json['showMobileLogo'] ?? true,
     );
   }
 
@@ -78,6 +86,8 @@ class BusinessModel {
     'banners': banners.map((b) => b.toJson()).toList(),
     "deliveryMethods": deliveryMethods.map((d) => d.toJson()).toList(),
     "paymentMethods": paymentMethods.map((p) => p.toJson()).toList(),
+    "showDesktopLogo": showDesktopLogo,
+    "showMobileLogo": showMobileLogo,
   };
 
   Business toEntity() => Business(
@@ -90,6 +100,8 @@ class BusinessModel {
     banners: banners.map((b) => b.toEntity()).toList(),
     deliveryMethods: deliveryMethods.map((d) => d.toEntity()).toList(),
     paymentMethods: paymentMethods.map((p) => p.toEntity()).toList(),
+    showDesktopLogo: showDesktopLogo,
+    showMobileLogo: showMobileLogo,
   );
 
   factory BusinessModel.fromEntity(Business entity) {
@@ -109,6 +121,8 @@ class BusinessModel {
       paymentMethods: entity.paymentMethods
           .map((p) => PaymentMethodModel.fromEntity(p))
           .toList(),
+      showDesktopLogo: entity.showDesktopLogo,
+      showMobileLogo: entity.showMobileLogo,
     );
   }
 }

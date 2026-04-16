@@ -12,6 +12,8 @@ class Business {
   final List<BannerItem> banners;
   final List<DeliveryMethod> deliveryMethods;
   final List<PaymentMethod> paymentMethods;
+  final bool showDesktopLogo;
+  final bool showMobileLogo;
 
   Business({
     required this.slug,
@@ -23,5 +25,7 @@ class Business {
     required this.banners,
     required this.deliveryMethods,
     required this.paymentMethods,
+    this.showDesktopLogo = true,
+    this.showMobileLogo = true,
   });
 }

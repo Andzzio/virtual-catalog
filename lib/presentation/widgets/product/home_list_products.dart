@@ -19,7 +19,9 @@ class _HomeListProductsState extends State<HomeListProducts> {
   final _scrollController = ScrollController();
   @override
   Widget build(BuildContext context) {
-    final activeProducts = widget.provider.products.where((p) => p.isAvailable).toList();
+    final activeProducts = widget.provider.products
+        .where((p) => p.isAvailable)
+        .toList();
     if (activeProducts.isEmpty) return SizedBox.shrink();
     final Size size = MediaQuery.of(context).size;
     final double cardWidth = size.width > 800

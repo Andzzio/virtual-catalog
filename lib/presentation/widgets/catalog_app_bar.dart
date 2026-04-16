@@ -25,7 +25,10 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     final isMobile = MediaQuery.of(context).size.width < 800;
-    final businessName = context.watch<BusinessProvider>().business?.name ?? "";
+    final business = context.watch<BusinessProvider>().business;
+    final showDesktopLogo = business?.showDesktopLogo ?? false;
+    final showMobileLogo = business?.showMobileLogo ?? false;
+    final businessName = business?.name ?? "";
     final CartProvider cartProvider = context.watch<CartProvider>();
     return AppBar(
       backgroundColor: _isScrolled ? Colors.white : Colors.transparent,
@@ -43,30 +46,20 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
               ),
             )
           : Center(
-              child: Text(
-                businessName,
-                style: GoogleFonts.getFont(
-                  FontNames.fontNameH1,
-                  textStyle: TextStyle(
-                    color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                textAlign: TextAlign.center,
+              child: _buildLogo(
+                isMobile: isMobile,
+                showDesktopLogo: showDesktopLogo,
+                showMobileLogo: showMobileLogo,
+                businessName: businessName,
               ),
             ),
       title: isMobile
           ? Center(
-              child: Text(
-                businessName,
-                style: GoogleFonts.getFont(
-                  FontNames.fontNameH1,
-                  textStyle: TextStyle(
-                    color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-                textAlign: TextAlign.center,
+              child: _buildLogo(
+                isMobile: isMobile,
+                showDesktopLogo: showDesktopLogo,
+                showMobileLogo: showMobileLogo,
+                businessName: businessName,
               ),
             )
           : Row(
@@ -143,5 +136,42 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
         SizedBox(width: 20),
       ],
     );
+  }
+
+  Widget _buildLogo({
+    bool isMobile = false,
+    bool showDesktopLogo = true,
+    bool showMobileLogo = true,
+    String businessName = "",
+  }) {
+    if (isMobile) {
+      return showMobileLogo
+          ? Text(
+              businessName,
+              style: GoogleFonts.getFont(
+                FontNames.fontNameH1,
+                textStyle: TextStyle(
+                  color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              textAlign: TextAlign.center,
+            )
+          : Text("");
+    } else {
+      return showDesktopLogo
+          ? Text(
+              businessName,
+              style: GoogleFonts.getFont(
+                FontNames.fontNameH1,
+                textStyle: TextStyle(
+                  color: _isScrolled ? Colors.black : Color(0xFFB3B8C1),
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              textAlign: TextAlign.center,
+            )
+          : Text("");
+    }
   }
 }

@@ -34,6 +34,8 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   List<PaymentMethod> _paymentMethods = [];
   bool _initialized = false;
   bool _isSaving = false;
+  bool _showDesktopLogo = false;
+  bool _showMobileLogo = false;
 
   void _initFromBusiness(Business business) {
     if (_initialized) return;
@@ -43,6 +45,8 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     _currentLogoUrl = business.logoUrl;
     _deliveryMethods = List.from(business.deliveryMethods);
     _paymentMethods = List.from(business.paymentMethods);
+    _showDesktopLogo = business.showDesktopLogo;
+    _showMobileLogo = business.showMobileLogo;
     _initialized = true;
   }
 
@@ -75,7 +79,8 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     try {
       String logoUrl = _currentLogoUrl ?? "";
       if (_newLogo != null) {
-        final fileName = "logo_${business.slug}_${DateTime.now().millisecondsSinceEpoch}.jpg";
+        final fileName =
+            "logo_${business.slug}_${DateTime.now().millisecondsSinceEpoch}.jpg";
         final result = await _cloudinary.uploadImage(_newLogo!, fileName);
         logoUrl = result["url"]!;
       }
@@ -90,6 +95,8 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         banners: business.banners,
         deliveryMethods: _deliveryMethods,
         paymentMethods: _paymentMethods,
+        showDesktopLogo: _showDesktopLogo,
+        showMobileLogo: _showMobileLogo,
       );
 
       if (!mounted) return;
@@ -97,15 +104,15 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
 
       if (!mounted) return;
       setState(() => _isSaving = false);
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Configuración guardada")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("✅ Configuración guardada")));
     } catch (e) {
       if (mounted) {
         setState(() => _isSaving = false);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("❌ Error: $e")),
-        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("❌ Error: $e")));
       }
     }
   }
@@ -116,7 +123,9 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     final business = provider.business;
 
     if (provider.isLoading) {
-      return const Center(child: CircularProgressIndicator(color: Colors.black));
+      return const Center(
+        child: CircularProgressIndicator(color: Colors.black),
+      );
     }
     if (business == null) {
       return const Center(child: Text("No se pudo cargar el negocio."));
@@ -202,10 +211,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
                 const Divider(),
                 const SizedBox(height: 30),
                 // Contact Section
-                _buildSectionHeader(
-                  Icons.phone_outlined,
-                  "Contacto",
-                ),
+                _buildSectionHeader(Icons.phone_outlined, "Contacto"),
                 const SizedBox(height: 16),
                 _buildContactSection(),
                 const SizedBox(height: 30),
@@ -224,11 +230,68 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
                   methods: _paymentMethods,
                   onChanged: (val) => setState(() => _paymentMethods = val),
                 ),
+                const SizedBox(height: 30),
+                const Divider(),
+                const SizedBox(height: 30),
+                _buildSectionHeader(
+                  Icons.settings_applications,
+                  "Opciones varias",
+                ),
+                const SizedBox(height: 16),
+                _buildMiscSection(),
                 const SizedBox(height: 80),
               ],
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildMiscSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFE2E2E2)),
+      ),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Mostrar logo del Negocio en la vista de Escritorio",
+                style: GoogleFonts.getFont(FontNames.fontNameH2),
+              ),
+              Switch(
+                value: _showDesktopLogo,
+                onChanged: (value) {
+                  _showDesktopLogo = value;
+                  setState(() {});
+                },
+              ),
+            ],
+          ),
+          const SizedBox(height: 10),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text(
+                "Mostrar logo del Negocio en la vista de Móvil",
+                style: GoogleFonts.getFont(FontNames.fontNameH2),
+              ),
+              Switch(
+                value: _showMobileLogo,
+                onChanged: (value) {
+                  _showMobileLogo = value;
+                  setState(() {});
+                },
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
@@ -275,14 +338,14 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
                         child: Image.memory(_newLogo!, fit: BoxFit.cover),
                       )
                     : (_currentLogoUrl != null && _currentLogoUrl!.isNotEmpty)
-                        ? ClipRRect(
-                            borderRadius: BorderRadius.circular(12),
-                            child: Image.network(
-                              _currentLogoUrl!,
-                              fit: BoxFit.cover,
-                            ),
-                          )
-                        : Icon(Icons.add_a_photo, color: Colors.grey[400]),
+                    ? ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Image.network(
+                          _currentLogoUrl!,
+                          fit: BoxFit.cover,
+                        ),
+                      )
+                    : Icon(Icons.add_a_photo, color: Colors.grey[400]),
               ),
             ),
             const SizedBox(height: 6),
@@ -329,7 +392,9 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         Expanded(
           child: TextFormField(
             controller: _whatsappCtrl,
-            decoration: _inputDecoration("Número de WhatsApp (ej: 51999999999)"),
+            decoration: _inputDecoration(
+              "Número de WhatsApp (ej: 51999999999)",
+            ),
             style: GoogleFonts.getFont(FontNames.fontNameH2),
             keyboardType: TextInputType.phone,
             validator: (v) =>
