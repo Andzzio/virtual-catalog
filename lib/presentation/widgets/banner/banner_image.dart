@@ -37,10 +37,19 @@ class _BannerImageState extends State<BannerImage> {
             controller: _pageController,
             itemCount: banners.length,
             itemBuilder: (context, index) {
+              bool isMobile = widget.size.width < 600;
+              String displayImageUrl =
+                  isMobile && banners[index].mobileImageUrl != null
+                  ? banners[index].mobileImageUrl!
+                  : banners[index].imageUrl;
+
               return Stack(
                 children: [
                   Positioned.fill(
-                    child: CatalogImage(imageUrl: banners[index].imageUrl),
+                    child: CatalogImage(
+                      optimizedWidth: 1400,
+                      imageUrl: displayImageUrl,
+                    ),
                   ),
                   Container(
                     decoration: BoxDecoration(
@@ -62,26 +71,34 @@ class _BannerImageState extends State<BannerImage> {
                       ),
                     ),
                   ),
-                  Positioned.fill(
-                    top: 300,
-                    child: Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(
-                            banners[index].title,
-                            textAlign: TextAlign.center,
-                            style: GoogleFonts.getFont(
-                              FontNames.fontNameH1,
-                              textStyle: TextStyle(
-                                color: Colors.white,
-                                fontSize: 72,
+                  Positioned(
+                    bottom: isMobile ? 120 : 150,
+                    left: 0,
+                    right: 0,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        if (banners[index].title.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            child: Text(
+                              banners[index].title,
+                              textAlign: TextAlign.center,
+                              style: GoogleFonts.getFont(
+                                FontNames.fontNameH1,
+                                textStyle: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: isMobile ? 40 : 72,
+                                ),
                               ),
                             ),
                           ),
-                          SizedBox(height: 20),
+                        if (banners[index].title.isNotEmpty &&
+                            banners[index].subtitle.isNotEmpty)
+                          SizedBox(height: isMobile ? 12 : 20),
+                        if (banners[index].subtitle.isNotEmpty)
                           SizedBox(
-                            width: widget.size.width * 0.5,
+                            width: widget.size.width * (isMobile ? 0.85 : 0.5),
                             child: Text(
                               banners[index].subtitle,
                               textAlign: TextAlign.center,
@@ -89,13 +106,12 @@ class _BannerImageState extends State<BannerImage> {
                                 FontNames.fontNameH2,
                                 textStyle: TextStyle(
                                   color: Colors.white,
-                                  fontSize: 20,
+                                  fontSize: isMobile ? 15 : 20,
                                 ),
                               ),
                             ),
                           ),
-                        ],
-                      ),
+                      ],
                     ),
                   ),
                 ],

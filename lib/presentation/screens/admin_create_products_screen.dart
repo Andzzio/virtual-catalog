@@ -34,11 +34,8 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
   late String category;
   late String productSku;
   late String description;
-  late List<String> existingImageUrls;
-
+  List<dynamic> mediaItems = [];
   late List<Map<String, dynamic>> variants;
-
-  List<Uint8List> selectedImages = [];
 
   bool get isEditing => widget.product != null;
 
@@ -51,24 +48,26 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
       category = p.category;
       productSku = p.sku ?? "";
       description = p.description;
-      existingImageUrls = List.from(p.imageUrl);
+      mediaItems = List<dynamic>.from(p.imageUrl);
       variants = p.variants
-          .map((v) => <String, dynamic>{
-                "name": v.name,
-                "sku": v.sku ?? "",
-                "origPrice": v.price.toString(),
-                "discountPrice": v.discountPrice.toString(),
-                "stock": v.stock.toString(),
-                "sizes": List<String>.from(v.sizes),
-                "colorInt": v.color,
-              })
+          .map(
+            (v) => <String, dynamic>{
+              "name": v.name,
+              "sku": v.sku ?? "",
+              "origPrice": v.price.toString(),
+              "discountPrice": v.discountPrice.toString(),
+              "stock": v.stock.toString(),
+              "sizes": List<String>.from(v.sizes),
+              "colorInt": v.color,
+            },
+          )
           .toList();
     } else {
       productName = "";
       category = "";
       productSku = "";
       description = "";
-      existingImageUrls = [];
+      mediaItems = [];
       variants = [
         {
           "name": "",
@@ -124,29 +123,29 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
             Center(child: CircularProgressIndicator(color: Colors.black)),
       );
 
-      // Upload only new images
-      List<String> newUploadedUrls = [];
-      if (selectedImages.isNotEmpty) {
-        final fileNames = List.generate(
-          selectedImages.length,
-          (index) =>
-              "prod_${business.slug}_${DateTime.now().millisecondsSinceEpoch}_$index.jpg",
-        );
-        final uploadResults = await _cloudinary.uploadMultipleImages(
-          selectedImages,
-          fileNames,
-        );
-        newUploadedUrls = uploadResults.map((r) => r["url"]!).toList();
-      }
+      List<String> finalUrls = List.filled(mediaItems.length, "");
+      List<Future<void>> uploadTasks = [];
 
-      // Combine existing URLs + newly uploaded
-      final allUrls = [...existingImageUrls, ...newUploadedUrls];
+      for (int i = 0; i < mediaItems.length; i++) {
+        final item = mediaItems[i];
+        if (item is String) {
+          finalUrls[i] = item;
+        } else if (item is Uint8List) {
+          final fileName =
+              "prod_${business.slug}_${DateTime.now().millisecondsSinceEpoch}_$i.jpg";
+          uploadTasks.add(() async {
+            final result = await _cloudinary.uploadImage(item, fileName);
+            finalUrls[i] = result["url"]!;
+          }());
+        }
+      }
+      await Future.wait(uploadTasks);
 
       final product = Product(
         id: isEditing ? widget.product!.id : "",
         name: productName,
         description: description,
-        imageUrl: allUrls,
+        imageUrl: finalUrls,
         businessId: business.slug,
         createdAt: isEditing ? widget.product!.createdAt : DateTime.now(),
         updatedAt: DateTime.now(),
@@ -171,13 +170,15 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
       if (!mounted) return;
 
       if (isEditing) {
-        await context
-            .read<ProductProvider>()
-            .updateProduct(business.slug, product);
+        await context.read<ProductProvider>().updateProduct(
+          business.slug,
+          product,
+        );
       } else {
-        await context
-            .read<ProductProvider>()
-            .addProduct(business.slug, product);
+        await context.read<ProductProvider>().addProduct(
+          business.slug,
+          product,
+        );
       }
 
       if (!mounted) return;
@@ -214,7 +215,7 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
           ElevatedButton.icon(
             onPressed: () {
               if (!_formKey.currentState!.validate()) return;
-              if (selectedImages.isEmpty && existingImageUrls.isEmpty) {
+              if (mediaItems.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(content: Text("Selecciona al menos una imagen")),
                 );
@@ -257,94 +258,96 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final horizontalPadding = constraints.maxWidth > 900 ? 150.0 : (constraints.maxWidth > 600 ? 40.0 : 16.0);
+          final horizontalPadding = constraints.maxWidth > 900
+              ? 150.0
+              : (constraints.maxWidth > 600 ? 40.0 : 16.0);
           return SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: horizontalPadding, vertical: 20),
-            child: Column(
-              children: [
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+            child: Form(
+              key: _formKey,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: horizontalPadding,
+                  vertical: 20,
+                ),
+                child: Column(
                   children: [
-                    Expanded(flex: 1, child: AdminCreateProductInfoSide()),
-                    SizedBox(width: 30),
-                    Expanded(
-                      flex: 3,
-                      child: AdminCreateProductFormSide(
-                        initialName: isEditing ? productName : null,
-                        initialCategory: isEditing ? category : null,
-                        initialSku: isEditing ? productSku : null,
-                        initialDescription: isEditing ? description : null,
-                        onNameChanged: (val) =>
-                            setState(() => productName = val),
-                        onCategoryChanged: (val) =>
-                            setState(() => category = val),
-                        onSkuChanged: (val) =>
-                            setState(() => productSku = val),
-                        onDescriptionChanged: (val) =>
-                            setState(() => description = val),
-                      ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(flex: 1, child: AdminCreateProductInfoSide()),
+                        SizedBox(width: 30),
+                        Expanded(
+                          flex: 3,
+                          child: AdminCreateProductFormSide(
+                            initialName: isEditing ? productName : null,
+                            initialCategory: isEditing ? category : null,
+                            initialSku: isEditing ? productSku : null,
+                            initialDescription: isEditing ? description : null,
+                            onNameChanged: (val) =>
+                                setState(() => productName = val),
+                            onCategoryChanged: (val) =>
+                                setState(() => category = val),
+                            onSkuChanged: (val) =>
+                                setState(() => productSku = val),
+                            onDescriptionChanged: (val) =>
+                                setState(() => description = val),
+                          ),
+                        ),
+                      ],
                     ),
+                    SizedBox(height: 30),
+                    Divider(),
+                    SizedBox(height: 30),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: AdminCreateProductsMediaInfo(),
+                        ),
+                        SizedBox(width: 30),
+                        Expanded(
+                          flex: 3,
+                          child: ImagePickerUploader(
+                            mediaItems: mediaItems,
+                            onMediaChanged: (newMedia) {
+                              setState(() {
+                                mediaItems = newMedia;
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30),
+                    Divider(),
+                    SizedBox(height: 30),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Expanded(
+                          flex: 1,
+                          child: AdminCreateProductsVariantsInfo(
+                            onAdd: _addVariant,
+                          ),
+                        ),
+                        SizedBox(width: 30),
+                        Expanded(
+                          flex: 3,
+                          child: AdminCreateProductsTableVariants(
+                            variants: variants,
+                            onRemove: _removeVariant,
+                            onUpdate: _updateVariant,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 120),
                   ],
                 ),
-                SizedBox(height: 30),
-                Divider(),
-                SizedBox(height: 30),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(flex: 1, child: AdminCreateProductsMediaInfo()),
-                    SizedBox(width: 30),
-                    Expanded(
-                      flex: 3,
-                      child: ImagePickerUploader(
-                        images: selectedImages,
-                        existingUrls: existingImageUrls,
-                        onImagesChanged: (newImages) {
-                          setState(() {
-                            selectedImages = newImages;
-                          });
-                        },
-                        onExistingUrlsChanged: (newUrls) {
-                          setState(() {
-                            existingImageUrls = newUrls;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 30),
-                Divider(),
-                SizedBox(height: 30),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Expanded(
-                      flex: 1,
-                      child: AdminCreateProductsVariantsInfo(
-                        onAdd: _addVariant,
-                      ),
-                    ),
-                    SizedBox(width: 30),
-                    Expanded(
-                      flex: 3,
-                      child: AdminCreateProductsTableVariants(
-                        variants: variants,
-                        onRemove: _removeVariant,
-                        onUpdate: _updateVariant,
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 120),
-              ],
+              ),
             ),
-          ),
-        ),
-      );
+          );
         },
       ),
     );

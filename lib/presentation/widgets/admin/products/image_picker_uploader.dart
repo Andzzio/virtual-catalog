@@ -6,16 +6,12 @@ import 'package:image_picker/image_picker.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 
 class ImagePickerUploader extends StatefulWidget {
-  final List<Uint8List> images;
-  final Function(List<Uint8List>) onImagesChanged;
-  final List<String> existingUrls;
-  final Function(List<String>)? onExistingUrlsChanged;
+  final List<dynamic> mediaItems; // Can be String (URL) or Uint8List (Bytes)
+  final Function(List<dynamic>) onMediaChanged;
   const ImagePickerUploader({
     super.key,
-    required this.images,
-    required this.onImagesChanged,
-    this.existingUrls = const [],
-    this.onExistingUrlsChanged,
+    required this.mediaItems,
+    required this.onMediaChanged,
   });
 
   @override
@@ -78,15 +74,27 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                     PointerDeviceKind.trackpad,
                   },
                 ),
-                child: ListView.builder(
+                child: ReorderableListView.builder(
                   scrollDirection: Axis.horizontal,
-                  itemCount: widget.existingUrls.length + widget.images.length,
+                  buildDefaultDragHandles: false, // We will provide our own drag handle
+                  itemCount: widget.mediaItems.length,
+                  onReorder: (oldIndex, newIndex) {
+                    setState(() {
+                      if (oldIndex < newIndex) {
+                        newIndex -= 1;
+                      }
+                      final List<dynamic> updatedItems = List.from(widget.mediaItems);
+                      final item = updatedItems.removeAt(oldIndex);
+                      updatedItems.insert(newIndex, item);
+                      widget.onMediaChanged(updatedItems);
+                    });
+                  },
                   itemBuilder: (context, index) {
-                    final isExisting = index < widget.existingUrls.length;
+                    final item = widget.mediaItems[index];
+                    final isExisting = item is String;
+                    
                     return Container(
-                      key: ValueKey(isExisting
-                          ? "url_$index"
-                          : "img_${index - widget.existingUrls.length}"),
+                      key: ValueKey("media_${item.hashCode}_$index"),
                       width: 120,
                       margin: EdgeInsets.only(right: 15),
                       child: Stack(
@@ -95,16 +103,11 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(8),
-                                border:
-                                    Border.all(color: Color(0xffe2e2e2)),
+                                border: Border.all(color: Color(0xffe2e2e2)),
                                 image: DecorationImage(
                                   image: isExisting
-                                      ? NetworkImage(
-                                              widget.existingUrls[index])
-                                          as ImageProvider
-                                      : MemoryImage(widget.images[
-                                          index -
-                                              widget.existingUrls.length]),
+                                      ? NetworkImage(item) as ImageProvider
+                                      : MemoryImage(item as Uint8List),
                                   fit: BoxFit.cover,
                                 ),
                               ),
@@ -115,18 +118,12 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                             right: 6,
                             child: InkWell(
                               onTap: () {
-                                if (isExisting) {
-                                  _removeExistingUrl(index);
-                                } else {
-                                  _removeImage(
-                                      index - widget.existingUrls.length);
-                                }
+                                _removeImage(index);
                               },
                               child: Container(
                                 padding: EdgeInsets.all(4),
                                 decoration: BoxDecoration(
-                                  color: const Color.fromARGB(
-                                    232, 255, 255, 255),
+                                  color: const Color.fromARGB(232, 255, 255, 255),
                                   shape: BoxShape.circle,
                                   boxShadow: [BoxShadow(blurRadius: 4)],
                                 ),
@@ -134,6 +131,26 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                                   Icons.close,
                                   size: 14,
                                   color: Colors.redAccent,
+                                ),
+                              ),
+                            ),
+                          ),
+                          Positioned(
+                            bottom: 6,
+                            left: 6,
+                            child: ReorderableDragStartListener(
+                              index: index,
+                              child: Container(
+                                padding: EdgeInsets.all(4),
+                                decoration: BoxDecoration(
+                                  color: const Color.fromARGB(232, 255, 255, 255),
+                                  shape: BoxShape.circle,
+                                  boxShadow: [BoxShadow(blurRadius: 4)],
+                                ),
+                                child: Icon(
+                                  Icons.drag_indicator,
+                                  size: 16,
+                                  color: Colors.black87,
                                 ),
                               ),
                             ),
@@ -155,29 +172,21 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
     try {
       final List<XFile> pickedFiles = await _picker.pickMultiImage();
       if (pickedFiles.isNotEmpty) {
-        List<Uint8List> newImages = List.from(widget.images);
+        List<dynamic> newMedia = List.from(widget.mediaItems);
         for (var file in pickedFiles) {
           final bytes = await file.readAsBytes();
-          newImages.add(bytes);
+          newMedia.add(bytes);
         }
-        widget.onImagesChanged(newImages);
+        widget.onMediaChanged(newMedia);
       }
     } catch (e) {
-      debugPrint("Error seleccionando imagenes: \$e");
+      debugPrint("Error seleccionando imagenes: $e");
     }
   }
 
   void _removeImage(int index) {
-    List<Uint8List> newImages = List.from(widget.images);
-    newImages.removeAt(index);
-    widget.onImagesChanged(newImages);
-  }
-
-  void _removeExistingUrl(int index) {
-    if (widget.onExistingUrlsChanged != null) {
-      List<String> newUrls = List.from(widget.existingUrls);
-      newUrls.removeAt(index);
-      widget.onExistingUrlsChanged!(newUrls);
-    }
+    List<dynamic> newMedia = List.from(widget.mediaItems);
+    newMedia.removeAt(index);
+    widget.onMediaChanged(newMedia);
   }
 }

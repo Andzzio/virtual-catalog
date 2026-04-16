@@ -560,7 +560,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         }
 
                         if (priceChanged) {
-                          if (context.mounted) Navigator.of(context).pop();
+                          if (context.mounted) {
+                            Navigator.of(context, rootNavigator: true).pop();
+                          }
                           if (context.mounted) {
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
@@ -574,213 +576,32 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           return;
                         }
 
-                        if (context.mounted) Navigator.of(context).pop();
+                        if (context.mounted) {
+                          Navigator.of(context, rootNavigator: true).pop();
+                        }
 
                         switch (selectedPaymentMethod?.type) {
                           case PaymentType.whatsapp:
-                            if (phone == null) {
-                              debugPrint("Phone es null");
-                              return;
-                            }
-
-                            final String businessName =
-                                businessProvider.business?.name ?? "Negocio";
-                            final StringBuffer sb = StringBuffer();
-                            sb.writeln(
-                              "\u{1F6D2} *Nuevo Pedido - $businessName*",
-                            );
-                            sb.writeln();
-                            sb.writeln("\u{1F464} *Datos del cliente:*");
-                            sb.writeln(
-                              "- Nombre: ${nameCtrl.text} ${lastNameCtrl.text}",
-                            );
-                            sb.writeln("- DNI: ${dniCtrl.text}");
-                            sb.writeln("- Teléfono: ${phoneCtrl.text}");
-                            sb.writeln("- Dirección: ${addressCtrl.text}");
-                            sb.writeln("- País: $_selectedCountry");
-                            sb.writeln("- Ciudad: ${cityCtrl.text}");
-                            sb.writeln("- Región: ${regionCtrl.text}");
-                            sb.writeln("- Código Postal: ${zipCtrl.text}");
-                            sb.writeln();
-                            sb.writeln("\u{1F4E6} *Productos:*");
-                            for (
-                              int i = 0;
-                              i < cartProvider.checkItems.length;
-                              i++
-                            ) {
-                              final item = cartProvider.checkItems[i];
-
-                              sb.writeln(
-                                "${i + 1}. ${item.product.name} - ${item.variant.name}, ${item.size} x ${item.quantity} -> S/. ${item.subTotal.toStringAsFixed(2)}",
-                              );
-                            }
-                            sb.writeln();
-                            sb.writeln("\u{1F4B0} *Resumen:*");
-                            sb.writeln(
-                              "- Subtotal: S/. ${cartProvider.checkItemsTotalWithDiscounts.toStringAsFixed(2)}",
-                            );
-                            sb.writeln(
-                              "- Envío: S/. ${cartProvider.selectedDeliveryMethod?.price.toStringAsFixed(2)}",
-                            );
-                            sb.writeln(
-                              "- Total: S/. ${cartProvider.checkoutGrandTotal.toStringAsFixed(2)}",
-                            );
-                            sb.writeln();
-                            sb.writeln("\u{1F4B3} Método de pago: WhatsApp");
-                            sb.writeln(
-                              "\u{1F69A} Método de entrega: ${cartProvider.selectedDeliveryMethod?.name}",
-                            );
-                            sb.writeln();
-                            sb.writeln("\u{1F4DD} Notas: ${noteCtrl.text}");
-
-                            final url = Uri.parse(
-                              "https://api.whatsapp.com/send?phone=$phone&text=${Uri.encodeComponent(sb.toString())}",
-                            );
-                            if (await canLaunchUrl(url)) {
-                              await launchUrl(
-                                url,
-                                mode: LaunchMode.externalApplication,
-                              );
-                              if (!context.mounted) return;
-                              cartProvider.clearBuy();
-                              if (cartProvider.mode == CartMode.buyCart) {
-                                cartProvider.clearCart();
-                              }
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "✅ ¡Pedido enviado por WhatsApp!",
-                                  ),
-                                ),
-                              );
-                              final slug =
-                                  businessProvider.business?.slug ?? "";
-                              context.go("/$slug");
-                            } else {
-                              if (!context.mounted) return;
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text(
-                                    "❌ No se pudo abrir WhatsApp en este dispositivo.",
-                                  ),
-                                  backgroundColor: Colors.redAccent,
-                                ),
-                              );
-                            }
-                            break;
                           case PaymentType.bankTransfer:
-                          case PaymentType.culqi:
                           case PaymentType.yape:
-                            if (!context.mounted) return;
-                            final confirmed = await showDialog<bool>(
+                            await _finishPayment(
+                              phone: phone,
+                              paymentType: selectedPaymentMethod?.name,
+                              businessProvider: businessProvider,
+                              cartProvider: cartProvider,
+                              // ignore: use_build_context_synchronously
                               context: context,
-                              builder: (dialogContext) => AlertDialog(
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                title: Text(
-                                  "Confirmar Pago",
-                                  style: GoogleFonts.getFont(
-                                    FontNames.fontNameH2,
-                                    textStyle: const TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                                content: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      "Has seleccionado ${selectedPaymentMethod?.name}. Por favor, lee las instrucciones:",
-                                      style: GoogleFonts.getFont(
-                                        FontNames.fontNameH2,
-                                      ),
-                                    ),
-                                    SizedBox(height: 15),
-                                    Container(
-                                      padding: EdgeInsets.all(15),
-                                      decoration: BoxDecoration(
-                                        color: Colors.grey[100],
-                                        borderRadius: BorderRadius.circular(8),
-                                        border: Border.all(
-                                          color: Colors.grey[300]!,
-                                        ),
-                                      ),
-                                      child: Text(
-                                        selectedPaymentMethod?.description ?? "",
-                                        style: GoogleFonts.getFont(
-                                          FontNames.fontNameH2,
-                                          textStyle: TextStyle(
-                                            fontStyle: FontStyle.italic,
-                                            color: Colors.grey[800],
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(height: 15),
-                                    Text(
-                                      "Al finalizar, tu pedido será registrado y el administrador se pondrá en contacto contigo para verificar el pago.",
-                                      style: GoogleFonts.getFont(
-                                        FontNames.fontNameH2,
-                                        textStyle: TextStyle(
-                                          fontSize: 13,
-                                          color: Colors.grey[600],
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                actions: [
-                                  TextButton(
-                                    onPressed:
-                                        () => Navigator.of(
-                                          dialogContext,
-                                        ).pop(false),
-                                    child: Text(
-                                      "Cancelar",
-                                      style: GoogleFonts.getFont(
-                                        FontNames.fontNameH2,
-                                      ),
-                                    ),
-                                  ),
-                                  ElevatedButton(
-                                    onPressed:
-                                        () => Navigator.of(
-                                          dialogContext,
-                                        ).pop(true),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.black,
-                                      foregroundColor: Colors.white,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(8),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      "Finalizar",
-                                      style: GoogleFonts.getFont(
-                                        FontNames.fontNameH2,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
                             );
-
-                            if (confirmed == true) {
-                              if (!context.mounted) return;
-                              cartProvider.clearBuy();
-                              if (cartProvider.mode == CartMode.buyCart) {
-                                cartProvider.clearCart();
-                              }
+                            break;
+                          case PaymentType.culqi:
+                            if (context.mounted) {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 const SnackBar(
-                                  content: Text("✅ ¡Pedido finalizado!"),
+                                  content: Text(
+                                    "💳 Pago con tarjeta próximamente disponible",
+                                  ),
                                 ),
                               );
-                              final slug =
-                                  businessProvider.business?.slug ?? "";
-                              context.go("/$slug");
                             }
                             break;
                           default:
@@ -811,7 +632,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                     ),
                     child: Text(
                       switch (selectedPaymentMethod?.type) {
-                        PaymentType.whatsapp => "Finalizar por WhatsApp",
+                        PaymentType.whatsapp => "Finalizar Pedido",
                         PaymentType.bankTransfer => "Finalizar Pedido",
                         PaymentType.culqi => "Pagar",
                         PaymentType.yape => "Finalizar Pedido",
@@ -864,6 +685,90 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
         borderRadius: BorderRadius.circular(8),
       ),
     );
+  }
+
+  Future<void> _finishPayment({
+    String? phone,
+    required String? paymentType,
+    required BusinessProvider businessProvider,
+    required CartProvider cartProvider,
+    required BuildContext context,
+  }) async {
+    if (!context.mounted) return;
+    if (phone == null) {
+      debugPrint("Phone es null");
+      return;
+    }
+    if (paymentType == null) {
+      debugPrint("PaymentType es null");
+      return;
+    }
+
+    final String businessName = businessProvider.business?.name ?? "Negocio";
+    final StringBuffer sb = StringBuffer();
+    sb.writeln("\u{1F6D2} *Nuevo Pedido - $businessName*");
+    sb.writeln();
+    sb.writeln("\u{1F464} *Datos del cliente:*");
+    sb.writeln("- Nombre: ${nameCtrl.text} ${lastNameCtrl.text}");
+    sb.writeln("- DNI: ${dniCtrl.text}");
+    sb.writeln("- Teléfono: ${phoneCtrl.text}");
+    sb.writeln("- Dirección: ${addressCtrl.text}");
+    sb.writeln("- País: $_selectedCountry");
+    sb.writeln("- Ciudad: ${cityCtrl.text}");
+    sb.writeln("- Región: ${regionCtrl.text}");
+    sb.writeln("- Código Postal: ${zipCtrl.text}");
+    sb.writeln();
+    sb.writeln("\u{1F4E6} *Productos:*");
+    for (int i = 0; i < cartProvider.checkItems.length; i++) {
+      final item = cartProvider.checkItems[i];
+
+      sb.writeln(
+        "${i + 1}. ${item.product.name} - ${item.variant.name}, ${item.size} x ${item.quantity} -> S/. ${item.subTotal.toStringAsFixed(2)}",
+      );
+    }
+    sb.writeln();
+    sb.writeln("\u{1F4B0} *Resumen:*");
+    sb.writeln(
+      "- Subtotal: S/. ${cartProvider.checkItemsTotalWithDiscounts.toStringAsFixed(2)}",
+    );
+    sb.writeln(
+      "- Envío: S/. ${cartProvider.selectedDeliveryMethod?.price.toStringAsFixed(2)}",
+    );
+    sb.writeln(
+      "- Total: S/. ${cartProvider.checkoutGrandTotal.toStringAsFixed(2)}",
+    );
+    sb.writeln();
+    sb.writeln("\u{1F4B3} Método de pago: $paymentType");
+    sb.writeln(
+      "\u{1F69A} Método de entrega: ${cartProvider.selectedDeliveryMethod?.name}",
+    );
+    sb.writeln();
+    sb.writeln("\u{1F4DD} Notas: ${noteCtrl.text}");
+
+    final url = Uri.parse(
+      "https://api.whatsapp.com/send?phone=$phone&text=${Uri.encodeComponent(sb.toString())}",
+    );
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+      if (!context.mounted) return;
+      cartProvider.clearBuy();
+      if (cartProvider.mode == CartMode.buyCart) {
+        cartProvider.clearCart();
+      }
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("✅ ¡Pedido enviado por WhatsApp!")),
+      );
+      final slug = businessProvider.business?.slug ?? "";
+      context.go("/$slug");
+    } else {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("❌ No se pudo abrir WhatsApp en este dispositivo."),
+          backgroundColor: Colors.redAccent,
+        ),
+      );
+    }
   }
 
   @override

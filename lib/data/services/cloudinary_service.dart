@@ -1,6 +1,7 @@
 import 'dart:typed_data';
 import 'package:dio/dio.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:flutter_image_compress/flutter_image_compress.dart';
 
 class CloudinaryService {
   final String _cloudName = dotenv.env['CLOUDINARY_CLOUD_NAME'] ?? '';
@@ -12,8 +13,10 @@ class CloudinaryService {
     Uint8List imageBytes,
     String fileName,
   ) async {
+    final Uint8List imageBytesCompressed = await _compressImage(imageBytes);
+
     final formData = FormData.fromMap({
-      "file": MultipartFile.fromBytes(imageBytes, filename: fileName),
+      "file": MultipartFile.fromBytes(imageBytesCompressed, filename: fileName),
       "upload_preset": _uploadPreset,
     });
     final response = await _dio.post(
@@ -36,5 +39,17 @@ class CloudinaryService {
         (i) => uploadImage(imagesBytes[i], fileNames[i]),
       ),
     );
+  }
+
+  Future<Uint8List> _compressImage(Uint8List imageBytes) async {
+    final Uint8List imageCompressed =
+        await FlutterImageCompress.compressWithList(
+          imageBytes,
+          minWidth: 1920,
+          quality: 80,
+          format: CompressFormat.webp,
+        );
+
+    return imageCompressed;
   }
 }

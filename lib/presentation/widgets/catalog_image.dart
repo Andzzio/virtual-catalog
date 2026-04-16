@@ -6,12 +6,14 @@ class CatalogImage extends StatelessWidget {
   final BoxFit fit;
   final double? width;
   final double? height;
+  final double? optimizedWidth;
   const CatalogImage({
     super.key,
     required this.imageUrl,
     this.fit = BoxFit.cover,
     this.width,
     this.height,
+    this.optimizedWidth,
   });
 
   @override
@@ -21,7 +23,7 @@ class CatalogImage extends StatelessWidget {
     }
     if (imageUrl.startsWith("http")) {
       return CachedNetworkImage(
-        imageUrl: imageUrl,
+        imageUrl: _optimizeImageUrl(imageUrl),
         fit: fit,
         width: width,
         height: height,
@@ -36,6 +38,16 @@ class CatalogImage extends StatelessWidget {
       width: width,
       height: height,
       errorBuilder: (context, error, stackTrace) => _placeholder(),
+    );
+  }
+
+  String _optimizeImageUrl(String url) {
+    if (optimizedWidth == null) {
+      return url.replaceFirst("/upload", "/upload/f_auto,q_auto");
+    }
+    return url.replaceFirst(
+      "/upload",
+      "/upload/f_auto,q_auto,w_${optimizedWidth!.round()}",
     );
   }
 

@@ -9,12 +9,14 @@ class AdminBannerDialog extends StatefulWidget {
   final String? initialTitle;
   final String? initialSubtitle;
   final String? initialImageUrl;
+  final String? initialMobileImageUrl;
 
   const AdminBannerDialog({
     super.key,
     this.initialTitle,
     this.initialSubtitle,
     this.initialImageUrl,
+    this.initialMobileImageUrl,
   });
 
   @override
@@ -29,6 +31,8 @@ class _AdminBannerDialogState extends State<AdminBannerDialog> {
 
   Uint8List? _selectedImage;
   String? _existingImageUrl;
+  Uint8List? _selectedMobileImage;
+  String? _existingMobileImageUrl;
   bool _isSaving = false;
 
   @override
@@ -37,6 +41,7 @@ class _AdminBannerDialogState extends State<AdminBannerDialog> {
     _titleCtrl = TextEditingController(text: widget.initialTitle ?? "");
     _subtitleCtrl = TextEditingController(text: widget.initialSubtitle ?? "");
     _existingImageUrl = widget.initialImageUrl;
+    _existingMobileImageUrl = widget.initialMobileImageUrl;
   }
 
   @override
@@ -46,14 +51,19 @@ class _AdminBannerDialogState extends State<AdminBannerDialog> {
     super.dispose();
   }
 
-  Future<void> _pickImage() async {
+  Future<void> _pickImage(bool isMobile) async {
     final picker = ImagePicker();
     final file = await picker.pickImage(source: ImageSource.gallery);
     if (file == null) return;
     final bytes = await file.readAsBytes();
     setState(() {
-      _selectedImage = bytes;
-      _existingImageUrl = null;
+      if (isMobile) {
+        _selectedMobileImage = bytes;
+        _existingMobileImageUrl = null;
+      } else {
+        _selectedImage = bytes;
+        _existingImageUrl = null;
+      }
     });
   }
 
@@ -79,12 +89,22 @@ class _AdminBannerDialogState extends State<AdminBannerDialog> {
         imageUrl = _existingImageUrl!;
       }
 
+      String? mobileImageUrl = _existingMobileImageUrl;
+      if (_selectedMobileImage != null) {
+        final fileName =
+            "banner_mobile_${DateTime.now().millisecondsSinceEpoch}.jpg";
+        final result = await _cloudinary.uploadImage(_selectedMobileImage!, fileName);
+        mobileImageUrl = result["url"]!;
+      }
+
       if (!mounted) return;
-      Navigator.of(context).pop({
+      final Map<String, dynamic> bannerData = {
         "imageUrl": imageUrl,
+        "mobileImageUrl": mobileImageUrl,
         "title": _titleCtrl.text.trim(),
         "subtitle": _subtitleCtrl.text.trim(),
-      });
+      };
+      Navigator.of(context).pop(bannerData);
     } catch (e) {
       if (!mounted) return;
       setState(() => _isSaving = false);
@@ -128,19 +148,79 @@ class _AdminBannerDialogState extends State<AdminBannerDialog> {
                   ),
                 ),
                 const SizedBox(height: 24),
-                // Image Picker
-                GestureDetector(
-                  onTap: _isSaving ? null : _pickImage,
-                  child: Container(
-                    width: double.infinity,
-                    height: 180,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: const Color(0xFFE2E2E2)),
-                      color: Colors.grey[50],
+                Row(
+                  children: [
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Imagen principal (Desktop)",
+                              style: GoogleFonts.getFont(FontNames.fontNameH2,
+                                  textStyle: TextStyle(
+                                      fontSize: 12, fontWeight: FontWeight.bold))),
+                          SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: _isSaving ? null : () => _pickImage(false),
+                            child: Container(
+                              width: double.infinity,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: const Color(0xFFE2E2E2)),
+                                color: Colors.grey[50],
+                              ),
+                              child: _buildImagePreview(false),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
-                    child: _buildImagePreview(),
-                  ),
+                    SizedBox(width: 16),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text("Para móviles (Opcional)",
+                              style: GoogleFonts.getFont(FontNames.fontNameH2,
+                                  textStyle: TextStyle(
+                                      fontSize: 12, fontWeight: FontWeight.bold))),
+                          SizedBox(height: 8),
+                          GestureDetector(
+                            onTap: _isSaving ? null : () => _pickImage(true),
+                            child: Container(
+                              width: double.infinity,
+                              height: 120,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(8),
+                                border: Border.all(color: const Color(0xFFE2E2E2)),
+                                color: Colors.grey[50],
+                              ),
+                              child: _buildImagePreview(true),
+                            ),
+                          ),
+                          if (_selectedMobileImage != null || _existingMobileImageUrl != null)
+                            Align(
+                              alignment: Alignment.centerRight,
+                              child: TextButton(
+                                onPressed: _isSaving
+                                    ? null
+                                    : () {
+                                        setState(() {
+                                          _selectedMobileImage = null;
+                                          _existingMobileImageUrl = null;
+                                        });
+                                      },
+                                child: Text(
+                                  "Quitar imagen",
+                                  style: TextStyle(
+                                      color: Colors.redAccent, fontSize: 12),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
                 const SizedBox(height: 16),
                 // Title
@@ -148,8 +228,6 @@ class _AdminBannerDialogState extends State<AdminBannerDialog> {
                   controller: _titleCtrl,
                   decoration: _inputDecoration("Título del banner"),
                   style: GoogleFonts.getFont(FontNames.fontNameH2),
-                  validator: (val) =>
-                      (val == null || val.trim().isEmpty) ? "Requerido" : null,
                 ),
                 const SizedBox(height: 12),
                 // Subtitle
@@ -157,8 +235,6 @@ class _AdminBannerDialogState extends State<AdminBannerDialog> {
                   controller: _subtitleCtrl,
                   decoration: _inputDecoration("Subtítulo del banner"),
                   style: GoogleFonts.getFont(FontNames.fontNameH2),
-                  validator: (val) =>
-                      (val == null || val.trim().isEmpty) ? "Requerido" : null,
                 ),
                 const SizedBox(height: 24),
                 // Actions
@@ -211,18 +287,33 @@ class _AdminBannerDialogState extends State<AdminBannerDialog> {
     );
   }
 
-  Widget _buildImagePreview() {
-    if (_selectedImage != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.memory(_selectedImage!, fit: BoxFit.cover),
-      );
-    }
-    if (_existingImageUrl != null) {
-      return ClipRRect(
-        borderRadius: BorderRadius.circular(8),
-        child: Image.network(_existingImageUrl!, fit: BoxFit.cover),
-      );
+  Widget _buildImagePreview(bool isMobile) {
+    if (isMobile) {
+      if (_selectedMobileImage != null) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(_selectedMobileImage!, fit: BoxFit.cover),
+        );
+      }
+      if (_existingMobileImageUrl != null) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(_existingMobileImageUrl!, fit: BoxFit.cover),
+        );
+      }
+    } else {
+      if (_selectedImage != null) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.memory(_selectedImage!, fit: BoxFit.cover),
+        );
+      }
+      if (_existingImageUrl != null) {
+        return ClipRRect(
+          borderRadius: BorderRadius.circular(8),
+          child: Image.network(_existingImageUrl!, fit: BoxFit.cover),
+        );
+      }
     }
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,

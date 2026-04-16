@@ -31,8 +31,11 @@ class _ProductImageSectionState extends State<ProductImageSection> {
             borderRadius: BorderRadius.circular(8),
           ),
           child: Center(
-            child: Icon(Icons.image_not_supported,
-                color: Colors.grey, size: 64),
+            child: Icon(
+              Icons.image_not_supported,
+              color: Colors.grey,
+              size: 64,
+            ),
           ),
         ),
       );
@@ -78,7 +81,9 @@ class _ProductImageSectionState extends State<ProductImageSection> {
                         },
                         itemBuilder: (context, index) {
                           return CatalogImage(
+                            optimizedWidth: 800,
                             imageUrl: widget.product.imageUrl[index],
+                            fit: BoxFit.contain,
                           );
                         },
                       ),
@@ -156,6 +161,7 @@ class _ProductImageSectionState extends State<ProductImageSection> {
                         child: ClipRRect(
                           borderRadius: BorderRadius.circular(6),
                           child: CatalogImage(
+                            optimizedWidth: 150,
                             imageUrl: widget.product.imageUrl[index],
                           ),
                         ),

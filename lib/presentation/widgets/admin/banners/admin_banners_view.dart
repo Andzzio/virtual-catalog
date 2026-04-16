@@ -122,7 +122,7 @@ class AdminBannersView extends StatelessWidget {
         crossAxisCount: 2,
         mainAxisSpacing: 16,
         crossAxisSpacing: 16,
-        childAspectRatio: 1.4,
+        childAspectRatio: 1.05,
       ),
       itemCount: business.banners.length,
       itemBuilder: (context, index) {
@@ -146,12 +146,13 @@ class AdminBannersView extends StatelessWidget {
     final isEditing = editIndex != null;
     final existing = isEditing ? business.banners[editIndex] : null;
 
-    final result = await showDialog<Map<String, String>>(
+    final result = await showDialog<Map<String, dynamic>>(
       context: context,
       builder: (_) => AdminBannerDialog(
         initialTitle: existing?.title,
         initialSubtitle: existing?.subtitle,
         initialImageUrl: existing?.imageUrl,
+        initialMobileImageUrl: existing?.mobileImageUrl,
       ),
     );
 
@@ -159,6 +160,7 @@ class AdminBannersView extends StatelessWidget {
 
     final newBanner = BannerItem(
       imageUrl: result["imageUrl"]!,
+      mobileImageUrl: result["mobileImageUrl"],
       title: result["title"]!,
       subtitle: result["subtitle"]!,
     );
