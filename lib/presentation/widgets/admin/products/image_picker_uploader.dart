@@ -76,14 +76,16 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                 ),
                 child: ReorderableListView.builder(
                   scrollDirection: Axis.horizontal,
-                  buildDefaultDragHandles: false, // We will provide our own drag handle
+                  buildDefaultDragHandles: false,
                   itemCount: widget.mediaItems.length,
                   onReorder: (oldIndex, newIndex) {
                     setState(() {
                       if (oldIndex < newIndex) {
                         newIndex -= 1;
                       }
-                      final List<dynamic> updatedItems = List.from(widget.mediaItems);
+                      final List<dynamic> updatedItems = List.from(
+                        widget.mediaItems,
+                      );
                       final item = updatedItems.removeAt(oldIndex);
                       updatedItems.insert(newIndex, item);
                       widget.onMediaChanged(updatedItems);
@@ -92,7 +94,7 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                   itemBuilder: (context, index) {
                     final item = widget.mediaItems[index];
                     final isExisting = item is String;
-                    
+
                     return Container(
                       key: ValueKey("media_${item.hashCode}_$index"),
                       width: 120,
@@ -123,7 +125,12 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                               child: Container(
                                 padding: EdgeInsets.all(4),
                                 decoration: BoxDecoration(
-                                  color: const Color.fromARGB(232, 255, 255, 255),
+                                  color: const Color.fromARGB(
+                                    232,
+                                    255,
+                                    255,
+                                    255,
+                                  ),
                                   shape: BoxShape.circle,
                                   boxShadow: [BoxShadow(blurRadius: 4)],
                                 ),
@@ -143,7 +150,12 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                               child: Container(
                                 padding: EdgeInsets.all(4),
                                 decoration: BoxDecoration(
-                                  color: const Color.fromARGB(232, 255, 255, 255),
+                                  color: const Color.fromARGB(
+                                    232,
+                                    255,
+                                    255,
+                                    255,
+                                  ),
                                   shape: BoxShape.circle,
                                   boxShadow: [BoxShadow(blurRadius: 4)],
                                 ),
@@ -177,10 +189,18 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
           final bytes = await file.readAsBytes();
           newMedia.add(bytes);
         }
+        if (!mounted) {
+          debugPrint("Error: widget no está montado al cambiar imágenes");
+          return;
+        }
         widget.onMediaChanged(newMedia);
       }
     } catch (e) {
-      debugPrint("Error seleccionando imagenes: $e");
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("❌ Error seleccionando imágenes: $e")),
+        );
+      }
     }
   }
 
