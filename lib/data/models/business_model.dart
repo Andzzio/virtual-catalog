@@ -16,6 +16,7 @@ class BusinessModel {
   final List<PaymentMethodModel> paymentMethods;
   final bool showDesktopLogo;
   final bool showMobileLogo;
+  final String? termsAndConditions;
 
   BusinessModel({
     required this.slug,
@@ -29,6 +30,7 @@ class BusinessModel {
     required this.paymentMethods,
     required this.showDesktopLogo,
     required this.showMobileLogo,
+    this.termsAndConditions,
   });
 
   factory BusinessModel.fromFirestore(DocumentSnapshot doc) {
@@ -51,6 +53,7 @@ class BusinessModel {
           .toList(),
       showDesktopLogo: json['showDesktopLogo'] ?? true,
       showMobileLogo: json['showMobileLogo'] ?? true,
+      termsAndConditions: json['termsAndConditions'],
     );
   }
 
@@ -73,6 +76,7 @@ class BusinessModel {
           .toList(),
       showDesktopLogo: json['showDesktopLogo'] ?? true,
       showMobileLogo: json['showMobileLogo'] ?? true,
+      termsAndConditions: json['termsAndConditions'],
     );
   }
 
@@ -88,6 +92,7 @@ class BusinessModel {
     "paymentMethods": paymentMethods.map((p) => p.toJson()).toList(),
     "showDesktopLogo": showDesktopLogo,
     "showMobileLogo": showMobileLogo,
+    "termsAndConditions": termsAndConditions,
   };
 
   Business toEntity() => Business(
@@ -102,6 +107,7 @@ class BusinessModel {
     paymentMethods: paymentMethods.map((p) => p.toEntity()).toList(),
     showDesktopLogo: showDesktopLogo,
     showMobileLogo: showMobileLogo,
+    termsAndConditions: termsAndConditions,
   );
 
   factory BusinessModel.fromEntity(Business entity) {
@@ -123,6 +129,7 @@ class BusinessModel {
           .toList(),
       showDesktopLogo: entity.showDesktopLogo,
       showMobileLogo: entity.showMobileLogo,
+      termsAndConditions: entity.termsAndConditions,
     );
   }
 }

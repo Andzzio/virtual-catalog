@@ -11,6 +11,7 @@ import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/settings/admin_settings_delivery_section.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/settings/admin_settings_payment_section.dart';
+import 'package:markdown_editor_plus/markdown_editor_plus.dart';
 
 class AdminSettingsView extends StatefulWidget {
   final String businessSlug;
@@ -27,6 +28,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   late TextEditingController _nameCtrl;
   late TextEditingController _descCtrl;
   late TextEditingController _whatsappCtrl;
+  late TextEditingController _termsCtrl;
 
   Uint8List? _newLogo;
   String? _currentLogoUrl;
@@ -42,6 +44,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     _nameCtrl = TextEditingController(text: business.name);
     _descCtrl = TextEditingController(text: business.description);
     _whatsappCtrl = TextEditingController(text: business.whatsappNumber);
+    _termsCtrl = TextEditingController(text: business.termsAndConditions ?? "");
     _currentLogoUrl = business.logoUrl;
     _deliveryMethods = List.from(business.deliveryMethods);
     _paymentMethods = List.from(business.paymentMethods);
@@ -56,6 +59,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
       _nameCtrl.dispose();
       _descCtrl.dispose();
       _whatsappCtrl.dispose();
+      _termsCtrl.dispose();
     }
     super.dispose();
   }
@@ -97,6 +101,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         paymentMethods: _paymentMethods,
         showDesktopLogo: _showDesktopLogo,
         showMobileLogo: _showMobileLogo,
+        termsAndConditions: _termsCtrl.text.trim(),
       );
 
       if (!mounted) return;
@@ -234,6 +239,15 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
                 const Divider(),
                 const SizedBox(height: 30),
                 _buildSectionHeader(
+                  Icons.text_snippet_outlined,
+                  "Pie de página",
+                ),
+                const SizedBox(height: 16),
+                _buildFooterSection(),
+                const SizedBox(height: 30),
+                const Divider(),
+                const SizedBox(height: 30),
+                _buildSectionHeader(
                   Icons.settings_applications,
                   "Opciones varias",
                 ),
@@ -244,6 +258,21 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  Widget _buildFooterSection() {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFE2E2E2)),
+        color: Colors.white,
+      ),
+      padding: const EdgeInsets.all(8.0),
+      child: MarkdownAutoPreview(
+        controller: _termsCtrl,
+        emojiConvert: true,
       ),
     );
   }

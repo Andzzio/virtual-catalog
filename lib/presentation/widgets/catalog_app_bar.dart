@@ -33,7 +33,7 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
       backgroundColor: _isScrolled ? Colors.white : Colors.transparent,
       toolbarHeight: 65,
-      leadingWidth: size.width * 0.1,
+      leadingWidth: isMobile ? 56 : size.width * 0.1,
       centerTitle: true,
       leading: isMobile
           ? IconButton(

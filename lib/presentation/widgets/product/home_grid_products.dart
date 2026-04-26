@@ -14,7 +14,6 @@ class HomeGridProducts extends StatefulWidget {
 }
 
 class _HomeGridProductsState extends State<HomeGridProducts> {
-  final double _cardWidth = 300;
   @override
   Widget build(BuildContext context) {
     final activeProducts = widget.provider.products.where((p) => p.isAvailable).toList();
@@ -26,7 +25,7 @@ class _HomeGridProductsState extends State<HomeGridProducts> {
           "Nuevos ingresos",
           style: GoogleFonts.getFont(
             FontNames.fontNameH2,
-            textStyle: TextStyle(fontSize: 35),
+            textStyle: TextStyle(fontSize: MediaQuery.of(context).size.width < 800 ? 24 : 35),
           ),
         ),
         Text(
@@ -63,7 +62,7 @@ class _HomeGridProductsState extends State<HomeGridProducts> {
                   itemBuilder: (context, index) {
                     final Product product = activeProducts[index];
                     return ProductCard(
-                      cardWidth: _cardWidth,
+                      cardWidth: double.infinity,
                       isPageView: true,
                       product: product,
                     );

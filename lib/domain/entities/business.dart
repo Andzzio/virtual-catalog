@@ -14,6 +14,7 @@ class Business {
   final List<PaymentMethod> paymentMethods;
   final bool showDesktopLogo;
   final bool showMobileLogo;
+  final String? termsAndConditions;
 
   Business({
     required this.slug,
@@ -27,5 +28,6 @@ class Business {
     required this.paymentMethods,
     this.showDesktopLogo = true,
     this.showMobileLogo = true,
+    this.termsAndConditions,
   });
 }

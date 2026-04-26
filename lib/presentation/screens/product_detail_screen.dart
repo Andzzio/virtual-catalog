@@ -8,6 +8,7 @@ import 'package:virtual_catalog_app/presentation/widgets/menu_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/product_image_section.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/product_info_section.dart';
 import 'package:virtual_catalog_app/presentation/widgets/whatsapp_floating_button.dart';
+import 'package:virtual_catalog_app/presentation/widgets/catalog_footer.dart';
 
 class ProductDetailScreen extends StatelessWidget {
   final String? businessSlug;
@@ -62,6 +63,8 @@ class ProductDetailScreen extends StatelessWidget {
                             ],
                           ),
                   ),
+                  const SizedBox(height: 40),
+                  const CatalogFooter(),
                 ],
               ),
             ),

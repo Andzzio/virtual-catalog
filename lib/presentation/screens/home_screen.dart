@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/banner/banner_image.dart';
 import 'package:virtual_catalog_app/presentation/widgets/cart/cart_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog_app_bar.dart';
+import 'package:virtual_catalog_app/presentation/widgets/catalog_footer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/menu_drawer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/home_grid_products.dart';
 import 'package:virtual_catalog_app/presentation/widgets/product/home_list_products.dart';
@@ -54,21 +53,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ],
               ),
             ),
-            SizedBox(
-              width: double.infinity,
-              child: Padding(
-                padding: EdgeInsets.symmetric(horizontal: 50, vertical: 10),
-                child: Center(
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: Text(
-                      "© 2026 Virtual Catalog",
-                      style: GoogleFonts.getFont(FontNames.fontNameP),
-                    ),
-                  ),
-                ),
-              ),
-            ),
+            const CatalogFooter(),
           ],
         ),
       ),

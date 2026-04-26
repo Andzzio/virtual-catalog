@@ -173,6 +173,22 @@ final appRouter = GoRouter(
                 return CheckoutScreen();
               },
             ),
+            GoRoute(
+              path: "terms",
+              redirect: (context, state) {
+                final business = context.read<BusinessProvider>().business;
+                if (business == null ||
+                    business.termsAndConditions == null ||
+                    business.termsAndConditions!.trim().isEmpty) {
+                  final slug = state.pathParameters["businessSlug"];
+                  return "/$slug";
+                }
+                return null;
+              },
+              builder: (context, state) {
+                return const TermsScreen();
+              },
+            ),
           ],
         ),
       ],
