@@ -26,9 +26,7 @@ class AdminPanelScreen extends StatelessWidget {
                 child: Container(color: const Color(0xFFE2E2E2), height: 1.0),
               ),
             ),
-            drawer: Drawer(
-              child: AdminLeftSide(businessSlug: businessSlug),
-            ),
+            drawer: Drawer(child: AdminLeftSide(businessSlug: businessSlug)),
             body: child,
           );
         }

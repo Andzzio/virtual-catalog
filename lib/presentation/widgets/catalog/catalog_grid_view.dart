@@ -56,8 +56,13 @@ class _CatalogGridViewState extends State<CatalogGridView> {
                   size.width < 1100
                       ? IconButton(
                           onPressed: () async {
-                            final slug = GoRouterState.of(context).pathParameters["businessSlug"] ?? "";
-                            final String? resultUrl = await showModalBottomSheet<String>(
+                            final slug =
+                                GoRouterState.of(
+                                  context,
+                                ).pathParameters["businessSlug"] ??
+                                "";
+                            final String?
+                            resultUrl = await showModalBottomSheet<String>(
                               context: context,
                               isScrollControlled: true,
                               builder: (_) => DraggableScrollableSheet(

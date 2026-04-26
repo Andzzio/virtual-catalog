@@ -11,12 +11,17 @@ class ProductProvider extends ChangeNotifier {
   bool isLoading = false;
   String? _currentSlug;
 
+  void _sortProductsByCategory() {
+    products.sort((a, b) => a.category.compareTo(b.category));
+  }
+
   Future<void> loadProducts(String businessSlug) async {
     if (_currentSlug == businessSlug && products.isNotEmpty) return;
     isLoading = true;
     notifyListeners();
     _currentSlug = businessSlug;
     products = await repository.getProducts(businessSlug);
+    _sortProductsByCategory();
     isLoading = false;
     notifyListeners();
   }
@@ -38,6 +43,7 @@ class ProductProvider extends ChangeNotifier {
         isAvailable: product.isAvailable,
       ),
     );
+    _sortProductsByCategory();
     notifyListeners();
   }
 
@@ -58,6 +64,7 @@ class ProductProvider extends ChangeNotifier {
     final backup = List<Product>.from(products);
     final index = products.indexWhere((p) => p.id == product.id);
     if (index != -1) products[index] = product;
+    _sortProductsByCategory();
     notifyListeners();
     try {
       await repository.updateProduct(businessSlug, product);

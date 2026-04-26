@@ -58,214 +58,219 @@ class _AdminProductTableState extends State<AdminProductTable> {
             return Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                SingleChildScrollView(
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(8),
-                    child: DataTable(
-                      showCheckboxColumn: false,
-                      dataRowMinHeight: 65,
-                      dataRowMaxHeight: 75,
-                      headingRowColor: WidgetStateProperty.all(
-                        Color(0xfff8f9fa),
-                      ),
-                      columns: [
-                        DataColumn(
-                          label: Text(
-                            "IMAGEN",
-                            style: GoogleFonts.getFont(FontNames.fontNameH2),
-                          ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: DataTable(
+                        showCheckboxColumn: false,
+                        dataRowMinHeight: 65,
+                        dataRowMaxHeight: 75,
+                        headingRowColor: WidgetStateProperty.all(
+                          Color(0xfff8f9fa),
                         ),
-                        DataColumn(
-                          label: Text(
-                            "NOMBRE",
-                            style: GoogleFonts.getFont(FontNames.fontNameH2),
+                        columns: [
+                          DataColumn(
+                            label: Text(
+                              "IMAGEN",
+                              style: GoogleFonts.getFont(FontNames.fontNameH2),
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            "CATEGORÍA",
-                            style: GoogleFonts.getFont(FontNames.fontNameH2),
+                          DataColumn(
+                            label: Text(
+                              "NOMBRE",
+                              style: GoogleFonts.getFont(FontNames.fontNameH2),
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            "STOCK",
-                            style: GoogleFonts.getFont(FontNames.fontNameH2),
+                          DataColumn(
+                            label: Text(
+                              "CATEGORÍA",
+                              style: GoogleFonts.getFont(FontNames.fontNameH2),
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            "PRECIO",
-                            style: GoogleFonts.getFont(FontNames.fontNameH2),
+                          DataColumn(
+                            label: Text(
+                              "STOCK",
+                              style: GoogleFonts.getFont(FontNames.fontNameH2),
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            "ESTADO",
-                            style: GoogleFonts.getFont(FontNames.fontNameH2),
+                          DataColumn(
+                            label: Text(
+                              "PRECIO",
+                              style: GoogleFonts.getFont(FontNames.fontNameH2),
+                            ),
                           ),
-                        ),
-                        DataColumn(
-                          label: Text(
-                            "ACCIONES",
-                            style: GoogleFonts.getFont(FontNames.fontNameH2),
+                          DataColumn(
+                            label: Text(
+                              "ESTADO",
+                              style: GoogleFonts.getFont(FontNames.fontNameH2),
+                            ),
                           ),
-                        ),
-                      ],
-                      rows: paginatedProducts.map((product) {
-                        return DataRow(
-                          onSelectChanged:
-                              (value) => _showProductDetails(context, product),
-                          color: WidgetStateProperty.resolveWith((states) {
-                            if (states.contains(WidgetState.hovered)) {
-                              return Colors.grey[50];
-                            }
-                            return null;
-                          }),
-                          cells: [
-                            DataCell(
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(8),
-                                child: CatalogImage(
-                                  imageUrl: product.imageUrl.isNotEmpty
-                                      ? product.imageUrl.first
-                                      : "",
-                                  width: 50,
-                                  height: 50,
+                          DataColumn(
+                            label: Text(
+                              "ACCIONES",
+                              style: GoogleFonts.getFont(FontNames.fontNameH2),
+                            ),
+                          ),
+                        ],
+                        rows: paginatedProducts.map((product) {
+                          return DataRow(
+                            onSelectChanged: (value) =>
+                                _showProductDetails(context, product),
+                            color: WidgetStateProperty.resolveWith((states) {
+                              if (states.contains(WidgetState.hovered)) {
+                                return Colors.grey[50];
+                              }
+                              return null;
+                            }),
+                            cells: [
+                              DataCell(
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(8),
+                                  child: CatalogImage(
+                                    imageUrl: product.imageUrl.isNotEmpty
+                                        ? product.imageUrl.first
+                                        : "",
+                                    width: 50,
+                                    height: 50,
+                                  ),
                                 ),
                               ),
-                            ),
-                            DataCell(
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Text(
-                                    product.name,
-                                    style: GoogleFonts.getFont(
-                                      FontNames.fontNameH2,
-                                    ),
-                                  ),
-                                  if (product.sku != "" && product.sku != null)
+                              DataCell(
+                                Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
                                     Text(
-                                      product.sku!,
+                                      product.name,
                                       style: GoogleFonts.getFont(
                                         FontNames.fontNameH2,
                                       ),
                                     ),
-                                ],
-                              ),
-                            ),
-                            DataCell(
-                              Text(
-                                product.category,
-                                style: GoogleFonts.getFont(
-                                  FontNames.fontNameH2,
+                                    if (product.sku != "" &&
+                                        product.sku != null)
+                                      Text(
+                                        product.sku!,
+                                        style: GoogleFonts.getFont(
+                                          FontNames.fontNameH2,
+                                        ),
+                                      ),
+                                  ],
                                 ),
                               ),
-                            ),
-                            DataCell(
-                              Text(
-                                "${product.variants.fold(0, (sum, v) => sum + v.stock)}",
-                                style: GoogleFonts.getFont(
-                                  FontNames.fontNameH2,
+                              DataCell(
+                                Text(
+                                  product.category,
+                                  style: GoogleFonts.getFont(
+                                    FontNames.fontNameH2,
+                                  ),
                                 ),
                               ),
-                            ),
-                            DataCell(
-                              Text(
-                                () {
-                                  if (product.variants.isEmpty) {
-                                    return "S/ 0.00";
-                                  }
-                                  final prices = product.variants.map(
-                                    (v) => v.price,
-                                  );
-                                  final minPrice = prices.reduce(
-                                    (value, element) =>
-                                        value < element ? value : element,
-                                  );
-                                  final maxPrice = prices.reduce(
-                                    (value, element) =>
-                                        value > element ? value : element,
-                                  );
-                                  if (minPrice == maxPrice) {
-                                    return "S/ ${minPrice.toStringAsFixed(2)}";
-                                  }
-                                  return "S/ ${minPrice.toStringAsFixed(2)} - ${maxPrice.toStringAsFixed(2)}";
-                                }(),
-                                style: GoogleFonts.getFont(
-                                  FontNames.fontNameH2,
+                              DataCell(
+                                Text(
+                                  "${product.variants.fold(0, (sum, v) => sum + v.stock)}",
+                                  style: GoogleFonts.getFont(
+                                    FontNames.fontNameH2,
+                                  ),
                                 ),
                               ),
-                            ),
-                            DataCell(
-                              Switch(
-                                value: product.isAvailable,
-                                onChanged: (value) async {
-                                  try {
-                                    final updatedProduct = Product(
-                                      id: product.id,
-                                      name: product.name,
-                                      description: product.description,
-                                      imageUrl: product.imageUrl,
-                                      businessId: product.businessId,
-                                      createdAt: product.createdAt,
-                                      updatedAt: product.updatedAt,
-                                      category: product.category,
-                                      variants: product.variants,
-                                      sku: product.sku,
-                                      isAvailable: value,
+                              DataCell(
+                                Text(
+                                  () {
+                                    if (product.variants.isEmpty) {
+                                      return "S/ 0.00";
+                                    }
+                                    final prices = product.variants.map(
+                                      (v) => v.price,
                                     );
-                                    await context
-                                        .read<ProductProvider>()
-                                        .updateProduct(
-                                          widget.businessSlug,
-                                          updatedProduct,
-                                        );
-                                  } catch (e) {
-                                    if (!context.mounted) return;
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(content: Text("Error: $e")),
+                                    final minPrice = prices.reduce(
+                                      (value, element) =>
+                                          value < element ? value : element,
                                     );
-                                  }
-                                },
-                                activeThumbColor: Colors.black,
+                                    final maxPrice = prices.reduce(
+                                      (value, element) =>
+                                          value > element ? value : element,
+                                    );
+                                    if (minPrice == maxPrice) {
+                                      return "S/ ${minPrice.toStringAsFixed(2)}";
+                                    }
+                                    return "S/ ${minPrice.toStringAsFixed(2)} - ${maxPrice.toStringAsFixed(2)}";
+                                  }(),
+                                  style: GoogleFonts.getFont(
+                                    FontNames.fontNameH2,
+                                  ),
+                                ),
                               ),
-                            ),
-                            DataCell(
-                              Row(
-                                children: [
-                                  IconButton(
-                                    onPressed: () {
-                                      context.go(
-                                        "/${widget.businessSlug}/admin/products/edit/${product.id}",
+                              DataCell(
+                                Switch(
+                                  value: product.isAvailable,
+                                  onChanged: (value) async {
+                                    try {
+                                      final updatedProduct = Product(
+                                        id: product.id,
+                                        name: product.name,
+                                        description: product.description,
+                                        imageUrl: product.imageUrl,
+                                        businessId: product.businessId,
+                                        createdAt: product.createdAt,
+                                        updatedAt: product.updatedAt,
+                                        category: product.category,
+                                        variants: product.variants,
+                                        sku: product.sku,
+                                        isAvailable: value,
                                       );
-                                    },
-                                    icon: Icon(Icons.edit, size: 20),
-                                  ),
-                                  IconButton(
-                                    onPressed: () => _confirmDelete(
-                                      context,
-                                      product.id,
-                                      product.name,
-                                    ),
-                                    icon: Icon(
-                                      Icons.delete,
-                                      size: 20,
-                                      color: Colors.red,
-                                    ),
-                                  ),
-                                ],
+                                      await context
+                                          .read<ProductProvider>()
+                                          .updateProduct(
+                                            widget.businessSlug,
+                                            updatedProduct,
+                                          );
+                                    } catch (e) {
+                                      if (!context.mounted) return;
+                                      ScaffoldMessenger.of(
+                                        context,
+                                      ).showSnackBar(
+                                        SnackBar(content: Text("Error: $e")),
+                                      );
+                                    }
+                                  },
+                                  activeThumbColor: Colors.black,
+                                ),
                               ),
-                            ),
-                          ],
-                        );
-                      }).toList(),
+                              DataCell(
+                                Row(
+                                  children: [
+                                    IconButton(
+                                      onPressed: () {
+                                        context.go(
+                                          "/${widget.businessSlug}/admin/products/edit/${product.id}",
+                                        );
+                                      },
+                                      icon: Icon(Icons.edit, size: 20),
+                                    ),
+                                    IconButton(
+                                      onPressed: () => _confirmDelete(
+                                        context,
+                                        product.id,
+                                        product.name,
+                                      ),
+                                      icon: Icon(
+                                        Icons.delete,
+                                        size: 20,
+                                        color: Colors.red,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
                 ),
-                Spacer(),
+
                 Divider(),
                 Padding(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -378,18 +383,18 @@ class _AdminProductTableState extends State<AdminProductTable> {
 
     try {
       await context.read<ProductProvider>().deleteProduct(
-            widget.businessSlug,
-            productId,
-          );
-      if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("✅ Producto eliminado")),
+        widget.businessSlug,
+        productId,
       );
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("✅ Producto eliminado")));
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ Error: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("❌ Error: $e")));
     }
   }
 
@@ -447,7 +452,9 @@ class _AdminProductTableState extends State<AdminProductTable> {
                             height: 150,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFFE2E2E2)),
+                              border: Border.all(
+                                color: const Color(0xFFE2E2E2),
+                              ),
                             ),
                             child: ClipRRect(
                               borderRadius: BorderRadius.circular(8),
@@ -501,7 +508,9 @@ class _AdminProductTableState extends State<AdminProductTable> {
                         "Descripción",
                         style: GoogleFonts.getFont(
                           FontNames.fontNameH2,
-                          textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -517,74 +526,82 @@ class _AdminProductTableState extends State<AdminProductTable> {
                         "Variantes (${product.variants.length})",
                         style: GoogleFonts.getFont(
                           FontNames.fontNameH2,
-                          textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                          textStyle: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       const SizedBox(height: 12),
-                      ...product.variants.map((v) => Container(
-                            margin: const EdgeInsets.only(bottom: 12),
-                            padding: const EdgeInsets.all(16),
-                            decoration: BoxDecoration(
-                              color: Colors.grey[50],
-                              borderRadius: BorderRadius.circular(8),
-                              border: Border.all(color: const Color(0xFFE2E2E2)),
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      v.name.isEmpty ? "Variante base" : v.name,
-                                      style: GoogleFonts.getFont(
-                                        FontNames.fontNameH2,
-                                        textStyle: const TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                      ...product.variants.map(
+                        (v) => Container(
+                          margin: const EdgeInsets.only(bottom: 12),
+                          padding: const EdgeInsets.all(16),
+                          decoration: BoxDecoration(
+                            color: Colors.grey[50],
+                            borderRadius: BorderRadius.circular(8),
+                            border: Border.all(color: const Color(0xFFE2E2E2)),
+                          ),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    v.name.isEmpty ? "Variante base" : v.name,
+                                    style: GoogleFonts.getFont(
+                                      FontNames.fontNameH2,
+                                      textStyle: const TextStyle(
+                                        fontWeight: FontWeight.bold,
                                       ),
                                     ),
-                                    Text(
-                                      "Stock: ${v.stock}",
-                                      style: GoogleFonts.getFont(
-                                        FontNames.fontNameH2,
-                                        textStyle: TextStyle(
-                                          color: v.stock > 0
-                                              ? Colors.green
-                                              : Colors.red,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                const SizedBox(height: 8),
-                                _buildDetailRow(
-                                  "Precio:",
-                                  "S/. ${v.price.toStringAsFixed(2)}",
-                                ),
-                                if ((v.discountPrice ?? 0) > 0)
-                                  _buildDetailRow(
-                                    "Precio Descuento:",
-                                    "S/. ${v.discountPrice?.toStringAsFixed(2)}",
                                   ),
-                                if (v.sku != null) _buildDetailRow("SKU:", v.sku!),
-                                const SizedBox(height: 8),
-                                Wrap(
-                                  spacing: 8,
-                                  children: v.sizes
-                                      .map((s) => Chip(
-                                            backgroundColor: Colors.white,
-                                            label: Text(s),
-                                            side: const BorderSide(
-                                                color: Color(0xFFE2E2E2)),
-                                          ))
-                                      .toList(),
+                                  Text(
+                                    "Stock: ${v.stock}",
+                                    style: GoogleFonts.getFont(
+                                      FontNames.fontNameH2,
+                                      textStyle: TextStyle(
+                                        color: v.stock > 0
+                                            ? Colors.green
+                                            : Colors.red,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 8),
+                              _buildDetailRow(
+                                "Precio:",
+                                "S/. ${v.price.toStringAsFixed(2)}",
+                              ),
+                              if ((v.discountPrice ?? 0) > 0)
+                                _buildDetailRow(
+                                  "Precio Descuento:",
+                                  "S/. ${v.discountPrice?.toStringAsFixed(2)}",
                                 ),
-                              ],
-                            ),
-                          )),
+                              if (v.sku != null)
+                                _buildDetailRow("SKU:", v.sku!),
+                              const SizedBox(height: 8),
+                              Wrap(
+                                spacing: 8,
+                                children: v.sizes
+                                    .map(
+                                      (s) => Chip(
+                                        backgroundColor: Colors.white,
+                                        label: Text(s),
+                                        side: const BorderSide(
+                                          color: Color(0xFFE2E2E2),
+                                        ),
+                                      ),
+                                    )
+                                    .toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
                   ),
                 ),
