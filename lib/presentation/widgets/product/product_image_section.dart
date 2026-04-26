@@ -93,12 +93,14 @@ class _ProductImageSectionState extends State<ProductImageSection> {
                   },
                   itemBuilder: (context, index) {
                     final url = widget.product.imageUrl[index];
-                    return GestureDetector(
-                      onDoubleTap: () => _openZoomDialog(context, url),
-                      child: CatalogImage(
-                        optimizedWidth: 800,
-                        imageUrl: url,
-                        fit: _getFit(url, isMobile),
+                    return SelectionContainer.disabled(
+                      child: GestureDetector(
+                        onDoubleTap: () => _openZoomDialog(context, url),
+                        child: CatalogImage(
+                          optimizedWidth: 800,
+                          imageUrl: url,
+                          fit: _getFit(url, isMobile),
+                        ),
                       ),
                     );
                   },

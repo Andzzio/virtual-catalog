@@ -33,10 +33,14 @@ class SummaryItemTile extends StatelessWidget {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      item.product.name,
-                      style: GoogleFonts.getFont(FontNames.fontNameH2),
+                    Flexible(
+                      child: Text(
+                        item.product.name,
+                        style: GoogleFonts.getFont(FontNames.fontNameH2),
+                        overflow: TextOverflow.ellipsis,
+                      ),
                     ),
+                    SizedBox(width: 8),
                     Text(
                       "S/. ${item.subTotal.toStringAsFixed(2)}",
                       style: GoogleFonts.getFont(FontNames.fontNameP),

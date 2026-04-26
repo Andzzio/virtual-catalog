@@ -11,7 +11,8 @@ import 'package:virtual_catalog_app/domain/entities/payment_type.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
-import 'package:virtual_catalog_app/presentation/widgets/checkout/checkout_summary_view.dart';
+import 'package:virtual_catalog_app/presentation/widgets/checkout/summary_item_tile.dart';
+import 'package:virtual_catalog_app/presentation/widgets/checkout/summary_footer.dart';
 
 class CheckoutFormView extends StatefulWidget {
   const CheckoutFormView({super.key});
@@ -46,19 +47,23 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
         .watch<CartProvider>()
         .selectedPaymentMethod;
     final size = MediaQuery.sizeOf(context);
+    final isMobile = size.width < 800;
     return SingleChildScrollView(
       child: Form(
         key: _formKey,
         child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 20),
+          padding: EdgeInsets.symmetric(
+            horizontal: isMobile ? 16 : 40,
+            vertical: 20,
+          ),
           child: Align(
-            alignment: Alignment.centerRight,
+            alignment: isMobile ? Alignment.center : Alignment.centerRight,
             child: SizedBox(
-              width: 600,
+              width: isMobile ? double.infinity : 600,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  if (size.width < 800)
+                  if (isMobile)
                     ExpansionTile(
                       tilePadding: EdgeInsets.zero,
                       shape: Border(),
@@ -69,14 +74,24 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           textStyle: TextStyle(fontSize: 12),
                         ),
                       ),
-                      children: [
-                        Align(
-                          alignment: Alignment.topLeft,
-                          child: SizedBox(
-                            height: size.height * 0.7,
-                            child: CheckoutSummaryView(),
-                          ),
+                      subtitle: Text(
+                        "S/. ${cartProvider.checkoutGrandTotal.toStringAsFixed(2)}",
+                        style: GoogleFonts.getFont(
+                          FontNames.fontNameP,
+                          textStyle: TextStyle(fontSize: 14),
                         ),
+                      ),
+                      children: [
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          itemCount: cartProvider.checkItems.length,
+                          itemBuilder: (context, index) {
+                            final item = cartProvider.checkItems[index];
+                            return SummaryItemTile(item: item);
+                          },
+                        ),
+                        SummaryFooter(),
                       ],
                     ),
                   Text(
@@ -202,7 +217,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                               if (isSelected && method.description != null)
                                 Container(
                                   width: double.infinity,
-                                  height: 60,
+                                  constraints: BoxConstraints(minHeight: 60),
                                   decoration: BoxDecoration(
                                     color: isSelected
                                         ? Colors.grey.shade100
@@ -273,35 +288,58 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         },
                       ),
                       SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: nameCtrl,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Por favor, ingrese su nombre";
-                                }
-                                return null;
-                              },
-                              decoration: _inputDecoration("Nombre"),
+                      if (isMobile) ...[
+                        TextFormField(
+                          controller: nameCtrl,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Por favor, ingrese su nombre";
+                            }
+                            return null;
+                          },
+                          decoration: _inputDecoration("Nombre"),
+                        ),
+                        SizedBox(height: 10),
+                        TextFormField(
+                          controller: lastNameCtrl,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Por favor, ingrese su apellido";
+                            }
+                            return null;
+                          },
+                          decoration: _inputDecoration("Apellido"),
+                        ),
+                      ] else
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: nameCtrl,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Por favor, ingrese su nombre";
+                                  }
+                                  return null;
+                                },
+                                decoration: _inputDecoration("Nombre"),
+                              ),
                             ),
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: TextFormField(
-                              controller: lastNameCtrl,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Por favor, ingrese su apellido";
-                                }
-                                return null;
-                              },
-                              decoration: _inputDecoration("Apellido"),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: TextFormField(
+                                controller: lastNameCtrl,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Por favor, ingrese su apellido";
+                                  }
+                                  return null;
+                                },
+                                decoration: _inputDecoration("Apellido"),
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
+                          ],
+                        ),
                       SizedBox(height: 10),
                       TextFormField(
                         controller: dniCtrl,
@@ -333,44 +371,74 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         decoration: _inputDecoration("Dirección"),
                       ),
                       SizedBox(height: 10),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: cityCtrl,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Por favor, ingrese su ciudad";
-                                }
-                                return null;
-                              },
-                              decoration: _inputDecoration("Ciudad"),
-                            ),
+                      if (isMobile) ...[
+                        TextFormField(
+                          controller: cityCtrl,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Por favor, ingrese su ciudad";
+                            }
+                            return null;
+                          },
+                          decoration: _inputDecoration("Ciudad"),
+                        ),
+                        SizedBox(height: 10),
+                        TextFormField(
+                          controller: regionCtrl,
+                          validator: (value) {
+                            if (value == null || value.isEmpty) {
+                              return "Por favor, ingrese su región";
+                            }
+                            return null;
+                          },
+                          decoration: _inputDecoration("Región"),
+                        ),
+                        SizedBox(height: 10),
+                        TextFormField(
+                          controller: zipCtrl,
+                          decoration: _inputDecoration(
+                            "Código postal (opcional)",
                           ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: TextFormField(
-                              controller: regionCtrl,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Por favor, ingrese su región";
-                                }
-                                return null;
-                              },
-                              decoration: _inputDecoration("Región"),
-                            ),
-                          ),
-                          SizedBox(width: 10),
-                          Expanded(
-                            child: TextFormField(
-                              controller: zipCtrl,
-                              decoration: _inputDecoration(
-                                "Código postal (opcional)",
+                        ),
+                      ] else
+                        Row(
+                          children: [
+                            Expanded(
+                              child: TextFormField(
+                                controller: cityCtrl,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Por favor, ingrese su ciudad";
+                                  }
+                                  return null;
+                                },
+                                decoration: _inputDecoration("Ciudad"),
                               ),
                             ),
-                          ),
-                        ],
-                      ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: TextFormField(
+                                controller: regionCtrl,
+                                validator: (value) {
+                                  if (value == null || value.isEmpty) {
+                                    return "Por favor, ingrese su región";
+                                  }
+                                  return null;
+                                },
+                                decoration: _inputDecoration("Región"),
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Expanded(
+                              child: TextFormField(
+                                controller: zipCtrl,
+                                decoration: _inputDecoration(
+                                  "Código postal (opcional)",
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
                       SizedBox(height: 10),
                       TextFormField(
                         controller: phoneCtrl,
@@ -485,7 +553,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                               if (isSelected && method.description != null)
                                 Container(
                                   width: double.infinity,
-                                  height: 60,
+                                  constraints: BoxConstraints(minHeight: 60),
                                   decoration: BoxDecoration(
                                     color: isSelected
                                         ? Colors.grey.shade100

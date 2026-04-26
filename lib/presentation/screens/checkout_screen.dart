@@ -12,6 +12,7 @@ class CheckoutScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final size = MediaQuery.of(context).size;
+    final isMobile = size.width < 800;
     return Scaffold(
       appBar: CatalogAppBar(
         isScrolled: true,
@@ -24,7 +25,7 @@ class CheckoutScreen extends StatelessWidget {
       body: Row(
         children: [
           Expanded(flex: 5, child: CheckoutFormView()),
-          if (size.width > 800) ...[
+          if (!isMobile) ...[
             VerticalDivider(),
             Expanded(flex: 5, child: CheckoutSummaryView()),
           ],
