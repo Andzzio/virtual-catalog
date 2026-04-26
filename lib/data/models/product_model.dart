@@ -12,6 +12,7 @@ class ProductModel {
   final DateTime updatedAt;
   final String category;
   final bool isAvailable;
+  final int salesCount;
   final List<String> imageUrl;
   final List<ProductVariantModel> variants;
 
@@ -25,6 +26,7 @@ class ProductModel {
     required this.updatedAt,
     required this.category,
     this.isAvailable = true,
+    this.salesCount = 0,
     required this.imageUrl,
     required this.variants,
   });
@@ -41,6 +43,7 @@ class ProductModel {
       updatedAt: (json["updatedAt"] as Timestamp).toDate(),
       category: json["category"],
       isAvailable: json["isAvailable"] ?? true,
+      salesCount: json["salesCount"] ?? 0,
       imageUrl: List<String>.from(json["imageUrls"] ?? []),
       variants: (json["variants"] as List? ?? [])
           .map((v) => ProductVariantModel.fromJson(v as Map<String, dynamic>))
@@ -59,6 +62,7 @@ class ProductModel {
       updatedAt: DateTime.parse(json['updatedAt']),
       category: json['category'],
       isAvailable: json['isAvailable'] ?? true,
+      salesCount: json['salesCount'] ?? 0,
       imageUrl: List<String>.from(json['imageUrl']),
       variants: (json['variants'] as List)
           .map((v) => ProductVariantModel.fromJson(v))
@@ -76,6 +80,7 @@ class ProductModel {
     'updatedAt': updatedAt.toIso8601String(),
     'category': category,
     'isAvailable': isAvailable,
+    'salesCount': salesCount,
     'imageUrl': imageUrl,
     'variants': variants.map((v) => v.toJson()).toList(),
   };
@@ -89,6 +94,7 @@ class ProductModel {
     if (isNew) 'createdAt': FieldValue.serverTimestamp(),
     'category': category,
     'isAvailable': isAvailable,
+    'salesCount': salesCount,
     'imageUrls': imageUrl,
     'variants': variants.map((v) => v.toJson()).toList(),
   };
@@ -103,6 +109,7 @@ class ProductModel {
     updatedAt: updatedAt,
     category: category,
     isAvailable: isAvailable,
+    salesCount: salesCount,
     imageUrl: imageUrl,
     variants: variants.map((v) => v.toEntity()).toList(),
   );
@@ -118,6 +125,7 @@ class ProductModel {
       updatedAt: entity.updatedAt,
       category: entity.category,
       isAvailable: entity.isAvailable,
+      salesCount: entity.salesCount,
       imageUrl: entity.imageUrl,
       variants: entity.variants
           .map((v) => ProductVariantModel.fromEntity(v))

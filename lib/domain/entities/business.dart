@@ -1,5 +1,6 @@
 import 'package:virtual_catalog_app/domain/entities/banner_item.dart';
 import 'package:virtual_catalog_app/domain/entities/delivery_method.dart';
+import 'package:virtual_catalog_app/domain/entities/home_block.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
 
 class Business {
@@ -15,6 +16,7 @@ class Business {
   final bool showDesktopLogo;
   final bool showMobileLogo;
   final String? termsAndConditions;
+  final List<HomeBlock> homeBlocks;
 
   Business({
     required this.slug,
@@ -29,5 +31,6 @@ class Business {
     this.showDesktopLogo = true,
     this.showMobileLogo = true,
     this.termsAndConditions,
+    this.homeBlocks = const [],
   });
 }

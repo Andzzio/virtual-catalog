@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:virtual_catalog_app/data/models/banner_item_model.dart';
 import 'package:virtual_catalog_app/data/models/delivery_method_model.dart';
 import 'package:virtual_catalog_app/data/models/payment_method_model.dart';
+import 'package:virtual_catalog_app/data/models/home_block_model.dart';
 import 'package:virtual_catalog_app/domain/entities/business.dart';
 
 class BusinessModel {
@@ -17,6 +18,7 @@ class BusinessModel {
   final bool showDesktopLogo;
   final bool showMobileLogo;
   final String? termsAndConditions;
+  final List<HomeBlockModel> homeBlocks;
 
   BusinessModel({
     required this.slug,
@@ -31,6 +33,7 @@ class BusinessModel {
     required this.showDesktopLogo,
     required this.showMobileLogo,
     this.termsAndConditions,
+    this.homeBlocks = const [],
   });
 
   factory BusinessModel.fromFirestore(DocumentSnapshot doc) {
@@ -54,6 +57,9 @@ class BusinessModel {
       showDesktopLogo: json['showDesktopLogo'] ?? true,
       showMobileLogo: json['showMobileLogo'] ?? true,
       termsAndConditions: json['termsAndConditions'],
+      homeBlocks: (json['homeBlocks'] as List? ?? [])
+          .map((b) => HomeBlockModel.fromJson(b as Map<String, dynamic>))
+          .toList(),
     );
   }
 
@@ -77,6 +83,9 @@ class BusinessModel {
       showDesktopLogo: json['showDesktopLogo'] ?? true,
       showMobileLogo: json['showMobileLogo'] ?? true,
       termsAndConditions: json['termsAndConditions'],
+      homeBlocks: (json['homeBlocks'] as List? ?? [])
+          .map((b) => HomeBlockModel.fromJson(b))
+          .toList(),
     );
   }
 
@@ -93,6 +102,7 @@ class BusinessModel {
     "showDesktopLogo": showDesktopLogo,
     "showMobileLogo": showMobileLogo,
     "termsAndConditions": termsAndConditions,
+    "homeBlocks": homeBlocks.map((b) => b.toJson()).toList(),
   };
 
   Business toEntity() => Business(
@@ -108,6 +118,7 @@ class BusinessModel {
     showDesktopLogo: showDesktopLogo,
     showMobileLogo: showMobileLogo,
     termsAndConditions: termsAndConditions,
+    homeBlocks: homeBlocks.map((b) => b.toEntity()).toList(),
   );
 
   factory BusinessModel.fromEntity(Business entity) {
@@ -130,6 +141,9 @@ class BusinessModel {
       showDesktopLogo: entity.showDesktopLogo,
       showMobileLogo: entity.showMobileLogo,
       termsAndConditions: entity.termsAndConditions,
+      homeBlocks: entity.homeBlocks
+          .map((b) => HomeBlockModel.fromEntity(b))
+          .toList(),
     );
   }
 }

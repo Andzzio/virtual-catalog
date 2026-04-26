@@ -106,6 +106,20 @@ class AdminLeftSide extends StatelessWidget {
                   context.go("/$businessSlug/admin/settings");
                 },
               ),
+              SizedBox(height: 10),
+              ListTile(
+                leading: Icon(Icons.view_quilt),
+                title: Text(
+                  "Diseño del Home",
+                  style: GoogleFonts.getFont(FontNames.fontNameH2),
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                onTap: () {
+                  context.go("/$businessSlug/admin/home-builder");
+                },
+              ),
               Spacer(),
               Divider(),
               SizedBox(height: 20),

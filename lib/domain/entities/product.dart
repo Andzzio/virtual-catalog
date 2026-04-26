@@ -10,6 +10,7 @@ class Product {
   final DateTime updatedAt;
   final String category;
   final bool isAvailable;
+  final int salesCount;
   final List<String> imageUrl;
   final List<ProductVariant> variants;
 
@@ -23,6 +24,7 @@ class Product {
     required this.updatedAt,
     required this.category,
     this.isAvailable = true,
+    this.salesCount = 0,
     this.sku,
     required this.variants,
   });
