@@ -182,6 +182,10 @@ class AdminBannersView extends StatelessWidget {
       banners: updatedBanners,
       deliveryMethods: business.deliveryMethods,
       paymentMethods: business.paymentMethods,
+      showDesktopLogo: business.showDesktopLogo,
+      showMobileLogo: business.showMobileLogo,
+      termsAndConditions: business.termsAndConditions,
+      homeBlocks: business.homeBlocks,
     );
 
     try {
@@ -265,6 +269,10 @@ class AdminBannersView extends StatelessWidget {
       banners: updatedBanners,
       deliveryMethods: business.deliveryMethods,
       paymentMethods: business.paymentMethods,
+      showDesktopLogo: business.showDesktopLogo,
+      showMobileLogo: business.showMobileLogo,
+      termsAndConditions: business.termsAndConditions,
+      homeBlocks: business.homeBlocks,
     );
 
     try {

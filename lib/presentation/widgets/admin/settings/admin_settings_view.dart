@@ -102,6 +102,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         showDesktopLogo: _showDesktopLogo,
         showMobileLogo: _showMobileLogo,
         termsAndConditions: _termsCtrl.text.trim(),
+        homeBlocks: business.homeBlocks,
       );
 
       if (!mounted) return;
