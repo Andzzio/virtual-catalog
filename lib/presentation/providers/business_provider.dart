@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:virtual_catalog_app/config/utils/web_meta_utils.dart';
 import 'package:virtual_catalog_app/domain/entities/business.dart';
 import 'package:virtual_catalog_app/domain/repos/business_repository.dart';
 
@@ -19,6 +20,12 @@ class BusinessProvider extends ChangeNotifier {
 
     _currentSlug = slug;
     business = await repository.getBusinessBySlug(slug);
+
+    if (business != null) {
+      updatePageTitle(business!.name);
+      updateFavicon(business!.logoUrl);
+    }
+
     isLoading = false;
     notifyListeners();
   }
