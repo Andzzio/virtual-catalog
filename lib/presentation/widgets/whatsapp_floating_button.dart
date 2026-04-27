@@ -14,7 +14,7 @@ class WhatsappFloatingButton extends StatelessWidget {
     return FloatingActionButton(
       onPressed: () async {
         if (phone.isEmpty) return;
-        final String message = "Hola, me gustaría ver su catálogo";
+        final String message = "Hola, tengo una consulta sobre su catálogo";
         final url = Uri.parse(
           "https://wa.me/$phone?text=${Uri.encodeComponent(message)}",
         );
