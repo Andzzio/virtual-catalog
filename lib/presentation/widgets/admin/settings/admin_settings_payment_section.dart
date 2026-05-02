@@ -379,7 +379,7 @@ class _AdminSettingsPaymentSectionState
               ),
             );
             final typeField = DropdownButtonFormField<PaymentType>(
-              value: method.type,
+              initialValue: method.type,
               decoration: _inputDecoration("Tipo"),
               style: GoogleFonts.getFont(FontNames.fontNameH2,
                   textStyle:

@@ -17,6 +17,7 @@ class Order {
   final double total;
   final String status; // 'pending', 'paid', 'failed'
   final String paymentMethod;
+  final String? deliveryMethod;
   final DateTime createdAt;
 
   Order({
@@ -36,6 +37,7 @@ class Order {
     required this.total,
     required this.status,
     required this.paymentMethod,
+    this.deliveryMethod,
     required this.createdAt,
   });
 }

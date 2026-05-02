@@ -5,4 +5,6 @@ abstract class OrderRepository {
   Stream<Order> listenToOrder(String orderId);
   Stream<List<Order>> listenToBusinessOrders(String businessId);
   Future<void> updateOrderStatus(String businessId, String orderId, String newStatus);
+  Future<void> deleteOrder(String businessId, String orderId);
+  Future<void> deleteStalePendingOrders(String businessId, {int daysThreshold});
 }

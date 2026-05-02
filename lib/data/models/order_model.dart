@@ -20,6 +20,7 @@ class OrderModel extends Order {
     required super.total,
     required super.status,
     required super.paymentMethod,
+    super.deliveryMethod,
     required super.createdAt,
   });
 
@@ -40,6 +41,7 @@ class OrderModel extends Order {
       'total': total,
       'status': status,
       'paymentMethod': paymentMethod,
+      'deliveryMethod': deliveryMethod,
       'createdAt': createdAt.toIso8601String(),
     };
   }
@@ -64,6 +66,7 @@ class OrderModel extends Order {
       total: (json['total'] ?? 0).toDouble(),
       status: json['status'] ?? 'pending',
       paymentMethod: json['paymentMethod'] ?? '',
+      deliveryMethod: json['deliveryMethod'],
       createdAt: DateTime.parse(json['createdAt']),
     );
   }
@@ -86,6 +89,7 @@ class OrderModel extends Order {
       total: order.total,
       status: order.status,
       paymentMethod: order.paymentMethod,
+      deliveryMethod: order.deliveryMethod,
       createdAt: order.createdAt,
     );
   }

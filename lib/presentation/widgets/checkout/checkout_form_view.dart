@@ -593,12 +593,28 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                             ),
                                           ),
                                           Spacer(),
-                                          Icon(
-                                            method.type.faIcon.icon,
-                                            color: isSelected
-                                                ? Colors.black
-                                                : Colors.grey,
-                                          ),
+                                          if (method.type == PaymentType.izipay)
+                                            SelectionContainer.disabled(
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  _buildCardBadge("VISA"),
+                                                  const SizedBox(width: 4),
+                                                  _buildCardBadge("Mastercard"),
+                                                  const SizedBox(width: 4),
+                                                  _buildCardBadge("Amex"),
+                                                  const SizedBox(width: 4),
+                                                  _buildCardBadge("+2"),
+                                                ],
+                                              ),
+                                            )
+                                          else
+                                            Icon(
+                                              method.type.faIcon.icon,
+                                              color: isSelected
+                                                  ? Colors.black
+                                                  : Colors.grey,
+                                            ),
                                         ],
                                       ),
                                     ),
@@ -828,6 +844,117 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
     );
   }
 
+  Widget _buildCardBadge(String brand) {
+    if (brand == "VISA") {
+      return Container(
+        width: 40,
+        height: 24,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(5),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
+        ),
+        child: Text(
+          "VISA",
+          style: GoogleFonts.getFont(
+            FontNames.fontNameH2,
+            textStyle: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: Color(0xFF1A1F71),
+              height: 1.0,
+            ),
+          ),
+        ),
+      );
+    }
+    if (brand == "Mastercard") {
+      return Container(
+        width: 40,
+        height: 24,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(5),
+          border: Border.all(color: const Color(0xFFE5E7EB)),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 10,
+              height: 10,
+              decoration: const BoxDecoration(
+                color: Color(0xFFEB001B),
+                shape: BoxShape.circle,
+              ),
+            ),
+            Transform.translate(
+              offset: const Offset(-3, 0),
+              child: Container(
+                width: 10,
+                height: 10,
+                decoration: const BoxDecoration(
+                  color: Color(0xFFF79E1B),
+                  shape: BoxShape.circle,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+    if (brand == "Amex") {
+      return Container(
+        width: 42,
+        height: 24,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: const Color(0xFF01A6DD),
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Text(
+          "AMEX",
+          style: GoogleFonts.getFont(
+            FontNames.fontNameH2,
+            textStyle: const TextStyle(
+              fontSize: 9,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              height: 1.0,
+            ),
+          ),
+        ),
+      );
+    }
+    if (brand == "+2") {
+      return Container(
+        width: 32,
+        height: 24,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: Colors.black,
+          borderRadius: BorderRadius.circular(5),
+        ),
+        child: Text(
+          "+2",
+          style: GoogleFonts.getFont(
+            FontNames.fontNameH2,
+            textStyle: const TextStyle(
+              fontSize: 10,
+              fontWeight: FontWeight.bold,
+              color: Colors.white,
+              height: 1.0,
+            ),
+          ),
+        ),
+      );
+    }
+    return const SizedBox.shrink();
+  }
+
   Future<void> _finishPayment({
     String? phone,
     required String? paymentType,
@@ -886,6 +1013,33 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
     sb.writeln();
     sb.writeln("\u{1F4DD} Notas: ${noteCtrl.text}");
 
+    final orderProvider = context.read<OrderProvider>();
+    final newOrder = Order(
+      businessId: businessProvider.business!.slug,
+      customerName: nameCtrl.text,
+      customerLastName: lastNameCtrl.text,
+      customerPhone: phoneCtrl.text,
+      customerDni: dniCtrl.text,
+      customerAddress: addressCtrl.text,
+      customerCity: cityCtrl.text,
+      customerRegion: regionCtrl.text,
+      customerZip: zipCtrl.text,
+      customerEmail: emailCtrl.text,
+      notes: noteCtrl.text,
+      items: cartProvider.checkItems,
+      total: cartProvider.checkoutGrandTotal,
+      status: 'pending',
+      paymentMethod: paymentType,
+      deliveryMethod: cartProvider.selectedDeliveryMethod?.name,
+      createdAt: DateTime.now(),
+    );
+
+    try {
+      await orderProvider.createOrder(newOrder);
+    } catch (e) {
+      debugPrint("Error al guardar la orden: $e");
+    }
+
     final url = Uri.parse(
       "https://api.whatsapp.com/send?phone=$phone&text=${Uri.encodeComponent(sb.toString())}",
     );
@@ -937,6 +1091,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       total: amount,
       status: 'pending',
       paymentMethod: 'izipay',
+      deliveryMethod: cartProvider.selectedDeliveryMethod?.name,
       createdAt: DateTime.now(),
     );
 

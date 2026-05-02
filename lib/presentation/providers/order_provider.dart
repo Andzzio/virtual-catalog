@@ -58,6 +58,14 @@ class OrderProvider extends ChangeNotifier {
     await repository.updateOrderStatus(businessId, orderId, newStatus);
   }
 
+  Future<void> deleteOrder(String businessId, String orderId) async {
+    await repository.deleteOrder(businessId, orderId);
+  }
+
+  Future<void> deleteStalePendingOrders(String businessId) async {
+    await repository.deleteStalePendingOrders(businessId);
+  }
+
   @override
   void dispose() {
     _ordersSub?.cancel();

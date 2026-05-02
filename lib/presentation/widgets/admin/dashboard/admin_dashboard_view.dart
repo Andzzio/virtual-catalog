@@ -21,6 +21,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<OrderProvider>().deleteStalePendingOrders(widget.businessSlug);
       context.read<OrderProvider>().listenToBusinessOrders(widget.businessSlug);
     });
   }
@@ -580,6 +581,8 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                         ],
                       ),
                       _infoRow("Método de pago:", o.paymentMethod),
+                      if (o.deliveryMethod != null && o.deliveryMethod!.isNotEmpty)
+                        _infoRow("Método de envío:", o.deliveryMethod!),
                       const SizedBox(height: 12),
                       const Divider(),
                       const SizedBox(height: 8),
@@ -597,7 +600,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                           ),
                         ),
                         value: isPaid,
-                        activeColor: const Color(0xFF10B981),
+                        activeThumbColor: const Color(0xFF10B981),
                         onChanged: (val) async {
                           setStateLocal(() {
                             isPaid = val;
@@ -615,6 +618,65 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                 ),
               ),
               actions: [
+                TextButton(
+                  onPressed: () async {
+                    final confirm = await showDialog<bool>(
+                      context: dialogContext,
+                      builder: (cfContext) => AlertDialog(
+                        title: Text(
+                          "¿Eliminar Pedido?",
+                          style: GoogleFonts.getFont(
+                            FontNames.fontNameH2,
+                            textStyle: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
+                        ),
+                        content: Text(
+                          "¿Estás seguro de que deseas eliminar este pedido permanentemente?",
+                          style: GoogleFonts.getFont(FontNames.fontNameH2),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(cfContext).pop(false),
+                            child: Text(
+                              "Cancelar",
+                              style: GoogleFonts.getFont(
+                                FontNames.fontNameH2,
+                                textStyle: const TextStyle(color: Colors.black),
+                              ),
+                            ),
+                          ),
+                          TextButton(
+                            onPressed: () => Navigator.of(cfContext).pop(true),
+                            child: Text(
+                              "Eliminar",
+                              style: GoogleFonts.getFont(
+                                FontNames.fontNameH2,
+                                textStyle: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    );
+
+                    if (confirm == true && dialogContext.mounted) {
+                      await dialogContext.read<OrderProvider>().deleteOrder(
+                        widget.businessSlug,
+                        o.id!,
+                      );
+                      if (dialogContext.mounted) {
+                        Navigator.of(dialogContext).pop();
+                      }
+                    }
+                  },
+                  child: Text(
+                    "Eliminar Pedido",
+                    style: GoogleFonts.getFont(
+                      FontNames.fontNameH2,
+                      textStyle: const TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                    ),
+                  ),
+                ),
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
                   child: Text(

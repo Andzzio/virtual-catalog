@@ -63,4 +63,45 @@ class OrderRepositoryImpl implements OrderRepository {
             .map((doc) => OrderModel.fromJson(doc.data(), doc.id))
             .toList());
   }
+
+  @override
+  Future<void> deleteOrder(String businessId, String orderId) async {
+    await _firestore
+        .collection('orders')
+        .doc(orderId)
+        .delete();
+
+    await _firestore
+        .collection('businesses')
+        .doc(businessId)
+        .collection('orders')
+        .doc(orderId)
+        .delete();
+  }
+
+  @override
+  Future<void> deleteStalePendingOrders(String businessId, {int daysThreshold = 7}) async {
+    final thresholdDate = DateTime.now().subtract(Duration(days: daysThreshold));
+    
+    final snapshot = await _firestore
+        .collection('businesses')
+        .doc(businessId)
+        .collection('orders')
+        .where('status', isEqualTo: 'pending')
+        .get();
+
+    for (var doc in snapshot.docs) {
+      final data = doc.data();
+      final createdAtStr = data['createdAt'] as String?;
+      if (createdAtStr != null) {
+        final createdAt = DateTime.tryParse(createdAtStr);
+        if (createdAt != null && createdAt.isBefore(thresholdDate)) {
+          // delete from subcollection
+          await doc.reference.delete();
+          // delete from global
+          await _firestore.collection('orders').doc(doc.id).delete();
+        }
+      }
+    }
+  }
 }

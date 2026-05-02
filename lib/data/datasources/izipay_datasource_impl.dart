@@ -22,7 +22,8 @@ class IzipayDatasourceImpl implements IzipayDataSource {
           "amount": amount,
           "orderId": orderId,
           "businessId": businessId,
-          if (customerEmail != null) "customerEmail": customerEmail,
+          "customerEmail": ?customerEmail,
+
         },
       );
 
