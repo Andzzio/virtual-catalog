@@ -9,11 +9,13 @@ class CreateIzipayPaymentUseCase {
     required double amount,
     required String orderId,
     required String businessId,
+    String? customerEmail,
   }) {
     return repository.createPaymentLink(
       amount: amount,
       orderId: orderId,
       businessId: businessId,
+      customerEmail: customerEmail,
     );
   }
 }

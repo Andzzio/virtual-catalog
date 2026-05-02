@@ -12,6 +12,7 @@ class Order {
   final String customerRegion;
   final String? customerZip;
   final String? notes;
+  final String? customerEmail;
   final List<CartItem> items;
   final double total;
   final String status; // 'pending', 'paid', 'failed'
@@ -30,6 +31,7 @@ class Order {
     required this.customerRegion,
     this.customerZip,
     this.notes,
+    this.customerEmail,
     required this.items,
     required this.total,
     required this.status,

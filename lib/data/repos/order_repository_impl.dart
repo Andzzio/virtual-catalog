@@ -35,4 +35,32 @@ class OrderRepositoryImpl implements OrderRepository {
           return OrderModel.fromJson(snapshot.data()!, snapshot.id);
         });
   }
+
+  @override
+  Future<void> updateOrderStatus(String businessId, String orderId, String newStatus) async {
+    await _firestore
+        .collection('orders')
+        .doc(orderId)
+        .update({'status': newStatus});
+
+    await _firestore
+        .collection('businesses')
+        .doc(businessId)
+        .collection('orders')
+        .doc(orderId)
+        .update({'status': newStatus});
+  }
+
+  @override
+  Stream<List<Order>> listenToBusinessOrders(String businessId) {
+    return _firestore
+        .collection('businesses')
+        .doc(businessId)
+        .collection('orders')
+        .orderBy('createdAt', descending: true)
+        .snapshots()
+        .map((snapshot) => snapshot.docs
+            .map((doc) => OrderModel.fromJson(doc.data(), doc.id))
+            .toList());
+  }
 }

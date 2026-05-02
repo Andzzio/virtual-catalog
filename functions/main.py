@@ -35,6 +35,7 @@ def create_izipay_payment(req: https_fn.Request) -> https_fn.Response:
         amount = body.get("amount")
         order_id = body.get("orderId")
         business_id = body.get("businessId")
+        customer_email = body.get("customerEmail", "comprador@email.com")
         
         if not amount or not order_id or not business_id:
             return https_fn.Response(json.dumps({"error": "Faltan parámetros: amount, orderId o businessId"}), status=400, content_type="application/json")
@@ -45,7 +46,7 @@ def create_izipay_payment(req: https_fn.Request) -> https_fn.Response:
             return https_fn.Response(json.dumps({"error": str(e)}), status=400, content_type="application/json")
             
         try:
-            payment_url = create_payment_form_url(amount, order_id, creds)
+            payment_url = create_payment_form_url(amount, order_id, creds, customer_email)
             return https_fn.Response(json.dumps({
                 "success": True,
                 "paymentUrl": payment_url

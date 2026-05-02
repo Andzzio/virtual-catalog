@@ -361,78 +361,96 @@ class _AdminSettingsPaymentSectionState
           border: Border.all(color: const Color(0xFFE2E2E2)),
           borderRadius: BorderRadius.circular(8),
         ),
-        child: Row(
-          children: [
-            Expanded(
-              flex: 3,
-              child: TextFormField(
-                initialValue: method.name,
-                decoration: _inputDecoration("Nombre"),
-                style: GoogleFonts.getFont(FontNames.fontNameH2,
-                    textStyle: const TextStyle(fontSize: 13)),
-                onChanged: (val) => _updateMethod(
-                  index,
-                  PaymentMethod(
-                    name: val,
-                    type: method.type,
-                    description: method.description,
-                  ),
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            final isMobile = constraints.maxWidth < 500;
+            final nameField = TextFormField(
+              initialValue: method.name,
+              decoration: _inputDecoration("Nombre"),
+              style: GoogleFonts.getFont(FontNames.fontNameH2,
+                  textStyle: const TextStyle(fontSize: 13)),
+              onChanged: (val) => _updateMethod(
+                index,
+                PaymentMethod(
+                  name: val,
+                  type: method.type,
+                  description: method.description,
                 ),
               ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              flex: 2,
-              child: DropdownButtonFormField<PaymentType>(
-                initialValue: method.type,
-                decoration: _inputDecoration("Tipo"),
-                style: GoogleFonts.getFont(FontNames.fontNameH2,
-                    textStyle:
-                        const TextStyle(fontSize: 13, color: Colors.black)),
-                items: PaymentType.values
-                    .map((t) => DropdownMenuItem(
-                          value: t,
-                          child: Text(t.label),
-                        ))
-                    .toList(),
-                onChanged: (val) {
-                  if (val == null) return;
-                  _updateMethod(
-                    index,
-                    PaymentMethod(
-                      name: method.name,
-                      type: val,
-                      description: method.description,
-                    ),
-                  );
-                },
-              ),
-            ),
-            const SizedBox(width: 10),
-            Expanded(
-              flex: 2,
-              child: TextFormField(
-                initialValue: method.description ?? "",
-                decoration: _inputDecoration("Descripción (opcional)"),
-                style: GoogleFonts.getFont(FontNames.fontNameH2,
-                    textStyle: const TextStyle(fontSize: 13)),
-                onChanged: (val) => _updateMethod(
+            );
+            final typeField = DropdownButtonFormField<PaymentType>(
+              value: method.type,
+              decoration: _inputDecoration("Tipo"),
+              style: GoogleFonts.getFont(FontNames.fontNameH2,
+                  textStyle:
+                      const TextStyle(fontSize: 13, color: Colors.black)),
+              items: PaymentType.values
+                  .map((t) => DropdownMenuItem(
+                        value: t,
+                        child: Text(t.label),
+                      ))
+                  .toList(),
+              onChanged: (val) {
+                if (val == null) return;
+                _updateMethod(
                   index,
                   PaymentMethod(
                     name: method.name,
-                    type: method.type,
-                    description: val.isEmpty ? null : val,
+                    type: val,
+                    description: method.description,
                   ),
+                );
+              },
+            );
+            final descField = TextFormField(
+              initialValue: method.description ?? "",
+              decoration: _inputDecoration("Descripción (opcional)"),
+              style: GoogleFonts.getFont(FontNames.fontNameH2,
+                  textStyle: const TextStyle(fontSize: 13)),
+              onChanged: (val) => _updateMethod(
+                index,
+                PaymentMethod(
+                  name: method.name,
+                  type: method.type,
+                  description: val.isEmpty ? null : val,
                 ),
               ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
+            );
+            final deleteBtn = IconButton(
               onPressed: () => _removeMethod(index),
               icon: const Icon(Icons.close, size: 18),
               style: IconButton.styleFrom(foregroundColor: Colors.redAccent),
-            ),
-          ],
+            );
+
+            if (isMobile) {
+              return Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(child: nameField),
+                      deleteBtn,
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  typeField,
+                  const SizedBox(height: 8),
+                  descField,
+                ],
+              );
+            }
+
+            return Row(
+              children: [
+                Expanded(flex: 3, child: nameField),
+                const SizedBox(width: 10),
+                Expanded(flex: 2, child: typeField),
+                const SizedBox(width: 10),
+                Expanded(flex: 2, child: descField),
+                const SizedBox(width: 8),
+                deleteBtn,
+              ],
+            );
+          },
         ),
       ),
     );

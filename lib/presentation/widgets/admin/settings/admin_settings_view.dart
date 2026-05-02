@@ -207,11 +207,17 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
           const SizedBox(width: 10),
         ],
       ),
-      body: SingleChildScrollView(
+      body: LayoutBuilder(
+        builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < 800;
+          return SingleChildScrollView(
         child: Form(
           key: _formKey,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 80, vertical: 30),
+            padding: EdgeInsets.symmetric(
+              horizontal: isMobile ? 16 : 80,
+              vertical: isMobile ? 16 : 30,
+            ),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -278,6 +284,8 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
             ),
           ),
         ),
+      );
+        },
       ),
     );
   }

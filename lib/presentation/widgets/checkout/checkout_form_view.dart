@@ -35,6 +35,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
   final regionCtrl = TextEditingController();
   final zipCtrl = TextEditingController();
   final phoneCtrl = TextEditingController();
+  final emailCtrl = TextEditingController();
   final noteCtrl = TextEditingController();
   String? _selectedCountry;
   @override
@@ -486,6 +487,21 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           ),
                           SizedBox(height: 10),
                           TextFormField(
+                            controller: emailCtrl,
+                            validator: (value) {
+                              if (value == null || value.isEmpty) {
+                                return "Por favor, ingrese su correo";
+                              }
+                              if (!value.contains('@') || !value.contains('.')) {
+                                return "Ingrese un correo válido";
+                              }
+                              return null;
+                            },
+                            decoration: _inputDecoration("Correo electrónico"),
+                            keyboardType: TextInputType.emailAddress,
+                          ),
+                          SizedBox(height: 10),
+                          TextFormField(
                             controller: noteCtrl,
                             decoration: _inputDecoration("Notas (opcional)"),
                           ),
@@ -915,6 +931,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       customerCity: cityCtrl.text,
       customerRegion: regionCtrl.text,
       customerZip: zipCtrl.text,
+      customerEmail: emailCtrl.text,
       notes: noteCtrl.text,
       items: cartProvider.checkItems,
       total: amount,
@@ -1005,6 +1022,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
         amount: amount,
         orderId: orderId,
         businessId: businessProvider.business!.slug,
+        customerEmail: emailCtrl.text.isNotEmpty ? emailCtrl.text : null,
       );
 
       if (paymentUrl != null) {
@@ -1047,6 +1065,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
     regionCtrl.dispose();
     zipCtrl.dispose();
     phoneCtrl.dispose();
+    emailCtrl.dispose();
     noteCtrl.dispose();
     super.dispose();
   }

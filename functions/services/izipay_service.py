@@ -2,7 +2,7 @@ import base64
 import requests
 import urllib.parse
 
-def create_payment_form_url(amount: float, order_id: str, business_creds: dict) -> str:
+def create_payment_form_url(amount: float, order_id: str, business_creds: dict, customer_email: str = "comprador@email.com") -> str:
     """
     Creates a payment in Izipay and returns the checkout URL.
     """
@@ -25,7 +25,7 @@ def create_payment_form_url(amount: float, order_id: str, business_creds: dict) 
         "currency": "PEN",
         "orderId": str(order_id),
         "customer": {
-            "email": "comprador@email.com"
+            "email": customer_email
         }
     }
     

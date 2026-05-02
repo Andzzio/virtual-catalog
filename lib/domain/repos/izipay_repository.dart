@@ -3,5 +3,6 @@ abstract class IzipayRepository {
     required double amount,
     required String orderId,
     required String businessId,
+    String? customerEmail,
   });
 }

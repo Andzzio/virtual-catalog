@@ -24,58 +24,111 @@ class _AdminProductsViewState extends State<AdminProductsView> {
 
   @override
   Widget build(BuildContext context) {
+    final isMobile = MediaQuery.sizeOf(context).width < 800;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 30, horizontal: 15),
+      padding: EdgeInsets.symmetric(
+        vertical: isMobile ? 16 : 30,
+        horizontal: 15,
+      ),
       child: Column(
         children: [
-          Row(
-            children: [
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    "Productos",
-                    style: GoogleFonts.getFont(
-                      FontNames.fontNameH2,
-                      textStyle: TextStyle(
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
+          if (isMobile) ...[
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  "Productos",
+                  style: GoogleFonts.getFont(
+                    FontNames.fontNameH2,
+                    textStyle: TextStyle(
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  Text(
-                    "Administra tu inventario.",
-                    style: GoogleFonts.getFont(
-                      FontNames.fontNameH2,
-                      textStyle: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                ),
+                Text(
+                  "Administra tu inventario.",
+                  style: GoogleFonts.getFont(
+                    FontNames.fontNameH2,
+                    textStyle: TextStyle(
+                      fontSize: 14,
+                      color: Colors.grey[600],
                     ),
                   ),
-                ],
-              ),
-              Spacer(),
-              ElevatedButton.icon(
-                onPressed: () {
-                  context.go("/${widget.businessSlug}/admin/products/create");
-                },
-                icon: Icon(Icons.add),
-                style: ElevatedButton.styleFrom(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                  backgroundColor: Colors.black,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadiusGeometry.circular(8),
+                ),
+                const SizedBox(height: 12),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton.icon(
+                    onPressed: () {
+                      context.go("/${widget.businessSlug}/admin/products/create");
+                    },
+                    icon: Icon(Icons.add),
+                    style: ElevatedButton.styleFrom(
+                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                      backgroundColor: Colors.black,
+                      foregroundColor: Colors.white,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadiusGeometry.circular(8),
+                      ),
+                    ),
+                    label: Text(
+                      "Crear Producto",
+                      style: GoogleFonts.getFont(FontNames.fontNameH2),
+                    ),
                   ),
                 ),
-                label: Text(
-                  "Crear Producto",
-                  style: GoogleFonts.getFont(FontNames.fontNameH2),
+              ],
+            ),
+          ] else
+            Row(
+              children: [
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      "Productos",
+                      style: GoogleFonts.getFont(
+                        FontNames.fontNameH2,
+                        textStyle: TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ),
+                    Text(
+                      "Administra tu inventario.",
+                      style: GoogleFonts.getFont(
+                        FontNames.fontNameH2,
+                        textStyle: TextStyle(
+                          fontSize: 14,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            ],
-          ),
+                Spacer(),
+                ElevatedButton.icon(
+                  onPressed: () {
+                    context.go("/${widget.businessSlug}/admin/products/create");
+                  },
+                  icon: Icon(Icons.add),
+                  style: ElevatedButton.styleFrom(
+                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
+                    backgroundColor: Colors.black,
+                    foregroundColor: Colors.white,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadiusGeometry.circular(8),
+                    ),
+                  ),
+                  label: Text(
+                    "Crear Producto",
+                    style: GoogleFonts.getFont(FontNames.fontNameH2),
+                  ),
+                ),
+              ],
+            ),
           SizedBox(height: 20),
           Container(
             padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
