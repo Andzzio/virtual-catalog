@@ -17,6 +17,9 @@ class Business {
   final bool showMobileLogo;
   final String? termsAndConditions;
   final List<HomeBlock> homeBlocks;
+  final String? izipayUsername;
+  final String? izipayPassword;
+  final String? izipayPublicKey;
 
   Business({
     required this.slug,
@@ -32,5 +35,8 @@ class Business {
     this.showMobileLogo = true,
     this.termsAndConditions,
     this.homeBlocks = const [],
+    this.izipayUsername,
+    this.izipayPassword,
+    this.izipayPublicKey,
   });
 }

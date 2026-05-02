@@ -19,6 +19,9 @@ class BusinessModel {
   final bool showMobileLogo;
   final String? termsAndConditions;
   final List<HomeBlockModel> homeBlocks;
+  final String? izipayUsername;
+  final String? izipayPassword;
+  final String? izipayPublicKey;
 
   BusinessModel({
     required this.slug,
@@ -34,6 +37,9 @@ class BusinessModel {
     required this.showMobileLogo,
     this.termsAndConditions,
     this.homeBlocks = const [],
+    this.izipayUsername,
+    this.izipayPassword,
+    this.izipayPublicKey,
   });
 
   factory BusinessModel.fromFirestore(DocumentSnapshot doc) {
@@ -60,6 +66,9 @@ class BusinessModel {
       homeBlocks: (json['homeBlocks'] as List? ?? [])
           .map((b) => HomeBlockModel.fromJson(b as Map<String, dynamic>))
           .toList(),
+      izipayUsername: json['izipayUsername'],
+      izipayPassword: json['izipayPassword'],
+      izipayPublicKey: json['izipayPublicKey'],
     );
   }
 
@@ -86,6 +95,9 @@ class BusinessModel {
       homeBlocks: (json['homeBlocks'] as List? ?? [])
           .map((b) => HomeBlockModel.fromJson(b))
           .toList(),
+      izipayUsername: json['izipayUsername'],
+      izipayPassword: json['izipayPassword'],
+      izipayPublicKey: json['izipayPublicKey'],
     );
   }
 
@@ -103,6 +115,9 @@ class BusinessModel {
     "showMobileLogo": showMobileLogo,
     "termsAndConditions": termsAndConditions,
     "homeBlocks": homeBlocks.map((b) => b.toJson()).toList(),
+    if (izipayUsername != null) "izipayUsername": izipayUsername,
+    if (izipayPassword != null) "izipayPassword": izipayPassword,
+    if (izipayPublicKey != null) "izipayPublicKey": izipayPublicKey,
   };
 
   Business toEntity() => Business(
@@ -119,6 +134,9 @@ class BusinessModel {
     showMobileLogo: showMobileLogo,
     termsAndConditions: termsAndConditions,
     homeBlocks: homeBlocks.map((b) => b.toEntity()).toList(),
+    izipayUsername: izipayUsername,
+    izipayPassword: izipayPassword,
+    izipayPublicKey: izipayPublicKey,
   );
 
   factory BusinessModel.fromEntity(Business entity) {
@@ -144,6 +162,9 @@ class BusinessModel {
       homeBlocks: entity.homeBlocks
           .map((b) => HomeBlockModel.fromEntity(b))
           .toList(),
+      izipayUsername: entity.izipayUsername,
+      izipayPassword: entity.izipayPassword,
+      izipayPublicKey: entity.izipayPublicKey,
     );
   }
 }

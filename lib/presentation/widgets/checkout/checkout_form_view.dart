@@ -8,8 +8,11 @@ import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/delivery_method.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_type.dart';
+import 'package:virtual_catalog_app/domain/entities/order.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/izipay_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/order_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/checkout/summary_item_tile.dart';
 import 'package:virtual_catalog_app/presentation/widgets/checkout/summary_footer.dart';
@@ -711,6 +714,15 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                   );
                                 }
                                 break;
+                              case PaymentType.izipay:
+                                if (!context.mounted) return;
+                                await _processIzipayPayment(
+                                  context,
+                                  cartProvider.checkoutGrandTotal,
+                                  businessProvider,
+                                  cartProvider,
+                                );
+                                break;
                               default:
                                 break;
                             }
@@ -745,6 +757,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                             PaymentType.bankTransfer => "Finalizar Pedido",
                             PaymentType.culqi => "Pagar",
                             PaymentType.yape => "Finalizar Pedido",
+                            PaymentType.izipay => "Pagar",
                             null => "Pagar",
                           },
                           overflow: TextOverflow.ellipsis,
@@ -879,6 +892,147 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
           content: Text("❌ No se pudo abrir WhatsApp en este dispositivo."),
           backgroundColor: Colors.redAccent,
         ),
+      );
+    }
+  }
+
+  Future<void> _processIzipayPayment(
+    BuildContext context,
+    double amount,
+    BusinessProvider businessProvider,
+    CartProvider cartProvider,
+  ) async {
+    final izipayProvider = context.read<IzipayProvider>();
+    final orderProvider = context.read<OrderProvider>();
+
+    final newOrder = Order(
+      businessId: businessProvider.business!.slug,
+      customerName: nameCtrl.text,
+      customerLastName: lastNameCtrl.text,
+      customerPhone: phoneCtrl.text,
+      customerDni: dniCtrl.text,
+      customerAddress: addressCtrl.text,
+      customerCity: cityCtrl.text,
+      customerRegion: regionCtrl.text,
+      customerZip: zipCtrl.text,
+      notes: noteCtrl.text,
+      items: cartProvider.checkItems,
+      total: amount,
+      status: 'pending',
+      paymentMethod: 'izipay',
+      createdAt: DateTime.now(),
+    );
+
+    try {
+      final orderId = await orderProvider.createOrder(newOrder);
+
+      if (!context.mounted) return;
+
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => StreamBuilder<Order>(
+          stream: orderProvider.listenToOrder(orderId),
+          builder: (context, snapshot) {
+            if (snapshot.hasData && snapshot.data!.status == 'paid') {
+              return AlertDialog(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(16),
+                ),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    const Icon(Icons.check_circle, color: Colors.green, size: 80),
+                    const SizedBox(height: 16),
+                    Text(
+                      "¡Pago Confirmado!",
+                      style: GoogleFonts.getFont(
+                        FontNames.fontNameH2,
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Text(
+                      "Tu pedido ha sido procesado con éxito.",
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+                    FilledButton(
+                      style: const ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(Colors.black),
+                      ),
+                      onPressed: () {
+                        cartProvider.clearBuy();
+                        if (cartProvider.mode == CartMode.buyCart) {
+                          cartProvider.clearCart();
+                        }
+                        Navigator.of(context, rootNavigator: true).pop();
+                        context.go("/${businessProvider.business!.slug}");
+                      },
+                      child: const Text("VOLVER A LA TIENDA"),
+                    ),
+                  ],
+                ),
+              );
+            }
+
+            return AlertDialog(
+              title: const Text("🔒 Procesando Pago"),
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const CircularProgressIndicator(color: Colors.black),
+                  const SizedBox(height: 16),
+                  Text(
+                    'Hemos abierto una pestaña segura para tu pago.\n\n'
+                    'Una vez completes el pago, esta pantalla se actualizará automáticamente.',
+                    textAlign: TextAlign.center,
+                    style: GoogleFonts.getFont(
+                      FontNames.fontNameP,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w400,
+                    ),
+                  ),
+                ],
+              ),
+            );
+          },
+        ),
+      );
+
+      final paymentUrl = await izipayProvider.createPaymentLink(
+        amount: amount,
+        orderId: orderId,
+        businessId: businessProvider.business!.slug,
+      );
+
+      if (paymentUrl != null) {
+        final url = Uri.parse(paymentUrl);
+        if (await canLaunchUrl(url)) {
+          await launchUrl(
+            url,
+            mode: LaunchMode.externalApplication,
+            webOnlyWindowName: "_blank",
+          );
+        } else {
+          if (!context.mounted) return;
+          Navigator.of(context, rootNavigator: true).pop();
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("❌ No se pudo abrir la pestaña de pago.")),
+          );
+        }
+      } else {
+        if (!context.mounted) return;
+        Navigator.of(context, rootNavigator: true).pop();
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("❌ Error al generar el link de pago.")),
+        );
+      }
+    } catch (e) {
+      if (!context.mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("❌ Error al crear la orden: $e")),
       );
     }
   }

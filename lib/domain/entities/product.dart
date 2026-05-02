@@ -23,8 +23,8 @@ class Product {
     required this.createdAt,
     required this.updatedAt,
     required this.category,
-    this.isAvailable = true,
     this.salesCount = 0,
+    this.isAvailable = true,
     this.sku,
     required this.variants,
   });

@@ -34,6 +34,9 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   String? _currentLogoUrl;
   List<DeliveryMethod> _deliveryMethods = [];
   List<PaymentMethod> _paymentMethods = [];
+  String? _izipayUsername;
+  String? _izipayPassword;
+  String? _izipayPublicKey;
   bool _initialized = false;
   bool _isSaving = false;
   bool _showDesktopLogo = false;
@@ -50,6 +53,9 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     _paymentMethods = List.from(business.paymentMethods);
     _showDesktopLogo = business.showDesktopLogo;
     _showMobileLogo = business.showMobileLogo;
+    _izipayUsername = business.izipayUsername;
+    _izipayPassword = business.izipayPassword;
+    _izipayPublicKey = business.izipayPublicKey;
     _initialized = true;
   }
 
@@ -103,6 +109,9 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         showMobileLogo: _showMobileLogo,
         termsAndConditions: _termsCtrl.text.trim(),
         homeBlocks: business.homeBlocks,
+        izipayUsername: _izipayUsername,
+        izipayPassword: _izipayPassword,
+        izipayPublicKey: _izipayPublicKey,
       );
 
       if (!mounted) return;
@@ -235,6 +244,16 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
                 AdminSettingsPaymentSection(
                   methods: _paymentMethods,
                   onChanged: (val) => setState(() => _paymentMethods = val),
+                  izipayUsername: _izipayUsername,
+                  izipayPassword: _izipayPassword,
+                  izipayPublicKey: _izipayPublicKey,
+                  onIzipayCredentialsChanged: (creds) {
+                    setState(() {
+                      _izipayUsername = creds["izipayUsername"];
+                      _izipayPassword = creds["izipayPassword"];
+                      _izipayPublicKey = creds["izipayPublicKey"];
+                    });
+                  },
                 ),
                 const SizedBox(height: 30),
                 const Divider(),

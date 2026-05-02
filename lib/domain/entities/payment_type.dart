@@ -7,7 +7,12 @@ enum PaymentType {
     faIcon: FaIcon(FontAwesomeIcons.buildingColumns),
   ),
   culqi(label: "Culqi", faIcon: FaIcon(FontAwesomeIcons.creditCard), logos: []),
-  yape(label: "Yape", faIcon: FaIcon(FontAwesomeIcons.moneyBill1Wave));
+  yape(label: "Yape", faIcon: FaIcon(FontAwesomeIcons.moneyBill1Wave)),
+  izipay(
+    label: "Izipay",
+    faIcon: FaIcon(FontAwesomeIcons.creditCard),
+    logos: [],
+  );
 
   final String label;
   final FaIcon faIcon;

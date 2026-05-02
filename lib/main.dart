@@ -1,3 +1,4 @@
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -8,14 +9,20 @@ import 'package:virtual_catalog_app/config/themes/theme_config.dart';
 import 'package:virtual_catalog_app/data/datasources/auth_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/datasources/business_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/datasources/cart_datasource_impl.dart';
+import 'package:virtual_catalog_app/data/datasources/izipay_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/datasources/product_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/repos/auth_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/business_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/cart_repository_impl.dart';
+import 'package:virtual_catalog_app/data/repos/izipay_repository_impl.dart';
+import 'package:virtual_catalog_app/data/repos/order_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/product_repository_impl.dart';
+import 'package:virtual_catalog_app/domain/usecases/create_izipay_payment.dart';
 import 'package:virtual_catalog_app/presentation/providers/auth_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/izipay_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/order_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 
 void main() async {
@@ -57,6 +64,20 @@ class MainApp extends StatelessWidget {
             authRepository: AuthRepositoryImpl(
               datasource: AuthDatasourceImpl(),
             ),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => IzipayProvider(
+            createIzipayPaymentUseCase: CreateIzipayPaymentUseCase(
+              IzipayRepositoryImpl(
+                izipayDataSource: IzipayDatasourceImpl(dio: Dio()),
+              ),
+            ),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => OrderProvider(
+            repository: OrderRepositoryImpl(),
           ),
         ),
       ],
