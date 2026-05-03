@@ -1,4 +1,4 @@
-def get_checkout_html(form_token: str, public_key: str) -> str:
+def get_checkout_html(form_token: str, public_key: str, amount: str = "") -> str:
     return f"""<!DOCTYPE html>
 <html lang="es">
 <head>
@@ -115,6 +115,8 @@ def get_checkout_html(form_token: str, public_key: str) -> str:
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
             Checkout 100% Seguro
         </div>
+
+        {f'<div style="text-align: center; font-size: 26px; font-weight: 700; margin-bottom: 25px; color: #111827;">S/. {amount}</div>' if amount else ""}
 
         <div class="kr-embedded" kr-form-token="{form_token}">
             <div class="kr-pan"></div>

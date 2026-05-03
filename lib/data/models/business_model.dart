@@ -22,6 +22,7 @@ class BusinessModel {
   final String? izipayUsername;
   final String? izipayPassword;
   final String? izipayPublicKey;
+  final String? themeColorHex;
 
   BusinessModel({
     required this.slug,
@@ -40,6 +41,7 @@ class BusinessModel {
     this.izipayUsername,
     this.izipayPassword,
     this.izipayPublicKey,
+    this.themeColorHex,
   });
 
   factory BusinessModel.fromFirestore(DocumentSnapshot doc) {
@@ -69,6 +71,7 @@ class BusinessModel {
       izipayUsername: json['izipayUsername'],
       izipayPassword: json['izipayPassword'],
       izipayPublicKey: json['izipayPublicKey'],
+      themeColorHex: json['themeColorHex'],
     );
   }
 
@@ -98,6 +101,7 @@ class BusinessModel {
       izipayUsername: json['izipayUsername'],
       izipayPassword: json['izipayPassword'],
       izipayPublicKey: json['izipayPublicKey'],
+      themeColorHex: json['themeColorHex'],
     );
   }
 
@@ -118,6 +122,7 @@ class BusinessModel {
     if (izipayUsername != null) "izipayUsername": izipayUsername,
     if (izipayPassword != null) "izipayPassword": izipayPassword,
     if (izipayPublicKey != null) "izipayPublicKey": izipayPublicKey,
+    if (themeColorHex != null) "themeColorHex": themeColorHex,
   };
 
   Business toEntity() => Business(
@@ -137,6 +142,7 @@ class BusinessModel {
     izipayUsername: izipayUsername,
     izipayPassword: izipayPassword,
     izipayPublicKey: izipayPublicKey,
+    themeColorHex: themeColorHex,
   );
 
   factory BusinessModel.fromEntity(Business entity) {
@@ -165,6 +171,7 @@ class BusinessModel {
       izipayUsername: entity.izipayUsername,
       izipayPassword: entity.izipayPassword,
       izipayPublicKey: entity.izipayPublicKey,
+      themeColorHex: entity.themeColorHex,
     );
   }
 }

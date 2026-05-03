@@ -467,6 +467,30 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                       _infoRow("Dirección:", "${o.customerAddress}, ${o.customerCity}, ${o.customerRegion}"),
                       if (o.notes != null && o.notes!.isNotEmpty)
                         _infoRow("Notas:", o.notes!),
+                      const SizedBox(height: 12),
+                      Text(
+                        "Información de Facturación",
+                        style: GoogleFonts.getFont(
+                          FontNames.fontNameH2,
+                          textStyle: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold),
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      _infoRow("Misma dirección que el envío:", o.isBillingSameAsShipping ? "Sí" : "No"),
+                      if (!o.isBillingSameAsShipping) ...[
+                        if (o.billingName != null || o.billingLastName != null)
+                          _infoRow("Nombre:", "${o.billingName ?? ''} ${o.billingLastName ?? ''}".trim()),
+                        if (o.billingCompany != null && o.billingCompany!.isNotEmpty)
+                          _infoRow("Empresa:", o.billingCompany!),
+                        if (o.billingAddress != null)
+                          _infoRow("Dirección:", "${o.billingAddress}, ${o.billingDistrict ?? ''}, ${o.billingRegion ?? ''}".trim()),
+                        if (o.billingReference != null && o.billingReference!.isNotEmpty)
+                          _infoRow("Referencia:", o.billingReference!),
+                        if (o.billingPhone != null && o.billingPhone!.isNotEmpty)
+                          _infoRow("Teléfono:", o.billingPhone!),
+                        if (o.billingCountry != null && o.billingCountry!.isNotEmpty)
+                          _infoRow("País:", o.billingCountry!),
+                      ],
                       const SizedBox(height: 16),
                       const Divider(),
                       const SizedBox(height: 12),

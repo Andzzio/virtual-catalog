@@ -14,6 +14,8 @@ class IzipayProvider extends ChangeNotifier {
     required String orderId,
     required String businessId,
     String? customerEmail,
+    String? customerName,
+    String? customerLastName,
   }) async {
     _isLoading = true;
     notifyListeners();
@@ -23,6 +25,8 @@ class IzipayProvider extends ChangeNotifier {
         orderId: orderId,
         businessId: businessId,
         customerEmail: customerEmail,
+        customerName: customerName,
+        customerLastName: customerLastName,
       );
       _isLoading = false;
       notifyListeners();

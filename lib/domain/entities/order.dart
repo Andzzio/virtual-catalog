@@ -7,6 +7,7 @@ class Order {
   final String customerLastName;
   final String customerPhone;
   final String customerDni;
+  final String? customerCountry;
   final String customerAddress;
   final String customerCity;
   final String customerRegion;
@@ -19,6 +20,17 @@ class Order {
   final String paymentMethod;
   final String? deliveryMethod;
   final DateTime createdAt;
+  final bool isBillingSameAsShipping;
+  final String? billingName;
+  final String? billingLastName;
+  final String? billingCompany;
+  final String? billingCountry;
+  final String? billingAddress;
+  final String? billingReference;
+  final String? billingDistrict;
+  final String? billingRegion;
+  final String? billingZip;
+  final String? billingPhone;
 
   Order({
     this.id,
@@ -27,6 +39,7 @@ class Order {
     required this.customerLastName,
     required this.customerPhone,
     required this.customerDni,
+    this.customerCountry,
     required this.customerAddress,
     required this.customerCity,
     required this.customerRegion,
@@ -39,5 +52,16 @@ class Order {
     required this.paymentMethod,
     this.deliveryMethod,
     required this.createdAt,
+    this.isBillingSameAsShipping = true,
+    this.billingName,
+    this.billingLastName,
+    this.billingCompany,
+    this.billingCountry,
+    this.billingAddress,
+    this.billingReference,
+    this.billingDistrict,
+    this.billingRegion,
+    this.billingZip,
+    this.billingPhone,
   });
 }

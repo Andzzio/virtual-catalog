@@ -81,11 +81,21 @@ class MainApp extends StatelessWidget {
           ),
         ),
       ],
-      child: MaterialApp.router(
-        debugShowCheckedModeBanner: false,
-        title: "Virtual Catalog",
-        theme: ThemeConfig(selectedColor: 0).getTheme(),
-        routerConfig: appRouter,
+      child: Consumer<BusinessProvider>(
+        builder: (context, businessProvider, child) {
+          final business = businessProvider.business;
+          final customColor = ThemeConfig.hexToColor(business?.themeColorHex);
+
+          return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            title: "Virtual Catalog",
+            theme: ThemeConfig(
+              selectedColor: 0,
+              customColor: customColor,
+            ).getTheme(),
+            routerConfig: appRouter,
+          );
+        },
       ),
     );
   }

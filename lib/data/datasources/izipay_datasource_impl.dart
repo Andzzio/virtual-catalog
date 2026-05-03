@@ -12,6 +12,8 @@ class IzipayDatasourceImpl implements IzipayDataSource {
     required String orderId,
     required String businessId,
     String? customerEmail,
+    String? customerName,
+    String? customerLastName,
   }) async {
     try {
       const String functionUrl =
@@ -22,8 +24,9 @@ class IzipayDatasourceImpl implements IzipayDataSource {
           "amount": amount,
           "orderId": orderId,
           "businessId": businessId,
-          "customerEmail": ?customerEmail,
-
+          "customerEmail": customerEmail,
+          "customerName": customerName,
+          "customerLastName": customerLastName,
         },
       );
 

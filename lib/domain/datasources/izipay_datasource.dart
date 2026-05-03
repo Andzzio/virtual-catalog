@@ -4,5 +4,7 @@ abstract class IzipayDataSource {
     required String orderId,
     required String businessId,
     String? customerEmail,
+    String? customerName,
+    String? customerLastName,
   });
 }

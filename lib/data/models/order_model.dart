@@ -10,6 +10,7 @@ class OrderModel extends Order {
     required super.customerLastName,
     required super.customerPhone,
     required super.customerDni,
+    super.customerCountry,
     required super.customerAddress,
     required super.customerCity,
     required super.customerRegion,
@@ -22,6 +23,17 @@ class OrderModel extends Order {
     required super.paymentMethod,
     super.deliveryMethod,
     required super.createdAt,
+    super.isBillingSameAsShipping = true,
+    super.billingName,
+    super.billingLastName,
+    super.billingCompany,
+    super.billingCountry,
+    super.billingAddress,
+    super.billingReference,
+    super.billingDistrict,
+    super.billingRegion,
+    super.billingZip,
+    super.billingPhone,
   });
 
   Map<String, dynamic> toJson() {
@@ -31,6 +43,7 @@ class OrderModel extends Order {
       'customerLastName': customerLastName,
       'customerPhone': customerPhone,
       'customerDni': customerDni,
+      if (customerCountry != null) 'customerCountry': customerCountry,
       'customerAddress': customerAddress,
       'customerCity': customerCity,
       'customerRegion': customerRegion,
@@ -43,6 +56,17 @@ class OrderModel extends Order {
       'paymentMethod': paymentMethod,
       'deliveryMethod': deliveryMethod,
       'createdAt': createdAt.toIso8601String(),
+      'isBillingSameAsShipping': isBillingSameAsShipping,
+      if (billingName != null) 'billingName': billingName,
+      if (billingLastName != null) 'billingLastName': billingLastName,
+      if (billingCompany != null) 'billingCompany': billingCompany,
+      if (billingCountry != null) 'billingCountry': billingCountry,
+      if (billingAddress != null) 'billingAddress': billingAddress,
+      if (billingReference != null) 'billingReference': billingReference,
+      if (billingDistrict != null) 'billingDistrict': billingDistrict,
+      if (billingRegion != null) 'billingRegion': billingRegion,
+      if (billingZip != null) 'billingZip': billingZip,
+      if (billingPhone != null) 'billingPhone': billingPhone,
     };
   }
 
@@ -54,6 +78,7 @@ class OrderModel extends Order {
       customerLastName: json['customerLastName'] ?? '',
       customerPhone: json['customerPhone'] ?? '',
       customerDni: json['customerDni'] ?? '',
+      customerCountry: json['customerCountry'],
       customerAddress: json['customerAddress'] ?? '',
       customerCity: json['customerCity'] ?? '',
       customerRegion: json['customerRegion'] ?? '',
@@ -68,6 +93,17 @@ class OrderModel extends Order {
       paymentMethod: json['paymentMethod'] ?? '',
       deliveryMethod: json['deliveryMethod'],
       createdAt: DateTime.parse(json['createdAt']),
+      isBillingSameAsShipping: json['isBillingSameAsShipping'] ?? true,
+      billingName: json['billingName'],
+      billingLastName: json['billingLastName'],
+      billingCompany: json['billingCompany'],
+      billingCountry: json['billingCountry'],
+      billingAddress: json['billingAddress'],
+      billingReference: json['billingReference'],
+      billingDistrict: json['billingDistrict'],
+      billingRegion: json['billingRegion'],
+      billingZip: json['billingZip'],
+      billingPhone: json['billingPhone'],
     );
   }
 
@@ -79,6 +115,7 @@ class OrderModel extends Order {
       customerLastName: order.customerLastName,
       customerPhone: order.customerPhone,
       customerDni: order.customerDni,
+      customerCountry: order.customerCountry,
       customerAddress: order.customerAddress,
       customerCity: order.customerCity,
       customerRegion: order.customerRegion,
@@ -91,6 +128,17 @@ class OrderModel extends Order {
       paymentMethod: order.paymentMethod,
       deliveryMethod: order.deliveryMethod,
       createdAt: order.createdAt,
+      isBillingSameAsShipping: order.isBillingSameAsShipping,
+      billingName: order.billingName,
+      billingLastName: order.billingLastName,
+      billingCompany: order.billingCompany,
+      billingCountry: order.billingCountry,
+      billingAddress: order.billingAddress,
+      billingReference: order.billingReference,
+      billingDistrict: order.billingDistrict,
+      billingRegion: order.billingRegion,
+      billingZip: order.billingZip,
+      billingPhone: order.billingPhone,
     );
   }
 }

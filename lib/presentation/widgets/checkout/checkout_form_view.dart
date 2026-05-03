@@ -38,6 +38,18 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
   final emailCtrl = TextEditingController();
   final noteCtrl = TextEditingController();
   String? _selectedCountry;
+  bool _isBillingSameAsShipping = true;
+  final bNameCtrl = TextEditingController();
+  final bLastNameCtrl = TextEditingController();
+  final bCompanyCtrl = TextEditingController();
+  final bAddressCtrl = TextEditingController();
+  final bRefCtrl = TextEditingController();
+  final bDistrictCtrl = TextEditingController();
+  final bRegionCtrl = TextEditingController();
+  final bZipCtrl = TextEditingController();
+  final bPhoneCtrl = TextEditingController();
+  String? _selectedBillingCountry;
+
   @override
   Widget build(BuildContext context) {
     final cartProvider = context.read<CartProvider>();
@@ -492,7 +504,8 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                               if (value == null || value.isEmpty) {
                                 return "Por favor, ingrese su correo";
                               }
-                              if (!value.contains('@') || !value.contains('.')) {
+                              if (!value.contains('@') ||
+                                  !value.contains('.')) {
                                 return "Ingrese un correo válido";
                               }
                               return null;
@@ -506,6 +519,277 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                             decoration: _inputDecoration("Notas (opcional)"),
                           ),
                         ],
+                      ),
+                      SizedBox(height: 30),
+                      Text(
+                        "Dirección de facturación",
+                        style: GoogleFonts.getFont(
+                          FontNames.fontNameH2,
+                          textStyle: TextStyle(fontSize: 24),
+                        ),
+                      ),
+                      SizedBox(height: 20),
+                      Container(
+                        decoration: BoxDecoration(
+                          border: Border.all(color: Colors.grey.shade300),
+                          borderRadius: BorderRadius.circular(8),
+                          color: Colors.white,
+                        ),
+                        child: Column(
+                          children: [
+                            RadioListTile<bool>(
+                              value: true,
+                              groupValue: _isBillingSameAsShipping,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isBillingSameAsShipping = value!;
+                                });
+                              },
+                              title: Text(
+                                "La misma dirección de envío",
+                                style: GoogleFonts.getFont(
+                                  FontNames.fontNameH2,
+                                  textStyle: TextStyle(fontSize: 14),
+                                ),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                            ),
+                            Divider(height: 1, color: Colors.grey.shade300),
+                            RadioListTile<bool>(
+                              value: false,
+                              groupValue: _isBillingSameAsShipping,
+                              onChanged: (value) {
+                                setState(() {
+                                  _isBillingSameAsShipping = value!;
+                                });
+                              },
+                              title: Text(
+                                "Usar una dirección de facturación distinta",
+                                style: GoogleFonts.getFont(
+                                  FontNames.fontNameH2,
+                                  textStyle: TextStyle(fontSize: 14),
+                                ),
+                              ),
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 8,
+                              ),
+                            ),
+                            if (!_isBillingSameAsShipping)
+                              Container(
+                                padding: EdgeInsets.all(16),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade50,
+                                  border: Border(
+                                    top: BorderSide(
+                                      color: Colors.grey.shade300,
+                                    ),
+                                  ),
+                                ),
+                                child: Column(
+                                  children: [
+                                    DropdownButtonFormField<String>(
+                                      validator: (value) {
+                                        if (!_isBillingSameAsShipping &&
+                                            (value == null || value.isEmpty)) {
+                                          return "Seleccione un país";
+                                        }
+                                        return null;
+                                      },
+                                      borderRadius: BorderRadius.all(
+                                        Radius.circular(8),
+                                      ),
+                                      decoration: _inputDecoration(
+                                        "País / Región",
+                                      ),
+                                      items: [
+                                        DropdownMenuItem(
+                                          value: "Perú",
+                                          child: Text(
+                                            "Perú",
+                                            style: GoogleFonts.getFont(
+                                              FontNames.fontNameH2,
+                                              textStyle: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.grey.shade800,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedBillingCountry = value;
+                                        });
+                                      },
+                                    ),
+                                    SizedBox(height: 10),
+                                    if (isMobile) ...[
+                                      TextFormField(
+                                        controller: bNameCtrl,
+                                        validator: (value) =>
+                                            !_isBillingSameAsShipping &&
+                                                (value == null || value.isEmpty)
+                                            ? "Requerido"
+                                            : null,
+                                        decoration: _inputDecoration("Nombre"),
+                                      ),
+                                      SizedBox(height: 10),
+                                      TextFormField(
+                                        controller: bLastNameCtrl,
+                                        validator: (value) =>
+                                            !_isBillingSameAsShipping &&
+                                                (value == null || value.isEmpty)
+                                            ? "Requerido"
+                                            : null,
+                                        decoration: _inputDecoration(
+                                          "Apellidos",
+                                        ),
+                                      ),
+                                    ] else
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: TextFormField(
+                                              controller: bNameCtrl,
+                                              validator: (value) =>
+                                                  !_isBillingSameAsShipping &&
+                                                      (value == null ||
+                                                          value.isEmpty)
+                                                  ? "Requerido"
+                                                  : null,
+                                              decoration: _inputDecoration(
+                                                "Nombre",
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          Expanded(
+                                            child: TextFormField(
+                                              controller: bLastNameCtrl,
+                                              validator: (value) =>
+                                                  !_isBillingSameAsShipping &&
+                                                      (value == null ||
+                                                          value.isEmpty)
+                                                  ? "Requerido"
+                                                  : null,
+                                              decoration: _inputDecoration(
+                                                "Apellidos",
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    SizedBox(height: 10),
+                                    TextFormField(
+                                      controller: bCompanyCtrl,
+                                      decoration: _inputDecoration(
+                                        "Empresa (opcional)",
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    TextFormField(
+                                      controller: bAddressCtrl,
+                                      validator: (value) =>
+                                          !_isBillingSameAsShipping &&
+                                              (value == null || value.isEmpty)
+                                          ? "Requerido"
+                                          : null,
+                                      decoration: _inputDecoration("Dirección"),
+                                    ),
+                                    SizedBox(height: 10),
+                                    TextFormField(
+                                      controller: bRefCtrl,
+                                      decoration: _inputDecoration(
+                                        "Referencia",
+                                      ),
+                                    ),
+                                    SizedBox(height: 10),
+                                    if (isMobile) ...[
+                                      TextFormField(
+                                        controller: bDistrictCtrl,
+                                        validator: (value) =>
+                                            !_isBillingSameAsShipping &&
+                                                (value == null || value.isEmpty)
+                                            ? "Requerido"
+                                            : null,
+                                        decoration: _inputDecoration(
+                                          "Distrito",
+                                        ),
+                                      ),
+                                      SizedBox(height: 10),
+                                      TextFormField(
+                                        controller: bRegionCtrl,
+                                        validator: (value) =>
+                                            !_isBillingSameAsShipping &&
+                                                (value == null || value.isEmpty)
+                                            ? "Requerido"
+                                            : null,
+                                        decoration: _inputDecoration("Región"),
+                                      ),
+                                      SizedBox(height: 10),
+                                      TextFormField(
+                                        controller: bZipCtrl,
+                                        decoration: _inputDecoration(
+                                          "Código postal (opcional)",
+                                        ),
+                                      ),
+                                    ] else
+                                      Row(
+                                        children: [
+                                          Expanded(
+                                            child: TextFormField(
+                                              controller: bDistrictCtrl,
+                                              validator: (value) =>
+                                                  !_isBillingSameAsShipping &&
+                                                      (value == null ||
+                                                          value.isEmpty)
+                                                  ? "Requerido"
+                                                  : null,
+                                              decoration: _inputDecoration(
+                                                "Distrito",
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          Expanded(
+                                            child: TextFormField(
+                                              controller: bRegionCtrl,
+                                              validator: (value) =>
+                                                  !_isBillingSameAsShipping &&
+                                                      (value == null ||
+                                                          value.isEmpty)
+                                                  ? "Requerido"
+                                                  : null,
+                                              decoration: _inputDecoration(
+                                                "Región",
+                                              ),
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          Expanded(
+                                            child: TextFormField(
+                                              controller: bZipCtrl,
+                                              decoration: _inputDecoration(
+                                                "Código postal (opcional)",
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    SizedBox(height: 10),
+                                    TextFormField(
+                                      controller: bPhoneCtrl,
+                                      decoration: _inputDecoration(
+                                        "Teléfono (opcional)",
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                          ],
+                        ),
                       ),
                       SizedBox(height: 30),
                       Text(
@@ -986,6 +1270,27 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
     sb.writeln("- Región: ${regionCtrl.text}");
     sb.writeln("- Código Postal: ${zipCtrl.text}");
     sb.writeln();
+    
+    sb.writeln("\u{1F4C4} *Datos de Facturación:*");
+    sb.writeln("- Misma dirección que el envío: ${_isBillingSameAsShipping ? 'Sí' : 'No'}");
+    if (!_isBillingSameAsShipping) {
+      if (bNameCtrl.text.isNotEmpty || bLastNameCtrl.text.isNotEmpty) {
+        sb.writeln("- Nombre: ${bNameCtrl.text} ${bLastNameCtrl.text}".trim());
+      }
+      if (bCompanyCtrl.text.isNotEmpty) sb.writeln("- Empresa: ${bCompanyCtrl.text}");
+      if (bAddressCtrl.text.isNotEmpty) {
+        final dist = bDistrictCtrl.text.isNotEmpty ? ", ${bDistrictCtrl.text}" : "";
+        final reg = bRegionCtrl.text.isNotEmpty ? ", ${bRegionCtrl.text}" : "";
+        sb.writeln("- Dirección: ${bAddressCtrl.text}$dist$reg");
+      }
+      if (bRefCtrl.text.isNotEmpty) sb.writeln("- Referencia: ${bRefCtrl.text}");
+      if (bPhoneCtrl.text.isNotEmpty) sb.writeln("- Teléfono: ${bPhoneCtrl.text}");
+      if (_selectedBillingCountry != null && _selectedBillingCountry!.isNotEmpty) {
+        sb.writeln("- País: $_selectedBillingCountry");
+      }
+    }
+    sb.writeln();
+
     sb.writeln("\u{1F4E6} *Productos:*");
     for (int i = 0; i < cartProvider.checkItems.length; i++) {
       final item = cartProvider.checkItems[i];
@@ -1020,6 +1325,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       customerLastName: lastNameCtrl.text,
       customerPhone: phoneCtrl.text,
       customerDni: dniCtrl.text,
+      customerCountry: _selectedCountry,
       customerAddress: addressCtrl.text,
       customerCity: cityCtrl.text,
       customerRegion: regionCtrl.text,
@@ -1032,6 +1338,17 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       paymentMethod: paymentType,
       deliveryMethod: cartProvider.selectedDeliveryMethod?.name,
       createdAt: DateTime.now(),
+      isBillingSameAsShipping: _isBillingSameAsShipping,
+      billingName: _isBillingSameAsShipping ? null : bNameCtrl.text,
+      billingLastName: _isBillingSameAsShipping ? null : bLastNameCtrl.text,
+      billingCompany: _isBillingSameAsShipping ? null : bCompanyCtrl.text,
+      billingCountry: _isBillingSameAsShipping ? null : _selectedBillingCountry,
+      billingAddress: _isBillingSameAsShipping ? null : bAddressCtrl.text,
+      billingReference: _isBillingSameAsShipping ? null : bRefCtrl.text,
+      billingDistrict: _isBillingSameAsShipping ? null : bDistrictCtrl.text,
+      billingRegion: _isBillingSameAsShipping ? null : bRegionCtrl.text,
+      billingZip: _isBillingSameAsShipping ? null : bZipCtrl.text,
+      billingPhone: _isBillingSameAsShipping ? null : bPhoneCtrl.text,
     );
 
     try {
@@ -1081,6 +1398,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       customerLastName: lastNameCtrl.text,
       customerPhone: phoneCtrl.text,
       customerDni: dniCtrl.text,
+      customerCountry: _selectedCountry,
       customerAddress: addressCtrl.text,
       customerCity: cityCtrl.text,
       customerRegion: regionCtrl.text,
@@ -1093,6 +1411,17 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       paymentMethod: 'izipay',
       deliveryMethod: cartProvider.selectedDeliveryMethod?.name,
       createdAt: DateTime.now(),
+      isBillingSameAsShipping: _isBillingSameAsShipping,
+      billingName: _isBillingSameAsShipping ? null : bNameCtrl.text,
+      billingLastName: _isBillingSameAsShipping ? null : bLastNameCtrl.text,
+      billingCompany: _isBillingSameAsShipping ? null : bCompanyCtrl.text,
+      billingCountry: _isBillingSameAsShipping ? null : _selectedBillingCountry,
+      billingAddress: _isBillingSameAsShipping ? null : bAddressCtrl.text,
+      billingReference: _isBillingSameAsShipping ? null : bRefCtrl.text,
+      billingDistrict: _isBillingSameAsShipping ? null : bDistrictCtrl.text,
+      billingRegion: _isBillingSameAsShipping ? null : bRegionCtrl.text,
+      billingZip: _isBillingSameAsShipping ? null : bZipCtrl.text,
+      billingPhone: _isBillingSameAsShipping ? null : bPhoneCtrl.text,
     );
 
     try {
@@ -1114,7 +1443,11 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                 content: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.check_circle, color: Colors.green, size: 80),
+                    const Icon(
+                      Icons.check_circle,
+                      color: Colors.green,
+                      size: 80,
+                    ),
                     const SizedBox(height: 16),
                     Text(
                       "¡Pago Confirmado!",
@@ -1178,6 +1511,10 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
         orderId: orderId,
         businessId: businessProvider.business!.slug,
         customerEmail: emailCtrl.text.isNotEmpty ? emailCtrl.text : null,
+        customerName: nameCtrl.text.isNotEmpty ? nameCtrl.text : null,
+        customerLastName: lastNameCtrl.text.isNotEmpty
+            ? lastNameCtrl.text
+            : null,
       );
 
       if (paymentUrl != null) {
@@ -1192,7 +1529,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
           if (!context.mounted) return;
           Navigator.of(context, rootNavigator: true).pop();
           ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text("❌ No se pudo abrir la pestaña de pago.")),
+            const SnackBar(
+              content: Text("❌ No se pudo abrir la pestaña de pago."),
+            ),
           );
         }
       } else {
@@ -1204,9 +1543,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       }
     } catch (e) {
       if (!context.mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("❌ Error al crear la orden: $e")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("❌ Error al crear la orden: $e")));
     }
   }
 
@@ -1222,6 +1561,15 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
     phoneCtrl.dispose();
     emailCtrl.dispose();
     noteCtrl.dispose();
+    bNameCtrl.dispose();
+    bLastNameCtrl.dispose();
+    bCompanyCtrl.dispose();
+    bAddressCtrl.dispose();
+    bRefCtrl.dispose();
+    bDistrictCtrl.dispose();
+    bRegionCtrl.dispose();
+    bZipCtrl.dispose();
+    bPhoneCtrl.dispose();
     super.dispose();
   }
 }

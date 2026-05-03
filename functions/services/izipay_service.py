@@ -2,7 +2,7 @@ import base64
 import requests
 import urllib.parse
 
-def create_payment_form_url(amount: float, order_id: str, business_creds: dict, customer_email: str = "comprador@email.com") -> str:
+def create_payment_form_url(amount: float, order_id: str, business_creds: dict, customer_email: str = "comprador@email.com", customer_name: str = "", customer_last_name: str = "") -> str:
     """
     Creates a payment in Izipay and returns the checkout URL.
     """
@@ -25,22 +25,31 @@ def create_payment_form_url(amount: float, order_id: str, business_creds: dict, 
         "currency": "PEN",
         "orderId": str(order_id),
         "customer": {
-            "email": customer_email
+            "email": customer_email,
+            "billingDetails": {
+                "email": customer_email,
+                "firstName": customer_name or "Comprador",
+                "lastName": customer_last_name or "Anonimo"
+            }
         }
     }
     
     url = "https://api.micuentaweb.pe/api-payment/V4/Charge/CreatePayment"
+    print(f"DEBUG: Enviando payload a Izipay: {payload}")
     response = requests.post(url, json=payload, headers=headers)
     
+    print(f"DEBUG: Respuesta de Izipay status code: {response.status_code}")
     if response.status_code == 200:
         data = response.json()
+        print(f"DEBUG: Data de respuesta Izipay: {data}")
         if data.get("status") == "SUCCESS":
             form_token = data["answer"]["formToken"]
             
             form_token_encoded = urllib.parse.quote(form_token)
             public_key_encoded = urllib.parse.quote(public_key)
+            amount_display = f"{amount:.2f}"
             
-            payment_url = f"https://us-central1-catalogo-virtual-app.cloudfunctions.net/render_izipay_checkout?token={form_token_encoded}&publicKey={public_key_encoded}"
+            payment_url = f"https://us-central1-catalogo-virtual-app.cloudfunctions.net/render_izipay_checkout?token={form_token_encoded}&publicKey={public_key_encoded}&amount={amount_display}"
             return payment_url
         else:
             raise Exception(data.get("answer", {}).get("errorMessage", "Error Izipay"))

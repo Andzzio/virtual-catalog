@@ -36,6 +36,8 @@ def create_izipay_payment(req: https_fn.Request) -> https_fn.Response:
         order_id = body.get("orderId")
         business_id = body.get("businessId")
         customer_email = body.get("customerEmail", "comprador@email.com")
+        customer_name = body.get("customerName", "")
+        customer_last_name = body.get("customerLastName", "")
         
         if not amount or not order_id or not business_id:
             return https_fn.Response(json.dumps({"error": "Faltan parámetros: amount, orderId o businessId"}), status=400, content_type="application/json")
@@ -46,7 +48,7 @@ def create_izipay_payment(req: https_fn.Request) -> https_fn.Response:
             return https_fn.Response(json.dumps({"error": str(e)}), status=400, content_type="application/json")
             
         try:
-            payment_url = create_payment_form_url(amount, order_id, creds, customer_email)
+            payment_url = create_payment_form_url(amount, order_id, creds, customer_email, customer_name, customer_last_name)
             return https_fn.Response(json.dumps({
                 "success": True,
                 "paymentUrl": payment_url
@@ -61,11 +63,12 @@ def create_izipay_payment(req: https_fn.Request) -> https_fn.Response:
 def render_izipay_checkout(req: https_fn.Request) -> https_fn.Response:
     form_token = str(req.args.get("token", "")).strip()
     public_key = str(req.args.get("publicKey", "")).strip()
+    amount = str(req.args.get("amount", "")).strip()
     
     if not form_token or not public_key:
         return https_fn.Response("Faltan datos de pago", status=400)
         
-    html = get_checkout_html(form_token, public_key)
+    html = get_checkout_html(form_token, public_key, amount)
     return https_fn.Response(html, status=200, content_type="text/html; charset=utf-8")
 
 @https_fn.on_request(cors=options.CorsOptions(cors_origins="*", cors_methods=["post"]))
