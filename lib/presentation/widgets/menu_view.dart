@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/config/themes/app_theme_styles.dart';
 
 class MenuView extends StatelessWidget {
   const MenuView({super.key});
@@ -9,48 +10,74 @@ class MenuView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+      padding: const EdgeInsets.symmetric(horizontal: AppPaddings.p24, vertical: AppPaddings.p32),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            "Accesos",
+            "NAVEGACIÓN",
             style: GoogleFonts.getFont(
-              FontNames.fontNameH2,
-              textStyle: TextStyle(fontSize: 20, fontWeight: FontWeight.w400),
+              FontNames.fontNameP,
+              textStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textLight,
+                letterSpacing: 1.5,
+              ),
             ),
           ),
-          Divider(),
-          ListTile(
-            leading: Icon(Icons.home),
-            title: Text("Inicio"),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+          const SizedBox(height: AppPaddings.p16),
+          _buildMenuTile(
+            context: context,
+            icon: Icons.home_rounded,
+            title: "Inicio",
             onTap: () {
-              final slug = GoRouterState.of(
-                context,
-              ).pathParameters["businessSlug"];
+              final slug = GoRouterState.of(context).pathParameters["businessSlug"];
               context.pop();
               context.go("/$slug");
             },
           ),
-          ListTile(
-            leading: Icon(Icons.shopping_basket),
-            title: Text("Catálogo"),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
+          const SizedBox(height: AppPaddings.p8),
+          _buildMenuTile(
+            context: context,
+            icon: Icons.storefront_rounded,
+            title: "Catálogo",
             onTap: () {
-              final slug = GoRouterState.of(
-                context,
-              ).pathParameters["businessSlug"];
+              final slug = GoRouterState.of(context).pathParameters["businessSlug"];
               context.pop();
               context.go("/$slug/catalog");
             },
           ),
         ],
       ),
+    );
+  }
+
+  Widget _buildMenuTile({
+    required BuildContext context,
+    required IconData icon,
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return ListTile(
+      leading: Icon(icon, color: AppColors.textDark, size: 26),
+      title: Text(
+        title,
+        style: GoogleFonts.getFont(
+          FontNames.fontNameP,
+          textStyle: const TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textDark,
+          ),
+        ),
+      ),
+      contentPadding: const EdgeInsets.symmetric(horizontal: AppPaddings.p16, vertical: 4),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(AppBorders.radiusButton),
+      ),
+      hoverColor: AppColors.border.withValues(alpha: 0.3),
+      onTap: onTap,
     );
   }
 }

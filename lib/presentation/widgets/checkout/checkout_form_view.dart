@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/delivery_method.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
@@ -14,6 +15,7 @@ import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/izipay_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/order_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
+import 'package:virtual_catalog_app/config/themes/app_theme_styles.dart';
 import 'package:virtual_catalog_app/presentation/widgets/checkout/summary_item_tile.dart';
 import 'package:virtual_catalog_app/presentation/widgets/checkout/summary_footer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog_footer.dart';
@@ -90,7 +92,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                             "RESUMEN DEL PEDIDO",
                             style: GoogleFonts.getFont(
                               FontNames.fontNameP,
-                              textStyle: TextStyle(fontSize: 12),
+                              textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textLight, letterSpacing: 1.5),
                             ),
                           ),
                           subtitle: Text(
@@ -117,10 +119,10 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         "Métodos de Entrega",
                         style: GoogleFonts.getFont(
                           FontNames.fontNameH2,
-                          textStyle: TextStyle(fontSize: 24),
+                          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textDark, letterSpacing: -0.5),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: AppPaddings.p16),
                       Column(
                         children: List.generate(deliveryMethods.length, (
                           index,
@@ -219,16 +221,20 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                                 : null,
                                           ),
                                           SizedBox(width: 16),
-                                          Text(
-                                            method.name,
-                                            style: GoogleFonts.getFont(
-                                              FontNames.fontNameH2,
-                                              textStyle: TextStyle(
-                                                fontSize: 16,
+                                          Expanded(
+                                            child: Text(
+                                              method.name,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: GoogleFonts.getFont(
+                                                FontNames.fontNameH2,
+                                                textStyle: const TextStyle(
+                                                  fontSize: 16,
+                                                ),
                                               ),
                                             ),
                                           ),
-                                          Spacer(),
+                                          const SizedBox(width: 8),
                                           Text(
                                             method.price == 0
                                                 ? "Gratis"
@@ -275,13 +281,15 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                           horizontal: 20,
                                           vertical: 10,
                                         ),
-                                        child: Text(
-                                          method.description ?? "",
-                                          style: GoogleFonts.getFont(
-                                            FontNames.fontNameH2,
-                                            textStyle: TextStyle(
-                                              fontSize: 13,
-                                              color: Colors.grey.shade700,
+                                        child: MarkdownBody(
+                                          data: method.description ?? "",
+                                          styleSheet: MarkdownStyleSheet(
+                                            p: GoogleFonts.getFont(
+                                              FontNames.fontNameP,
+                                              textStyle: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.grey.shade700,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -520,15 +528,15 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 30),
+                      const SizedBox(height: AppPaddings.p32),
                       Text(
                         "Dirección de facturación",
                         style: GoogleFonts.getFont(
                           FontNames.fontNameH2,
-                          textStyle: TextStyle(fontSize: 24),
+                          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textDark, letterSpacing: -0.5),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: AppPaddings.p16),
                       Container(
                         decoration: BoxDecoration(
                           border: Border.all(color: Colors.grey.shade300),
@@ -537,43 +545,61 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         ),
                         child: Column(
                           children: [
-                            RadioListTile<bool>(
-                              value: true,
-                              groupValue: _isBillingSameAsShipping,
-                              onChanged: (value) {
-                                setState(() {
-                                  _isBillingSameAsShipping = value!;
-                                });
-                              },
-                              title: Text(
-                                "La misma dirección de envío",
-                                style: GoogleFonts.getFont(
-                                  FontNames.fontNameH2,
-                                  textStyle: TextStyle(fontSize: 14),
+                            MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: GestureDetector(
+                                onTap: () => setState(() => _isBillingSameAsShipping = true),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                  color: Colors.transparent,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        _isBillingSameAsShipping ? Icons.radio_button_checked : Icons.radio_button_off,
+                                        color: _isBillingSameAsShipping ? Theme.of(context).primaryColor : Colors.grey,
+                                      ),
+                                      const SizedBox(width: AppPaddings.p12),
+                                      Expanded(
+                                        child: Text(
+                                          "La misma dirección de envío",
+                                          style: GoogleFonts.getFont(
+                                            FontNames.fontNameP,
+                                            textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 8,
                               ),
                             ),
                             Divider(height: 1, color: Colors.grey.shade300),
-                            RadioListTile<bool>(
-                              value: false,
-                              groupValue: _isBillingSameAsShipping,
-                              onChanged: (value) {
-                                setState(() {
-                                  _isBillingSameAsShipping = value!;
-                                });
-                              },
-                              title: Text(
-                                "Usar una dirección de facturación distinta",
-                                style: GoogleFonts.getFont(
-                                  FontNames.fontNameH2,
-                                  textStyle: TextStyle(fontSize: 14),
+                            MouseRegion(
+                              cursor: SystemMouseCursors.click,
+                              child: GestureDetector(
+                                onTap: () => setState(() => _isBillingSameAsShipping = false),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                  color: Colors.transparent,
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        !_isBillingSameAsShipping ? Icons.radio_button_checked : Icons.radio_button_off,
+                                        color: !_isBillingSameAsShipping ? Theme.of(context).primaryColor : Colors.grey,
+                                      ),
+                                      const SizedBox(width: AppPaddings.p12),
+                                      Expanded(
+                                        child: Text(
+                                          "Usar una dirección de facturación distinta",
+                                          style: GoogleFonts.getFont(
+                                            FontNames.fontNameP,
+                                            textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                              contentPadding: EdgeInsets.symmetric(
-                                horizontal: 8,
                               ),
                             ),
                             if (!_isBillingSameAsShipping)
@@ -791,15 +817,15 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           ],
                         ),
                       ),
-                      SizedBox(height: 30),
+                      const SizedBox(height: AppPaddings.p32),
                       Text(
                         "Métodos de Pago",
                         style: GoogleFonts.getFont(
                           FontNames.fontNameH2,
-                          textStyle: TextStyle(fontSize: 24),
+                          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textDark, letterSpacing: -0.5),
                         ),
                       ),
-                      SizedBox(height: 20),
+                      const SizedBox(height: AppPaddings.p16),
                       Column(
                         children: List.generate(paymentMethods.length, (index) {
                           final PaymentMethod method = paymentMethods[index];
@@ -867,16 +893,20 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                       ),
                                       child: Row(
                                         children: [
-                                          Text(
-                                            method.name,
-                                            style: GoogleFonts.getFont(
-                                              FontNames.fontNameH2,
-                                              textStyle: TextStyle(
-                                                fontSize: 16,
+                                          Expanded(
+                                            child: Text(
+                                              method.name,
+                                              maxLines: 1,
+                                              overflow: TextOverflow.ellipsis,
+                                              style: GoogleFonts.getFont(
+                                                FontNames.fontNameH2,
+                                                textStyle: const TextStyle(
+                                                  fontSize: 16,
+                                                ),
                                               ),
                                             ),
                                           ),
-                                          Spacer(),
+                                          const SizedBox(width: 8),
                                           if (method.type == PaymentType.izipay)
                                             SelectionContainer.disabled(
                                               child: Row(
@@ -927,13 +957,15 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                           horizontal: 20,
                                           vertical: 10,
                                         ),
-                                        child: Text(
-                                          method.description ?? "",
-                                          style: GoogleFonts.getFont(
-                                            FontNames.fontNameH2,
-                                            textStyle: TextStyle(
-                                              fontSize: 13,
-                                              color: Colors.grey.shade700,
+                                        child: MarkdownBody(
+                                          data: method.description ?? "",
+                                          styleSheet: MarkdownStyleSheet(
+                                            p: GoogleFonts.getFont(
+                                              FontNames.fontNameP,
+                                              textStyle: TextStyle(
+                                                fontSize: 13,
+                                                color: Colors.grey.shade700,
+                                              ),
                                             ),
                                           ),
                                         ),
@@ -1045,24 +1077,25 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           }
                         },
                         style: ButtonStyle(
-                          backgroundColor: WidgetStatePropertyAll(Colors.black),
-                          foregroundColor: WidgetStatePropertyAll(Colors.white),
+                          backgroundColor: WidgetStatePropertyAll(Theme.of(context).primaryColor),
+                          foregroundColor: const WidgetStatePropertyAll(Colors.white),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(8),
+                              borderRadius: BorderRadius.circular(AppBorders.radiusButton),
                             ),
                           ),
-                          minimumSize: WidgetStatePropertyAll(
-                            Size(double.infinity, 70),
+                          minimumSize: const WidgetStatePropertyAll(
+                            Size(double.infinity, 56),
                           ),
+                          elevation: const WidgetStatePropertyAll(0),
                           overlayColor: WidgetStateProperty.resolveWith((
                             states,
                           ) {
                             if (states.contains(WidgetState.pressed)) {
-                              return Colors.grey.shade700;
+                              return Colors.black12;
                             }
                             if (states.contains(WidgetState.hovered)) {
-                              return Colors.grey.shade800;
+                              return Colors.black12;
                             }
                             return null;
                           }),
@@ -1098,32 +1131,36 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
   }
 
   InputDecoration _inputDecoration(String hintText) {
+    final theme = Theme.of(context);
     return InputDecoration(
       hintText: hintText,
       counterText: "",
+      filled: true,
+      fillColor: AppColors.surface,
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
       hintStyle: GoogleFonts.getFont(
-        FontNames.fontNameH2,
-        textStyle: TextStyle(fontSize: 13, color: Colors.grey.shade800),
+        FontNames.fontNameP,
+        textStyle: const TextStyle(fontSize: 14, color: AppColors.textLight),
       ),
       border: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppColors.border),
+        borderRadius: BorderRadius.circular(AppBorders.radiusButton),
       ),
       enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppColors.border),
+        borderRadius: BorderRadius.circular(AppBorders.radiusButton),
       ),
       focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black),
-        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: theme.primaryColor, width: 2),
+        borderRadius: BorderRadius.circular(AppBorders.radiusButton),
       ),
       errorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.redAccent),
-        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppColors.error),
+        borderRadius: BorderRadius.circular(AppBorders.radiusButton),
       ),
       focusedErrorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.redAccent),
-        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: AppColors.error, width: 2),
+        borderRadius: BorderRadius.circular(AppBorders.radiusButton),
       ),
     );
   }

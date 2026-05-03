@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/config/themes/app_theme_styles.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/cart/cart_footer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/cart/cart_item_list.dart';
@@ -17,52 +18,54 @@ class CartView extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+          padding: const EdgeInsets.symmetric(horizontal: AppPaddings.p24, vertical: AppPaddings.p24),
           child: Row(
             children: [
               Expanded(
                 child: Text(
-                  "Carrito de Compras",
+                  "Tu Carrito",
                   style: GoogleFonts.getFont(
                     FontNames.fontNameH2,
-                    textStyle: TextStyle(
-                      fontSize: 20,
-                      fontWeight: FontWeight.w400,
+                    textStyle: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textDark,
+                      letterSpacing: -0.5,
                     ),
                   ),
                   overflow: TextOverflow.ellipsis,
                 ),
               ),
-              SizedBox(width: 8),
+              const SizedBox(width: AppPaddings.p12),
               Container(
-                width: 24,
-                height: 24,
+                width: 28,
+                height: 28,
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
-                  color: Colors.black,
+                  color: Theme.of(context).primaryColor,
                   shape: BoxShape.circle,
                 ),
                 child: Text(
                   "${cartProvider.itemCount}",
                   style: GoogleFonts.getFont(
                     FontNames.fontNameP,
-                    textStyle: TextStyle(
+                    textStyle: const TextStyle(
                       color: Colors.white,
-                      fontSize: 12,
+                      fontSize: 14,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                 ),
               ),
-              Spacer(),
+              const Spacer(),
               IconButton(
                 onPressed: () => context.pop(),
-                icon: Icon(Icons.close),
+                icon: const Icon(Icons.close_rounded, color: AppColors.textMuted),
               ),
             ],
           ),
         ),
-        Divider(height: 1),
+        const Divider(height: 1, color: AppColors.border),
         Expanded(
           child: cartProvider.isEmpty
               ? EmptyCart()

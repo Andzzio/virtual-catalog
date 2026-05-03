@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/delivery_method.dart';
 import 'package:virtual_catalog_app/domain/entities/delivery_type.dart';
+import 'package:markdown_editor_plus/markdown_editor_plus.dart';
 
 class AdminSettingsDeliverySection extends StatelessWidget {
   final List<DeliveryMethod> methods;
@@ -29,6 +30,53 @@ class AdminSettingsDeliverySection extends StatelessWidget {
     final updated = List<DeliveryMethod>.from(methods);
     updated[index] = method;
     onChanged(updated);
+  }
+
+  void _openMarkdownEditor(BuildContext context, int index, DeliveryMethod method) {
+    final controller = TextEditingController(text: method.description ?? "");
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "Descripción (Markdown)",
+            style: GoogleFonts.getFont(FontNames.fontNameH2),
+          ),
+          content: SizedBox(
+            width: 600,
+            child: MarkdownField(
+              controller: controller,
+              emojiConvert: true,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar"),
+            ),
+            FilledButton(
+              style: const ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(Colors.black),
+              ),
+              onPressed: () {
+                final val = controller.text.trim();
+                _updateMethod(
+                  index,
+                  DeliveryMethod(
+                    name: method.name,
+                    type: method.type,
+                    price: method.price,
+                    description: val.isEmpty ? null : val,
+                  ),
+                );
+                Navigator.pop(context);
+              },
+              child: const Text("Guardar"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -66,7 +114,7 @@ class AdminSettingsDeliverySection extends StatelessWidget {
           _buildEmptyHint("No hay métodos de envío configurados.")
         else
           ...List.generate(methods.length, (i) {
-            return _buildMethodRow(i, methods[i]);
+            return _buildMethodRow(context, i, methods[i]);
           }),
       ],
     );
@@ -92,7 +140,7 @@ class AdminSettingsDeliverySection extends StatelessWidget {
     );
   }
 
-  Widget _buildMethodRow(int index, DeliveryMethod method) {
+  Widget _buildMethodRow(BuildContext context, int index, DeliveryMethod method) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 10),
       child: Container(
@@ -177,21 +225,23 @@ class AdminSettingsDeliverySection extends StatelessWidget {
             const SizedBox(width: 10),
             Expanded(
               flex: 2,
-              child: TextFormField(
-                initialValue: method.description ?? "",
-                decoration: _inputDecoration("Descripción (opcional)"),
-                style: GoogleFonts.getFont(
-                  FontNames.fontNameH2,
-                  textStyle: const TextStyle(fontSize: 13),
+              child: OutlinedButton.icon(
+                onPressed: () => _openMarkdownEditor(context, index, method),
+                icon: const Icon(Icons.edit_note, size: 18),
+                label: Text(
+                  method.description?.isNotEmpty == true
+                      ? "Editar Desc."
+                      : "Añadir Desc.",
+                  style: GoogleFonts.getFont(FontNames.fontNameH2,
+                      textStyle: const TextStyle(fontSize: 13)),
                 ),
-                onChanged: (val) => _updateMethod(
-                  index,
-                  DeliveryMethod(
-                    name: method.name,
-                    type: method.type,
-                    price: method.price,
-                    description: val.isEmpty ? null : val,
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
                   ),
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                  side: const BorderSide(color: Color(0xFFE2E2E2)),
+                  foregroundColor: Colors.black87,
                 ),
               ),
             ),

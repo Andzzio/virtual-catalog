@@ -3,6 +3,7 @@ import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/config/themes/app_theme_styles.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 
@@ -13,44 +14,44 @@ class CartFooter extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.all(20),
+      padding: const EdgeInsets.all(AppPaddings.p24),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Divider(),
-          SizedBox(height: 12),
+          const Divider(color: AppColors.border),
+          const SizedBox(height: AppPaddings.p12),
           if (cartProvider.hasSavings) ...[
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Text(
                   "Subtotal",
-                  style: GoogleFonts.getFont(FontNames.fontNameP),
+                  style: GoogleFonts.getFont(FontNames.fontNameP, textStyle: const TextStyle(color: AppColors.textMuted)),
                 ),
                 Text(
                   "S/. ${cartProvider.totalOriginal.toStringAsFixed(2)}",
                   style: GoogleFonts.getFont(
                     FontNames.fontNameP,
-                    textStyle: TextStyle(
+                    textStyle: const TextStyle(
                       decoration: TextDecoration.lineThrough,
-                      color: Colors.grey,
+                      color: AppColors.textLight,
                     ),
                   ),
                 ),
               ],
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 6),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Ahorro", style: TextStyle(color: Colors.greenAccent)),
+                Text("Ahorro", style: GoogleFonts.getFont(FontNames.fontNameP, textStyle: const TextStyle(color: AppColors.success, fontWeight: FontWeight.bold))),
                 Text(
                   "- S/. ${cartProvider.totalSavings.toStringAsFixed(2)}",
-                  style: TextStyle(color: Colors.greenAccent),
+                  style: GoogleFonts.getFont(FontNames.fontNameP, textStyle: const TextStyle(color: AppColors.success, fontWeight: FontWeight.bold)),
                 ),
               ],
             ),
-            SizedBox(height: 4),
+            const SizedBox(height: 6),
           ],
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -58,17 +59,20 @@ class CartFooter extends StatelessWidget {
               Text(
                 "Total",
                 style: GoogleFonts.getFont(
-                  FontNames.fontNameH2,
-                  textStyle: TextStyle(fontSize: 18),
+                  FontNames.fontNameP,
+                  textStyle: const TextStyle(fontSize: 16, color: AppColors.textMuted),
                 ),
               ),
               Text(
                 "S/. ${cartProvider.totalWithDiscounts.toStringAsFixed(2)}",
-                style: GoogleFonts.getFont(FontNames.fontNameP),
+                style: GoogleFonts.getFont(
+                  FontNames.fontNameH2,
+                  textStyle: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.textDark, letterSpacing: -0.5),
+                ),
               ),
             ],
           ),
-          SizedBox(height: 16),
+          const SizedBox(height: AppPaddings.p24),
           SizedBox(
             width: double.infinity,
             child: FilledButton(
@@ -94,25 +98,20 @@ class CartFooter extends StatelessWidget {
                 context.go("/$slug/checkout");
               },
               style: ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(Colors.black),
-                foregroundColor: WidgetStatePropertyAll(Colors.white),
+                backgroundColor: WidgetStatePropertyAll(Theme.of(context).primaryColor),
+                foregroundColor: const WidgetStatePropertyAll(Colors.white),
                 shape: WidgetStatePropertyAll(
                   RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
+                    borderRadius: BorderRadius.circular(AppBorders.radiusButton),
                   ),
                 ),
-                minimumSize: WidgetStatePropertyAll(Size(double.infinity, 70)),
-                overlayColor: WidgetStateProperty.resolveWith((states) {
-                  if (states.contains(WidgetState.pressed)) {
-                    return Colors.grey.shade700;
-                  }
-                  if (states.contains(WidgetState.hovered)) {
-                    return Colors.grey.shade800;
-                  }
-                  return null;
-                }),
+                minimumSize: const WidgetStatePropertyAll(Size(double.infinity, 56)),
+                elevation: const WidgetStatePropertyAll(0),
               ),
-              child: Text("Pagar"),
+              child: Text(
+                "Finalizar Pedido",
+                style: GoogleFonts.getFont(FontNames.fontNameP, textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, letterSpacing: 0.5)),
+              ),
             ),
           ),
         ],

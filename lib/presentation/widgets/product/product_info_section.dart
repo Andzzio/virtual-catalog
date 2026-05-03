@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/cart_item.dart';
 import 'package:virtual_catalog_app/domain/entities/product.dart';
+import 'package:virtual_catalog_app/config/themes/app_theme_styles.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/widgets/quantity_selector.dart';
@@ -23,6 +24,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
   String? selectedSize;
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
     final cartProvider = context.read<CartProvider>();
     final selectedVariant = widget.product.variants.isNotEmpty
         ? widget.product.variants[selectedVariantIndex]
@@ -30,7 +32,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
     final size = MediaQuery.of(context).size;
     return Padding(
       padding: EdgeInsets.symmetric(
-        horizontal: size.width < 600 ? 20 : 72,
+        horizontal: size.width < 600 ? 20 : 32,
         vertical: 20,
       ),
       child: Column(
@@ -40,11 +42,15 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
             widget.product.name,
             style: GoogleFonts.getFont(
               FontNames.fontNameH2,
-              textStyle: TextStyle(fontSize: 30),
-              fontWeight: FontWeight.bold,
+              textStyle: const TextStyle(
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+                color: AppColors.textDark,
+                letterSpacing: -0.5,
+              ),
             ),
           ),
-          SizedBox(height: 10),
+          const SizedBox(height: AppPaddings.p12),
           if (selectedVariant == null) ...[
             Container(
               padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
@@ -74,24 +80,26 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
             ),
           ] else ...[
             Row(
+              crossAxisAlignment: CrossAxisAlignment.baseline,
+              textBaseline: TextBaseline.alphabetic,
               children: [
                 Text(
                   "S/. ${selectedVariant.discountPrice ?? selectedVariant.price}",
                   style: GoogleFonts.getFont(
-                    FontNames.fontNameP,
-                    textStyle: TextStyle(fontSize: 20),
+                    FontNames.fontNameH2,
+                    textStyle: const TextStyle(fontSize: 26, fontWeight: FontWeight.bold, color: AppColors.textDark),
                   ),
                 ),
                 if (selectedVariant.discountPrice != null) ...[
-                  SizedBox(width: 10),
+                  const SizedBox(width: AppPaddings.p12),
                   Text(
                     "S/. ${selectedVariant.price}",
                     style: GoogleFonts.getFont(
                       FontNames.fontNameP,
-                      textStyle: TextStyle(
+                      textStyle: const TextStyle(
                         fontSize: 16,
                         decoration: TextDecoration.lineThrough,
-                        color: Colors.grey,
+                        color: AppColors.textLight,
                       ),
                     ),
                   ),
@@ -99,7 +107,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
               ],
             ),
           ],
-          SizedBox(height: 15),
+          const SizedBox(height: AppPaddings.p24),
           Divider(color: const Color.fromARGB(255, 226, 225, 225)),
           ExpansionTile(
             tilePadding: EdgeInsets.zero,
@@ -129,15 +137,15 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
           ),
           Divider(color: const Color.fromARGB(255, 226, 225, 225)),
           if (selectedVariant != null) ...[
-            SizedBox(height: 30),
+            const SizedBox(height: AppPaddings.p32),
             Text(
-              "Talla",
+              "TALLA",
               style: GoogleFonts.getFont(
                 FontNames.fontNameP,
-                textStyle: TextStyle(fontSize: 17),
+                textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textLight, letterSpacing: 1.5),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: AppPaddings.p12),
             SelectionContainer.disabled(
               child: Wrap(
                 spacing: 10,
@@ -158,19 +166,19 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                           vertical: 12,
                         ),
                         decoration: BoxDecoration(
-                          color: isSizeSelected ? Colors.black : Colors.white,
-                          borderRadius: BorderRadius.circular(8),
+                          color: isSizeSelected ? theme.primaryColor : AppColors.surface,
+                          borderRadius: BorderRadius.circular(AppBorders.radiusButton),
                           border: isSizeSelected
                               ? null
-                              : Border.all(color: Colors.grey.shade300),
+                              : Border.all(color: AppColors.border),
                         ),
                         child: Text(
                           size,
                           style: GoogleFonts.getFont(
                             FontNames.fontNameP,
-                            fontSize: 16,
-                            fontWeight: FontWeight.w500,
-                            color: isSizeSelected ? Colors.white : Colors.black,
+                            fontSize: 14,
+                            fontWeight: isSizeSelected ? FontWeight.bold : FontWeight.w500,
+                            color: isSizeSelected ? Colors.white : AppColors.textDark,
                           ),
                         ),
                       ),
@@ -179,16 +187,15 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                 }).toList(),
               ),
             ),
-            SizedBox(height: 10),
-
+            const SizedBox(height: AppPaddings.p24),
             Text(
-              "Color ${selectedVariant.name}",
+              "COLOR ${selectedVariant.name.toUpperCase()}",
               style: GoogleFonts.getFont(
                 FontNames.fontNameP,
-                textStyle: TextStyle(fontSize: 17),
+                textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textLight, letterSpacing: 1.5),
               ),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: AppPaddings.p12),
             Wrap(
               children: List.generate(widget.product.variants.length, (index) {
                 final variant = widget.product.variants[index];
@@ -221,8 +228,8 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
                         border: Border.all(
-                          color: isSelected ? Colors.black : Colors.transparent,
-                          width: 1.5,
+                          color: isSelected ? theme.primaryColor : Colors.transparent,
+                          width: 2.0,
                         ),
                       ),
                       child: Container(
@@ -230,8 +237,11 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                           shape: BoxShape.circle,
                           color: color,
                           border: !isSelected
-                              ? Border.all(color: Colors.black12)
+                              ? Border.all(color: AppColors.border)
                               : null,
+                          boxShadow: [
+                            if (isSelected) AppShadows.soft
+                          ]
                         ),
                       ),
                     ),
@@ -239,21 +249,21 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                 );
               }),
             ),
-            SizedBox(height: 10),
+            const SizedBox(height: AppPaddings.p12),
             Text(
-              "Stock: ${selectedVariant.stock} unidades",
+              "STOCK DISPONIBLE: ${selectedVariant.stock}",
               style: GoogleFonts.getFont(
                 FontNames.fontNameP,
-                textStyle: TextStyle(fontSize: 17),
+                textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textMuted, letterSpacing: 1.0),
               ),
             ),
             if (selectedVariant.stock <= 0) ...[
-              SizedBox(height: 5),
+              const SizedBox(height: 5),
               Text(
                 "Producto agotado",
                 style: GoogleFonts.getFont(
                   FontNames.fontNameP,
-                  textStyle: TextStyle(fontSize: 14, color: Colors.red),
+                  textStyle: const TextStyle(fontSize: 14, color: AppColors.error),
                 ),
               ),
             ],
@@ -322,34 +332,35 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                           ),
                           style: ButtonStyle(
                             backgroundColor: WidgetStatePropertyAll(
-                              Colors.black,
+                              theme.primaryColor.withValues(alpha: 0.1),
                             ),
                             foregroundColor: WidgetStatePropertyAll(
-                              Colors.white,
+                              theme.primaryColor,
                             ),
                             shape: WidgetStatePropertyAll(
                               RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(8),
+                                borderRadius: BorderRadius.circular(AppBorders.radiusButton),
                               ),
                             ),
-                            minimumSize: WidgetStatePropertyAll(
-                              Size(double.infinity, 70),
+                            minimumSize: const WidgetStatePropertyAll(
+                              Size(double.infinity, 56),
                             ),
+                            elevation: const WidgetStatePropertyAll(0),
                             overlayColor: WidgetStateProperty.resolveWith((
                               states,
                             ) {
                               if (states.contains(WidgetState.pressed)) {
-                                return Colors.grey.shade700;
+                                return theme.primaryColor.withValues(alpha: 0.2);
                               }
                               if (states.contains(WidgetState.hovered)) {
-                                return Colors.grey.shade800;
+                                return theme.primaryColor.withValues(alpha: 0.15);
                               }
                               return null;
                             }),
                           ),
                         ),
                       ),
-                      SizedBox(width: 20),
+                      const SizedBox(width: AppPaddings.p16),
                       Expanded(
                         flex: 3,
                         child: QuantitySelector(
@@ -416,25 +427,17 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                           context.go("/$slug/checkout");
                         },
                   style: ButtonStyle(
-                    backgroundColor: WidgetStatePropertyAll(Colors.black),
-                    foregroundColor: WidgetStatePropertyAll(Colors.white),
+                    backgroundColor: WidgetStatePropertyAll(theme.primaryColor),
+                    foregroundColor: const WidgetStatePropertyAll(Colors.white),
                     shape: WidgetStatePropertyAll(
                       RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+                        borderRadius: BorderRadius.circular(AppBorders.radiusButton),
                       ),
                     ),
-                    minimumSize: WidgetStatePropertyAll(
-                      Size(double.infinity, 70),
+                    minimumSize: const WidgetStatePropertyAll(
+                      Size(double.infinity, 56),
                     ),
-                    overlayColor: WidgetStateProperty.resolveWith((states) {
-                      if (states.contains(WidgetState.pressed)) {
-                        return Colors.grey.shade700;
-                      }
-                      if (states.contains(WidgetState.hovered)) {
-                        return Colors.grey.shade800;
-                      }
-                      return null;
-                    }),
+                    elevation: const WidgetStatePropertyAll(0),
                   ),
                   child: Text(
                     "Comprar Ahora",

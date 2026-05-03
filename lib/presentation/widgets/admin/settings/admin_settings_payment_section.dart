@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_type.dart';
+import 'package:markdown_editor_plus/markdown_editor_plus.dart';
 
 class AdminSettingsPaymentSection extends StatefulWidget {
   final List<PaymentMethod> methods;
@@ -105,6 +106,52 @@ class _AdminSettingsPaymentSectionState
     final updated = List<PaymentMethod>.from(widget.methods);
     updated[index] = method;
     widget.onChanged(updated);
+  }
+
+  void _openMarkdownEditor(int index, PaymentMethod method) {
+    final controller = TextEditingController(text: method.description ?? "");
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text(
+            "Descripción (Markdown)",
+            style: GoogleFonts.getFont(FontNames.fontNameH2),
+          ),
+          content: SizedBox(
+            width: 600,
+            child: MarkdownField(
+              controller: controller,
+              emojiConvert: true,
+            ),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: const Text("Cancelar"),
+            ),
+            FilledButton(
+              style: const ButtonStyle(
+                backgroundColor: WidgetStatePropertyAll(Colors.black),
+              ),
+              onPressed: () {
+                final val = controller.text.trim();
+                _updateMethod(
+                  index,
+                  PaymentMethod(
+                    name: method.name,
+                    type: method.type,
+                    description: val.isEmpty ? null : val,
+                  ),
+                );
+                Navigator.pop(context);
+              },
+              child: const Text("Guardar"),
+            ),
+          ],
+        );
+      },
+    );
   }
 
   @override
@@ -402,18 +449,23 @@ class _AdminSettingsPaymentSectionState
                 );
               },
             );
-            final descField = TextFormField(
-              initialValue: method.description ?? "",
-              decoration: _inputDecoration("Descripción (opcional)"),
-              style: GoogleFonts.getFont(FontNames.fontNameH2,
-                  textStyle: const TextStyle(fontSize: 13)),
-              onChanged: (val) => _updateMethod(
-                index,
-                PaymentMethod(
-                  name: method.name,
-                  type: method.type,
-                  description: val.isEmpty ? null : val,
+            final descBtn = OutlinedButton.icon(
+              onPressed: () => _openMarkdownEditor(index, method),
+              icon: const Icon(Icons.edit_note, size: 18),
+              label: Text(
+                method.description?.isNotEmpty == true
+                    ? "Editar Desc."
+                    : "Añadir Desc.",
+                style: GoogleFonts.getFont(FontNames.fontNameH2,
+                    textStyle: const TextStyle(fontSize: 13)),
+              ),
+              style: OutlinedButton.styleFrom(
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(6),
                 ),
+                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                side: const BorderSide(color: Color(0xFFE2E2E2)),
+                foregroundColor: Colors.black87,
               ),
             );
             final deleteBtn = IconButton(
@@ -434,7 +486,7 @@ class _AdminSettingsPaymentSectionState
                   const SizedBox(height: 8),
                   typeField,
                   const SizedBox(height: 8),
-                  descField,
+                  SizedBox(width: double.infinity, child: descBtn),
                 ],
               );
             }
@@ -445,7 +497,7 @@ class _AdminSettingsPaymentSectionState
                 const SizedBox(width: 10),
                 Expanded(flex: 2, child: typeField),
                 const SizedBox(width: 10),
-                Expanded(flex: 2, child: descField),
+                Expanded(flex: 2, child: descBtn),
                 const SizedBox(width: 8),
                 deleteBtn,
               ],

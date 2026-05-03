@@ -95,7 +95,7 @@ class _ProductImageSectionState extends State<ProductImageSection> {
                     final url = widget.product.imageUrl[index];
                     return SelectionContainer.disabled(
                       child: GestureDetector(
-                        onDoubleTap: () => _openZoomDialog(context, url),
+                        onTap: () => _openZoomDialog(context, url),
                         child: CatalogImage(
                           optimizedWidth: 800,
                           imageUrl: url,

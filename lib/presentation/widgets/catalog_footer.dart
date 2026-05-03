@@ -4,6 +4,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
+import 'package:virtual_catalog_app/config/themes/app_theme_styles.dart';
 
 class CatalogFooter extends StatelessWidget {
   const CatalogFooter({super.key});
@@ -14,36 +15,57 @@ class CatalogFooter extends StatelessWidget {
 
     return Container(
       width: double.infinity,
-      color: const Color(0xFF1E1E1E), // Fondo gris oscuro
-      padding: const EdgeInsets.symmetric(horizontal: 50, vertical: 30),
+      color: AppColors.background,
+      padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 48),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          Divider(color: AppColors.border.withValues(alpha: 0.5)),
+          const SizedBox(height: AppPaddings.p32),
           Text(
-            "© ${DateTime.now().year} ${business?.name ?? 'Virtual Catalog'}. Todos los derechos reservados.",
+            business?.name.toUpperCase() ?? 'VIRTUAL CATALOG',
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH1,
+              textStyle: TextStyle(
+                color: Theme.of(context).primaryColor,
+                fontSize: 20,
+                letterSpacing: 2.0,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+            textAlign: TextAlign.center,
+          ),
+          const SizedBox(height: AppPaddings.p16),
+          Text(
+            "© ${DateTime.now().year} Todos los derechos reservados.",
             style: GoogleFonts.getFont(
               FontNames.fontNameP,
-              textStyle: const TextStyle(color: Colors.white, fontSize: 14),
+              textStyle: const TextStyle(
+                color: AppColors.textLight,
+                fontSize: 12,
+                letterSpacing: 1.0,
+              ),
             ),
             textAlign: TextAlign.center,
           ),
           if (business != null &&
               business.termsAndConditions != null &&
               business.termsAndConditions!.trim().isNotEmpty) ...[
-            const SizedBox(height: 10),
+            const SizedBox(height: AppPaddings.p24),
             InkWell(
               onTap: () {
                 context.go('/${business.slug}/terms');
               },
+              hoverColor: Colors.transparent,
               child: Text(
                 "Términos y Condiciones",
                 style: GoogleFonts.getFont(
                   FontNames.fontNameP,
                   textStyle: const TextStyle(
-                    color: Colors.white70,
-                    fontSize: 14,
+                    color: AppColors.textMuted,
+                    fontSize: 12,
                     decoration: TextDecoration.underline,
-                    decorationColor: Colors.white70,
+                    decorationColor: AppColors.textMuted,
                   ),
                 ),
               ),
