@@ -28,6 +28,7 @@ class ProductDetailScreen extends StatelessWidget {
         .firstOrNull;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       drawer: MenuDrawer(),
       appBar: CatalogAppBar(
         isScrolled: true,
@@ -43,6 +44,7 @@ class ProductDetailScreen extends StatelessWidget {
                   : const Text("Producto no encontrado o no disponible."),
             )
           : SingleChildScrollView(
+              padding: const EdgeInsets.only(top: 65),
               child: Column(
                 children: [
                   IntrinsicHeight(

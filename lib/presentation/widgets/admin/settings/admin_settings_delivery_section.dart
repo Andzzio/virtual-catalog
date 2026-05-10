@@ -17,9 +17,10 @@ class AdminSettingsDeliverySection extends StatelessWidget {
 
   void _addMethod() {
     final updated = List<DeliveryMethod>.from(methods)
-      ..add(DeliveryMethod(name: "", type: DeliveryType.shipping, price: 0));
+      ..add(DeliveryMethod(name: "", type: DeliveryType.shipping, price: null));
     onChanged(updated);
   }
+
 
   void _removeMethod(int index) {
     final updated = List<DeliveryMethod>.from(methods)..removeAt(index);
@@ -204,7 +205,7 @@ class AdminSettingsDeliverySection extends StatelessWidget {
             Expanded(
               flex: 1,
               child: TextFormField(
-                initialValue: method.price > 0 ? method.price.toString() : "",
+                initialValue: method.price != null ? method.price.toString() : "",
                 decoration: _inputDecoration("Precio"),
                 style: GoogleFonts.getFont(
                   FontNames.fontNameH2,
@@ -216,7 +217,7 @@ class AdminSettingsDeliverySection extends StatelessWidget {
                   DeliveryMethod(
                     name: method.name,
                     type: method.type,
-                    price: int.tryParse(val) ?? 0,
+                    price: val.trim().isEmpty ? null : int.tryParse(val.trim()),
                     description: method.description,
                   ),
                 ),

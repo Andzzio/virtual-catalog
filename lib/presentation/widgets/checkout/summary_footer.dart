@@ -55,9 +55,11 @@ class SummaryFooter extends StatelessWidget {
             children: [
               Text("Envío", style: GoogleFonts.getFont(FontNames.fontNameP)),
               Text(
-                cartProvider.selectedDeliveryMethod?.price == 0
-                    ? "Gratis"
-                    : "S/. ${cartProvider.selectedDeliveryMethod?.price ?? 0}",
+                cartProvider.selectedDeliveryMethod?.price == null
+                    ? ""
+                    : cartProvider.selectedDeliveryMethod?.price == 0
+                        ? "Gratis"
+                        : "S/. ${cartProvider.selectedDeliveryMethod?.price ?? 0}",
                 style: GoogleFonts.getFont(FontNames.fontNameP),
               ),
             ],

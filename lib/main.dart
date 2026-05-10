@@ -85,6 +85,7 @@ class MainApp extends StatelessWidget {
         builder: (context, businessProvider, child) {
           final business = businessProvider.business;
           final customColor = ThemeConfig.hexToColor(business?.themeColorHex);
+          final customBgColor = ThemeConfig.hexToColor(business?.backgroundColorHex);
 
           return MaterialApp.router(
             debugShowCheckedModeBanner: false,
@@ -92,6 +93,7 @@ class MainApp extends StatelessWidget {
             theme: ThemeConfig(
               selectedColor: 0,
               customColor: customColor,
+              customBgColor: customBgColor,
             ).getTheme(),
             routerConfig: appRouter,
           );

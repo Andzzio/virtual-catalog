@@ -3,7 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/config/themes/theme_config.dart';
 import 'package:virtual_catalog_app/data/services/cloudinary_service.dart';
 import 'package:virtual_catalog_app/domain/entities/business.dart';
 import 'package:virtual_catalog_app/domain/entities/delivery_method.dart';
@@ -29,6 +31,8 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   late TextEditingController _descCtrl;
   late TextEditingController _whatsappCtrl;
   late TextEditingController _termsCtrl;
+  late TextEditingController _themeColorCtrl;
+  late TextEditingController _bgColorCtrl;
 
   Uint8List? _newLogo;
   String? _currentLogoUrl;
@@ -48,6 +52,10 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     _descCtrl = TextEditingController(text: business.description);
     _whatsappCtrl = TextEditingController(text: business.whatsappNumber);
     _termsCtrl = TextEditingController(text: business.termsAndConditions ?? "");
+    _themeColorCtrl = TextEditingController(text: business.themeColorHex ?? "");
+    _bgColorCtrl = TextEditingController(
+      text: business.backgroundColorHex ?? "",
+    );
     _currentLogoUrl = business.logoUrl;
     _deliveryMethods = List.from(business.deliveryMethods);
     _paymentMethods = List.from(business.paymentMethods);
@@ -66,6 +74,8 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
       _descCtrl.dispose();
       _whatsappCtrl.dispose();
       _termsCtrl.dispose();
+      _themeColorCtrl.dispose();
+      _bgColorCtrl.dispose();
     }
     super.dispose();
   }
@@ -112,6 +122,12 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         izipayUsername: _izipayUsername,
         izipayPassword: _izipayPassword,
         izipayPublicKey: _izipayPublicKey,
+        themeColorHex: _themeColorCtrl.text.trim().isEmpty
+            ? null
+            : _themeColorCtrl.text.trim(),
+        backgroundColorHex: _bgColorCtrl.text.trim().isEmpty
+            ? null
+            : _bgColorCtrl.text.trim(),
       );
 
       if (!mounted) return;
@@ -211,82 +227,257 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         builder: (context, constraints) {
           final isMobile = constraints.maxWidth < 800;
           return SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Padding(
-            padding: EdgeInsets.symmetric(
-              horizontal: isMobile ? 16 : 80,
-              vertical: isMobile ? 16 : 30,
+            child: Form(
+              key: _formKey,
+              child: Padding(
+                padding: EdgeInsets.symmetric(
+                  horizontal: isMobile ? 16 : 80,
+                  vertical: isMobile ? 16 : 30,
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // General Info Section
+                    _buildSectionHeader(
+                      Icons.storefront_outlined,
+                      "Información General",
+                    ),
+                    const SizedBox(height: 16),
+                    _buildGeneralSection(business),
+                    const SizedBox(height: 30),
+                    const Divider(),
+                    const SizedBox(height: 30),
+                    // Contact Section
+                    _buildSectionHeader(Icons.phone_outlined, "Contacto"),
+                    const SizedBox(height: 16),
+                    _buildContactSection(),
+                    const SizedBox(height: 30),
+                    const Divider(),
+                    const SizedBox(height: 30),
+                    // Colors section
+                    _buildSectionHeader(
+                      Icons.palette_outlined,
+                      "Colores y Personalización",
+                    ),
+                    const SizedBox(height: 16),
+                    _buildColorsSection(),
+                    const SizedBox(height: 30),
+                    const Divider(),
+                    const SizedBox(height: 30),
+                    // Delivery Methods
+                    AdminSettingsDeliverySection(
+                      methods: _deliveryMethods,
+                      onChanged: (val) =>
+                          setState(() => _deliveryMethods = val),
+                    ),
+                    const SizedBox(height: 30),
+                    const Divider(),
+                    const SizedBox(height: 30),
+                    // Payment Methods
+                    AdminSettingsPaymentSection(
+                      methods: _paymentMethods,
+                      onChanged: (val) => setState(() => _paymentMethods = val),
+                      izipayUsername: _izipayUsername,
+                      izipayPassword: _izipayPassword,
+                      izipayPublicKey: _izipayPublicKey,
+                      onIzipayCredentialsChanged: (creds) {
+                        setState(() {
+                          _izipayUsername = creds["izipayUsername"];
+                          _izipayPassword = creds["izipayPassword"];
+                          _izipayPublicKey = creds["izipayPublicKey"];
+                        });
+                      },
+                    ),
+                    const SizedBox(height: 30),
+                    const Divider(),
+                    const SizedBox(height: 30),
+                    _buildSectionHeader(
+                      Icons.text_snippet_outlined,
+                      "Pie de página",
+                    ),
+                    const SizedBox(height: 16),
+                    _buildFooterSection(),
+                    const SizedBox(height: 30),
+                    const Divider(),
+                    const SizedBox(height: 30),
+                    _buildSectionHeader(
+                      Icons.settings_applications,
+                      "Opciones varias",
+                    ),
+                    const SizedBox(height: 16),
+                    _buildMiscSection(),
+                    const SizedBox(height: 80),
+                  ],
+                ),
+              ),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // General Info Section
-                _buildSectionHeader(
-                  Icons.storefront_outlined,
-                  "Información General",
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildColorsSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(8),
+        border: Border.all(color: const Color(0xFFE2E2E2)),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          _buildColorPickerRow(
+            "Color de Acento del Tema",
+            "Define el color de los botones principales, título del negocio y controles activos.",
+            _themeColorCtrl,
+          ),
+          const SizedBox(height: 20),
+          _buildColorPickerRow(
+            "Color de Fondo",
+            "Personaliza el fondo de las páginas del catálogo para los clientes.",
+            _bgColorCtrl,
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildColorPickerRow(
+    String label,
+    String description,
+    TextEditingController controller,
+  ) {
+    Color currentColor =
+        ThemeConfig.hexToColor(controller.text) ??
+        (label == "Color de Acento del Tema"
+            ? Colors.black
+            : label == "Color de Fondo"
+            ? Colors.white
+            : Colors.grey[400]!);
+
+    return Row(
+      children: [
+        GestureDetector(
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (context) {
+                Color pickedColor = currentColor;
+                return AlertDialog(
+                  title: Text(
+                    "Selecciona el $label",
+                    style: GoogleFonts.getFont(FontNames.fontNameH2),
+                  ),
+                  content: SingleChildScrollView(
+                    child: ColorPicker(
+                      pickerColor: pickedColor,
+                      onColorChanged: (color) {
+                        pickedColor = color;
+                      },
+                    ),
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: const Text("Cancelar"),
+                    ),
+                    FilledButton(
+                      style: const ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(Colors.black),
+                      ),
+                      onPressed: () {
+                        setState(() {
+                          final hex =
+                              '#${pickedColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+                          controller.text = hex;
+                        });
+                        Navigator.pop(context);
+                      },
+                      child: const Text("Seleccionar"),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+          child: Tooltip(
+            message: "Hacer clic para abrir el selector de color",
+            child: MouseRegion(
+              cursor: SystemMouseCursors.click,
+              child: Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: currentColor,
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(
+                    color: currentColor == Colors.white
+                        ? Colors.grey[300]!
+                        : const Color(0xFFE2E2E2),
+                    width: 1.5,
+                  ),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.05),
+                      blurRadius: 4,
+                      offset: const Offset(0, 2),
+                    ),
+                  ],
                 ),
-                const SizedBox(height: 16),
-                _buildGeneralSection(business),
-                const SizedBox(height: 30),
-                const Divider(),
-                const SizedBox(height: 30),
-                // Contact Section
-                _buildSectionHeader(Icons.phone_outlined, "Contacto"),
-                const SizedBox(height: 16),
-                _buildContactSection(),
-                const SizedBox(height: 30),
-                const Divider(),
-                const SizedBox(height: 30),
-                // Delivery Methods
-                AdminSettingsDeliverySection(
-                  methods: _deliveryMethods,
-                  onChanged: (val) => setState(() => _deliveryMethods = val),
+                child: Center(
+                  child: Icon(
+                    Icons.palette_outlined,
+                    color: currentColor.computeLuminance() > 0.5
+                        ? Colors.black87
+                        : Colors.white70,
+                    size: 20,
+                  ),
                 ),
-                const SizedBox(height: 30),
-                const Divider(),
-                const SizedBox(height: 30),
-                // Payment Methods
-                AdminSettingsPaymentSection(
-                  methods: _paymentMethods,
-                  onChanged: (val) => setState(() => _paymentMethods = val),
-                  izipayUsername: _izipayUsername,
-                  izipayPassword: _izipayPassword,
-                  izipayPublicKey: _izipayPublicKey,
-                  onIzipayCredentialsChanged: (creds) {
-                    setState(() {
-                      _izipayUsername = creds["izipayUsername"];
-                      _izipayPassword = creds["izipayPassword"];
-                      _izipayPublicKey = creds["izipayPublicKey"];
-                    });
-                  },
-                ),
-                const SizedBox(height: 30),
-                const Divider(),
-                const SizedBox(height: 30),
-                _buildSectionHeader(
-                  Icons.text_snippet_outlined,
-                  "Pie de página",
-                ),
-                const SizedBox(height: 16),
-                _buildFooterSection(),
-                const SizedBox(height: 30),
-                const Divider(),
-                const SizedBox(height: 30),
-                _buildSectionHeader(
-                  Icons.settings_applications,
-                  "Opciones varias",
-                ),
-                const SizedBox(height: 16),
-                _buildMiscSection(),
-                const SizedBox(height: 80),
-              ],
+              ),
             ),
           ),
         ),
-      );
-        },
-      ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: GoogleFonts.getFont(
+                  FontNames.fontNameH2,
+                  textStyle: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                description,
+                style: GoogleFonts.getFont(
+                  FontNames.fontNameH2,
+                  textStyle: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(width: 16),
+        SizedBox(
+          width: 120,
+          child: TextFormField(
+            controller: controller,
+            decoration: _inputDecoration("#HEX"),
+            style: GoogleFonts.getFont(FontNames.fontNameH2),
+            onChanged: (val) {
+              setState(() {});
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -298,10 +489,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         color: Colors.white,
       ),
       padding: const EdgeInsets.all(8.0),
-      child: MarkdownAutoPreview(
-        controller: _termsCtrl,
-        emojiConvert: true,
-      ),
+      child: MarkdownAutoPreview(controller: _termsCtrl, emojiConvert: true),
     );
   }
 
@@ -376,7 +564,6 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     return Row(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        // Logo
         Column(
           children: [
             GestureDetector(
@@ -416,7 +603,6 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
           ],
         ),
         const SizedBox(width: 24),
-        // Name & Description
         Expanded(
           child: Column(
             children: [

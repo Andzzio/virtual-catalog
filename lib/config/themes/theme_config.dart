@@ -5,17 +5,28 @@ List<Color> colors = [Colors.blueAccent, Colors.redAccent, Colors.greenAccent];
 class ThemeConfig {
   final int selectedColor;
   final Color? customColor;
+  final Color? customBgColor;
 
-  ThemeConfig({required this.selectedColor, this.customColor})
-      : assert(
+  ThemeConfig({
+    required this.selectedColor,
+    this.customColor,
+    this.customBgColor,
+  }) : assert(
           selectedColor >= 0 && selectedColor < colors.length,
           "Index out of range $selectedColor, ${colors.length}",
         );
 
   ThemeData getTheme() {
+    final baseColor = customColor ?? colors[selectedColor];
+    final colorScheme = ColorScheme.fromSeed(
+      seedColor: baseColor,
+      primary: baseColor,
+      surface: customBgColor,
+    );
     return ThemeData(
       useMaterial3: true,
-      colorSchemeSeed: customColor ?? colors[selectedColor],
+      colorScheme: colorScheme,
+      scaffoldBackgroundColor: customBgColor ?? colorScheme.surface,
     );
   }
 

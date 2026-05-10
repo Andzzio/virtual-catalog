@@ -47,6 +47,7 @@ class CatalogScreen extends StatelessWidget {
     final categories = FilterCatalog.extractCategories(allProducts);
     final sizes = FilterCatalog.extractSizes(allProducts);
     return Scaffold(
+      extendBodyBehindAppBar: true,
       drawer: MenuDrawer(),
       appBar: CatalogAppBar(
         isScrolled: true,
@@ -55,41 +56,48 @@ class CatalogScreen extends StatelessWidget {
       ),
       floatingActionButton: WhatsappFloatingButton(),
       endDrawer: CartDrawer(),
-      body: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          if (size.width > 1100)
+      body: Padding(
+        padding: const EdgeInsets.only(top: 65),
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (size.width > 1100)
+              Expanded(
+                flex: 3,
+                child: FilterCatalogView(
+                  slug:
+                      GoRouterState.of(
+                        context,
+                      ).pathParameters["businessSlug"] ??
+                      "",
+                  search: initialSearch,
+                  selectedCategory: initialCategory ?? "Todos",
+                  selectedOrder: initialSort ?? "Relevantes",
+                  minPrice: initialMinPrice ?? 0,
+                  maxPrice: initialMaxPrice ?? 0,
+                  selectedSizes: initialSizes ?? {},
+                  isAvailable: initialAvailable ?? false,
+                  categories: categories,
+                  sizes: sizes,
+                ),
+              ),
             Expanded(
-              flex: 3,
-              child: FilterCatalogView(
-                slug: GoRouterState.of(context).pathParameters["businessSlug"] ?? "",
+              flex: 10,
+              child: CatalogGridView(
+                products: filtered,
                 search: initialSearch,
-                selectedCategory: initialCategory ?? "Todos",
-                selectedOrder: initialSort ?? "Relevantes",
-                minPrice: initialMinPrice ?? 0,
-                maxPrice: initialMaxPrice ?? 0,
-                selectedSizes: initialSizes ?? {},
-                isAvailable: initialAvailable ?? false,
+                selectedCategory: initialCategory,
+                selectedOrder: initialSort,
+                minPrice: initialMinPrice,
+                maxPrice: initialMaxPrice,
+                selectedSizes: initialSizes,
+                isAvailable: initialAvailable,
                 categories: categories,
                 sizes: sizes,
               ),
             ),
-          Expanded(
-            flex: 10,
-            child: CatalogGridView(
-              products: filtered,
-              search: initialSearch,
-              selectedCategory: initialCategory,
-              selectedOrder: initialSort,
-              minPrice: initialMinPrice,
-              maxPrice: initialMaxPrice,
-              selectedSizes: initialSizes,
-              isAvailable: initialAvailable,
-              categories: categories,
-              sizes: sizes,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

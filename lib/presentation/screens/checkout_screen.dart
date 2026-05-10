@@ -14,6 +14,7 @@ class CheckoutScreen extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     final isMobile = size.width < 800;
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: CatalogAppBar(
         isScrolled: true,
         size: size,
@@ -22,14 +23,17 @@ class CheckoutScreen extends StatelessWidget {
       drawer: MenuDrawer(),
       floatingActionButton: WhatsappFloatingButton(),
       endDrawer: CartDrawer(),
-      body: Row(
-        children: [
-          Expanded(flex: 5, child: CheckoutFormView()),
-          if (!isMobile) ...[
-            VerticalDivider(),
-            Expanded(flex: 5, child: CheckoutSummaryView()),
+      body: Padding(
+        padding: const EdgeInsets.only(top: 65),
+        child: Row(
+          children: [
+            Expanded(flex: 5, child: CheckoutFormView()),
+            if (!isMobile) ...[
+              VerticalDivider(),
+              Expanded(flex: 5, child: CheckoutSummaryView()),
+            ],
           ],
-        ],
+        ),
       ),
     );
   }

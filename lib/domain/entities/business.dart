@@ -21,6 +21,7 @@ class Business {
   final String? izipayPassword;
   final String? izipayPublicKey;
   final String? themeColorHex;
+  final String? backgroundColorHex;
 
   Business({
     required this.slug,
@@ -40,5 +41,6 @@ class Business {
     this.izipayPassword,
     this.izipayPublicKey,
     this.themeColorHex,
+    this.backgroundColorHex,
   });
 }

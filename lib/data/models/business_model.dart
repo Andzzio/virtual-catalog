@@ -23,6 +23,7 @@ class BusinessModel {
   final String? izipayPassword;
   final String? izipayPublicKey;
   final String? themeColorHex;
+  final String? backgroundColorHex;
 
   BusinessModel({
     required this.slug,
@@ -42,6 +43,7 @@ class BusinessModel {
     this.izipayPassword,
     this.izipayPublicKey,
     this.themeColorHex,
+    this.backgroundColorHex,
   });
 
   factory BusinessModel.fromFirestore(DocumentSnapshot doc) {
@@ -72,6 +74,7 @@ class BusinessModel {
       izipayPassword: json['izipayPassword'],
       izipayPublicKey: json['izipayPublicKey'],
       themeColorHex: json['themeColorHex'],
+      backgroundColorHex: json['backgroundColorHex'],
     );
   }
 
@@ -80,16 +83,16 @@ class BusinessModel {
       slug: json['slug'] ?? "",
       ownerId: json['ownerId'] ?? "",
       name: json['name'] ?? "",
-      description: json['description'],
-      logoUrl: json['logoUrl'],
-      whatsappNumber: json['whatsappNumber'],
-      banners: (json['banners'] as List)
+      description: json['description'] ?? "",
+      logoUrl: json['logoUrl'] ?? "",
+      whatsappNumber: json['whatsappNumber'] ?? "",
+      banners: (json['banners'] as List? ?? [])
           .map((b) => BannerItemModel.fromJson(b))
           .toList(),
-      deliveryMethods: (json["deliveryMethods"] as List)
+      deliveryMethods: (json["deliveryMethods"] as List? ?? [])
           .map((d) => DeliveryMethodModel.fromJson(d))
           .toList(),
-      paymentMethods: (json["paymentMethods"] as List)
+      paymentMethods: (json["paymentMethods"] as List? ?? [])
           .map((p) => PaymentMethodModel.fromJson(p))
           .toList(),
       showDesktopLogo: json['showDesktopLogo'] ?? true,
@@ -102,6 +105,7 @@ class BusinessModel {
       izipayPassword: json['izipayPassword'],
       izipayPublicKey: json['izipayPublicKey'],
       themeColorHex: json['themeColorHex'],
+      backgroundColorHex: json['backgroundColorHex'],
     );
   }
 
@@ -122,7 +126,8 @@ class BusinessModel {
     if (izipayUsername != null) "izipayUsername": izipayUsername,
     if (izipayPassword != null) "izipayPassword": izipayPassword,
     if (izipayPublicKey != null) "izipayPublicKey": izipayPublicKey,
-    if (themeColorHex != null) "themeColorHex": themeColorHex,
+    'themeColorHex': themeColorHex,
+    'backgroundColorHex': backgroundColorHex,
   };
 
   Business toEntity() => Business(
@@ -143,6 +148,7 @@ class BusinessModel {
     izipayPassword: izipayPassword,
     izipayPublicKey: izipayPublicKey,
     themeColorHex: themeColorHex,
+    backgroundColorHex: backgroundColorHex,
   );
 
   factory BusinessModel.fromEntity(Business entity) {
@@ -172,6 +178,7 @@ class BusinessModel {
       izipayPassword: entity.izipayPassword,
       izipayPublicKey: entity.izipayPublicKey,
       themeColorHex: entity.themeColorHex,
+      backgroundColorHex: entity.backgroundColorHex,
     );
   }
 }

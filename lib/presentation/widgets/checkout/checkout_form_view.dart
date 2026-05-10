@@ -235,7 +235,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                             ),
                                           ),
                                           const SizedBox(width: 8),
-                                          Text(
+                                          if (method.price != null) Text(
                                             method.price == 0
                                                 ? "Gratis"
                                                 : "S/. ${method.price}",
@@ -1342,7 +1342,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       "- Subtotal: S/. ${cartProvider.checkItemsTotalWithDiscounts.toStringAsFixed(2)}",
     );
     sb.writeln(
-      "- Envío: S/. ${cartProvider.selectedDeliveryMethod?.price.toStringAsFixed(2)}",
+      "- Envío: S/. ${(cartProvider.selectedDeliveryMethod?.price ?? 0).toStringAsFixed(2)}",
     );
     sb.writeln(
       "- Total: S/. ${cartProvider.checkoutGrandTotal.toStringAsFixed(2)}",
