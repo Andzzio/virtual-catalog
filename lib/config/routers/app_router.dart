@@ -10,6 +10,7 @@ import 'package:virtual_catalog_app/presentation/widgets/admin/banners/admin_ban
 import 'package:virtual_catalog_app/presentation/widgets/admin/dashboard/admin_dashboard_view.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/home_builder/admin_home_builder_view.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/settings/admin_settings_view.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/locations/admin_shipping_zones_view.dart';
 import '../../presentation/widgets/admin/products/admin_products_view.dart';
 
 final appRouter = GoRouter(
@@ -113,6 +114,13 @@ final appRouter = GoRouter(
               builder: (context, state) {
                 final slug = state.pathParameters["businessSlug"]!;
                 return AdminHomeBuilderView(businessSlug: slug);
+              },
+            ),
+            GoRoute(
+              path: "locations",
+              builder: (context, state) {
+                final slug = state.pathParameters["businessSlug"]!;
+                return AdminShippingZonesView(businessSlug: slug);
               },
             ),
           ],

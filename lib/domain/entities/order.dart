@@ -9,14 +9,16 @@ class Order {
   final String customerDni;
   final String? customerCountry;
   final String customerAddress;
-  final String customerCity;
-  final String customerRegion;
+  final String customerDepartamento;
+  final String customerProvincia;
+  final String customerDistrito;
+  final String? customerUbigeoCode;
   final String? customerZip;
   final String? notes;
   final String? customerEmail;
   final List<CartItem> items;
   final double total;
-  final String status; // 'pending', 'paid', 'failed'
+  final String status;
   final String paymentMethod;
   final String? deliveryMethod;
   final DateTime createdAt;
@@ -27,8 +29,9 @@ class Order {
   final String? billingCountry;
   final String? billingAddress;
   final String? billingReference;
-  final String? billingDistrict;
-  final String? billingRegion;
+  final String? billingDepartamento;
+  final String? billingProvincia;
+  final String? billingDistrito;
   final String? billingZip;
   final String? billingPhone;
 
@@ -41,8 +44,10 @@ class Order {
     required this.customerDni,
     this.customerCountry,
     required this.customerAddress,
-    required this.customerCity,
-    required this.customerRegion,
+    required this.customerDepartamento,
+    required this.customerProvincia,
+    required this.customerDistrito,
+    this.customerUbigeoCode,
     this.customerZip,
     this.notes,
     this.customerEmail,
@@ -59,8 +64,9 @@ class Order {
     this.billingCountry,
     this.billingAddress,
     this.billingReference,
-    this.billingDistrict,
-    this.billingRegion,
+    this.billingDepartamento,
+    this.billingProvincia,
+    this.billingDistrito,
     this.billingZip,
     this.billingPhone,
   });

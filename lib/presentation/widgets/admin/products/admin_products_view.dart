@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 
 import 'admin_product_table.dart';
 
@@ -24,173 +25,78 @@ class _AdminProductsViewState extends State<AdminProductsView> {
 
   @override
   Widget build(BuildContext context) {
-    final isMobile = MediaQuery.sizeOf(context).width < 800;
-    return Padding(
-      padding: EdgeInsets.symmetric(
-        vertical: isMobile ? 16 : 30,
-        horizontal: 15,
-      ),
-      child: Column(
-        children: [
-          if (isMobile) ...[
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  "Productos",
-                  style: GoogleFonts.getFont(
-                    FontNames.fontNameH2,
-                    textStyle: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
+    return Scaffold(
+      backgroundColor: AdminTheme.surface,
+      appBar: AppBar(
+        backgroundColor: AdminTheme.cardBg,
+        surfaceTintColor: Colors.transparent,
+        automaticallyImplyLeading: false,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(color: AdminTheme.border, height: 1.0),
+        ),
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Productos",
+              style: GoogleFonts.getFont(
+                FontNames.fontNameH2,
+                textStyle: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
                 ),
-                Text(
-                  "Administra tu inventario.",
-                  style: GoogleFonts.getFont(
-                    FontNames.fontNameH2,
-                    textStyle: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: 12),
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton.icon(
-                    onPressed: () {
-                      context.go("/${widget.businessSlug}/admin/products/create");
-                    },
-                    icon: Icon(Icons.add),
-                    style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                      backgroundColor: Colors.black,
-                      foregroundColor: Colors.white,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadiusGeometry.circular(8),
-                      ),
-                    ),
-                    label: Text(
-                      "Crear Producto",
-                      style: GoogleFonts.getFont(FontNames.fontNameH2),
-                    ),
-                  ),
-                ),
-              ],
+              ),
             ),
-          ] else
-            Row(
-              children: [
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Productos",
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameH2,
-                        textStyle: TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    Text(
-                      "Administra tu inventario.",
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameH2,
-                        textStyle: TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey[600],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-                Spacer(),
-                ElevatedButton.icon(
-                  onPressed: () {
-                    context.go("/${widget.businessSlug}/admin/products/create");
-                  },
-                  icon: Icon(Icons.add),
-                  style: ElevatedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-                    backgroundColor: Colors.black,
-                    foregroundColor: Colors.white,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadiusGeometry.circular(8),
-                    ),
-                  ),
-                  label: Text(
-                    "Crear Producto",
-                    style: GoogleFonts.getFont(FontNames.fontNameH2),
-                  ),
-                ),
-              ],
+            Text(
+              "Administra tu inventario de prendas y artículos.",
+              style: AdminTheme.bodySmall(),
             ),
-          SizedBox(height: 20),
-          Container(
-            padding: EdgeInsets.symmetric(horizontal: 20, vertical: 25),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              border: Border.all(color: Color(0xFFE2E2E2)),
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: TextField(
-                    controller: _searchCtrl,
-                    onChanged: (value) => setState(() {}),
-                    decoration: _inputDecoration(),
-                  ),
-                ),
-              ],
+          ],
+        ),
+        actions: [
+          ElevatedButton.icon(
+            onPressed: () {
+              context.go("/${widget.businessSlug}/admin/products/create");
+            },
+            icon: Icon(Icons.add),
+            style: AdminTheme.primaryButton(),
+            label: Text(
+              "Crear Producto",
+              style: GoogleFonts.getFont(FontNames.fontNameH2),
             ),
           ),
-          SizedBox(height: 20),
-          Expanded(
-            child: AdminProductTable(
-              businessSlug: widget.businessSlug,
-              searchQuery: _searchCtrl.text,
-            ),
-          ),
+          const SizedBox(width: 10),
         ],
       ),
-    );
-  }
-
-  InputDecoration _inputDecoration() {
-    return InputDecoration(
-      prefixIcon: Icon(Icons.search),
-      hintText: "Buscar productos por nombre...",
-      hintStyle: GoogleFonts.getFont(
-        FontNames.fontNameH2,
-        textStyle: TextStyle(color: Colors.grey),
-      ),
-      prefixIconColor: Colors.grey,
-      filled: true,
-      fillColor: Color.fromARGB(255, 238, 239, 240),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFFE2E2E2)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.redAccent),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.redAccent),
-        borderRadius: BorderRadius.circular(8),
+      body: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          children: [
+            // Search bar
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              decoration: AdminTheme.cardDecoration(),
+              child: TextField(
+                controller: _searchCtrl,
+                onChanged: (value) => setState(() {}),
+                decoration: AdminTheme.inputDecoration(
+                  hintText: "Buscar productos por nombre o SKU...",
+                  prefixIcon: Icon(Icons.search, color: AdminTheme.textMuted),
+                ),
+                style: GoogleFonts.getFont(FontNames.fontNameH2),
+              ),
+            ),
+            SizedBox(height: 16),
+            Expanded(
+              child: AdminProductTable(
+                businessSlug: widget.businessSlug,
+                searchQuery: _searchCtrl.text,
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

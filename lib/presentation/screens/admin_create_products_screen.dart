@@ -9,6 +9,7 @@ import 'package:virtual_catalog_app/domain/entities/product.dart';
 import 'package:virtual_catalog_app/domain/entities/product_variant.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
+import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 import '../widgets/admin/products/admin_create_product_form_side.dart';
 import '../widgets/admin/products/admin_create_product_info_side.dart';
 import '../widgets/admin/products/admin_create_products_media_info.dart';
@@ -120,7 +121,7 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
         context: context,
         barrierDismissible: false,
         builder: (context) =>
-            Center(child: CircularProgressIndicator(color: Colors.black)),
+            Center(child: CircularProgressIndicator(color: AdminTheme.accent)),
       );
 
       List<String> finalUrls = List.filled(mediaItems.length, "");
@@ -205,62 +206,77 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: AdminTheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AdminTheme.cardBg,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        leading: IconButton(
+          onPressed: () => context.pop(),
+          icon: const Icon(Icons.close),
+          tooltip: "Cerrar",
+        ),
+        title: Text(
+          isEditing ? "Editar Producto" : "Nuevo Producto",
+          style: AdminTheme.heading2(),
+        ),
+        centerTitle: false,
         bottom: PreferredSize(
-          preferredSize: Size.fromHeight(1.0),
-          child: Container(color: const Color(0xFFE2E2E2), height: 1.0),
+          preferredSize: const Size.fromHeight(1.0),
+          child: Container(color: AdminTheme.border, height: 1.0),
         ),
         actions: [
-          ElevatedButton.icon(
-            onPressed: () {
-              if (!_formKey.currentState!.validate()) return;
-              if (mediaItems.isEmpty) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(content: Text("Selecciona al menos una imagen")),
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                if (!_formKey.currentState!.validate()) return;
+                if (mediaItems.isEmpty) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text("Selecciona al menos una imagen")),
+                  );
+                  return;
+                }
+
+                final hasVariantWithoutSizes = variants.any(
+                  (v) => (v["sizes"] as List).isEmpty,
                 );
-                return;
-              }
 
-              final hasVariantWithoutSizes = variants.any(
-                (v) => (v["sizes"] as List).isEmpty,
-              );
-
-              if (hasVariantWithoutSizes) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text(
-                      "Cada variante debe tener al menos una talla",
+                if (hasVariantWithoutSizes) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text(
+                        "Cada variante debe tener al menos una talla",
+                      ),
                     ),
-                  ),
-                );
-                return;
-              }
+                  );
+                  return;
+                }
 
-              _saveProduct();
-            },
-            icon: Icon(Icons.save),
-            style: ElevatedButton.styleFrom(
-              padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadiusGeometry.circular(8),
+                _saveProduct();
+              },
+              icon: const Icon(Icons.save, size: 18),
+              style: AdminTheme.primaryButton().copyWith(
+                padding: const WidgetStatePropertyAll(
+                    EdgeInsets.symmetric(horizontal: 16)),
+              ),
+              label: Text(
+                isEditing ? "Guardar" : "Crear",
+                style: GoogleFonts.getFont(FontNames.fontNameH2),
               ),
             ),
-            label: Text(
-              isEditing ? "Guardar Cambios" : "Guardar Producto",
-              style: GoogleFonts.getFont(FontNames.fontNameH2),
-            ),
           ),
-          SizedBox(width: 10),
+          const SizedBox(width: 16),
         ],
       ),
+      // Skill: Use LayoutBuilder for responsive decisions
       body: LayoutBuilder(
         builder: (context, constraints) {
+          final isMobile = constraints.maxWidth < AdminTheme.breakpointMobile;
           final horizontalPadding = constraints.maxWidth > 900
-              ? 150.0
+              ? 100.0
               : (constraints.maxWidth > 600 ? 40.0 : 16.0);
+
           return SingleChildScrollView(
             child: Form(
               key: _formKey,
@@ -271,76 +287,55 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
                 ),
                 child: Column(
                   children: [
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(flex: 1, child: AdminCreateProductInfoSide()),
-                        SizedBox(width: 30),
-                        Expanded(
-                          flex: 3,
-                          child: AdminCreateProductFormSide(
-                            initialName: isEditing ? productName : null,
-                            initialCategory: isEditing ? category : null,
-                            initialSku: isEditing ? productSku : null,
-                            initialDescription: isEditing ? description : null,
-                            onNameChanged: (val) =>
-                                setState(() => productName = val),
-                            onCategoryChanged: (val) =>
-                                setState(() => category = val),
-                            onSkuChanged: (val) =>
-                                setState(() => productSku = val),
-                            onDescriptionChanged: (val) =>
-                                setState(() => description = val),
-                          ),
-                        ),
-                      ],
+                    // ── Section 1: Basic Info ──────────────
+                    _buildResponsiveSection(
+                      isMobile: isMobile,
+                      info: AdminCreateProductInfoSide(),
+                      content: AdminCreateProductFormSide(
+                        initialName: isEditing ? productName : null,
+                        initialCategory: isEditing ? category : null,
+                        initialSku: isEditing ? productSku : null,
+                        initialDescription: isEditing ? description : null,
+                        onNameChanged: (val) =>
+                            setState(() => productName = val),
+                        onCategoryChanged: (val) =>
+                            setState(() => category = val),
+                        onSkuChanged: (val) =>
+                            setState(() => productSku = val),
+                        onDescriptionChanged: (val) =>
+                            setState(() => description = val),
+                      ),
                     ),
                     SizedBox(height: 30),
-                    Divider(),
+                    Divider(color: AdminTheme.border),
                     SizedBox(height: 30),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: AdminCreateProductsMediaInfo(),
-                        ),
-                        SizedBox(width: 30),
-                        Expanded(
-                          flex: 3,
-                          child: ImagePickerUploader(
-                            mediaItems: mediaItems,
-                            onMediaChanged: (newMedia) {
-                              setState(() {
-                                mediaItems = newMedia;
-                              });
-                            },
-                          ),
-                        ),
-                      ],
+                    // ── Section 2: Media ───────────────────
+                    _buildResponsiveSection(
+                      isMobile: isMobile,
+                      info: AdminCreateProductsMediaInfo(),
+                      content: ImagePickerUploader(
+                        mediaItems: mediaItems,
+                        onMediaChanged: (newMedia) {
+                          setState(() {
+                            mediaItems = newMedia;
+                          });
+                        },
+                      ),
                     ),
                     SizedBox(height: 30),
-                    Divider(),
+                    Divider(color: AdminTheme.border),
                     SizedBox(height: 30),
-                    Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Expanded(
-                          flex: 1,
-                          child: AdminCreateProductsVariantsInfo(
-                            onAdd: _addVariant,
-                          ),
-                        ),
-                        SizedBox(width: 30),
-                        Expanded(
-                          flex: 3,
-                          child: AdminCreateProductsTableVariants(
-                            variants: variants,
-                            onRemove: _removeVariant,
-                            onUpdate: _updateVariant,
-                          ),
-                        ),
-                      ],
+                    // ── Section 3: Variants ────────────────
+                    _buildResponsiveSection(
+                      isMobile: isMobile,
+                      info: AdminCreateProductsVariantsInfo(
+                        onAdd: _addVariant,
+                      ),
+                      content: AdminCreateProductsTableVariants(
+                        variants: variants,
+                        onRemove: _removeVariant,
+                        onUpdate: _updateVariant,
+                      ),
                     ),
                     SizedBox(height: 120),
                   ],
@@ -350,6 +345,32 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
           );
         },
       ),
+    );
+  }
+
+  /// Skill: LayoutBuilder-based responsive — Row on desktop, Column on mobile
+  Widget _buildResponsiveSection({
+    required bool isMobile,
+    required Widget info,
+    required Widget content,
+  }) {
+    if (isMobile) {
+      return Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          info,
+          const SizedBox(height: 16),
+          content,
+        ],
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Expanded(flex: 1, child: info),
+        SizedBox(width: 30),
+        Expanded(flex: 3, child: content),
+      ],
     );
   }
 }

@@ -1,9 +1,8 @@
 import 'dart:typed_data';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 
 class ImagePickerUploader extends StatefulWidget {
   final List<dynamic> mediaItems; // Can be String (URL) or Uint8List (Bytes)
@@ -27,42 +26,42 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // ── Upload Button ─────────────────────────────
           InkWell(
             onTap: _pickImages,
-            borderRadius: BorderRadius.circular(8),
+            borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
             child: Container(
               width: 120,
               height: 120,
               decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.grey[200]!, width: 1.5),
+                color: AdminTheme.inputFill,
+                borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+                border: Border.all(color: AdminTheme.border, width: 1.5),
               ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   Icon(
                     Icons.add_photo_alternate_outlined,
-                    size: 40,
-                    color: Colors.grey[600],
+                    size: 32,
+                    color: AdminTheme.textSecondary,
                   ),
-                  SizedBox(height: 8),
+                  const SizedBox(height: 8),
                   Text(
                     "SUBIR",
-                    style: GoogleFonts.getFont(
-                      FontNames.fontNameH2,
-                      textStyle: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.grey[600],
-                      ),
+                    style: AdminTheme.body().copyWith(
+                      fontSize: 11,
+                      fontWeight: FontWeight.bold,
+                      color: AdminTheme.textSecondary,
+                      letterSpacing: 1.2,
                     ),
                   ),
                 ],
               ),
             ),
           ),
-          SizedBox(width: 15),
+          const SizedBox(width: 16),
+          // ── Image List ────────────────────────────────
           Expanded(
             child: SelectionContainer.disabled(
               child: ScrollConfiguration(
@@ -98,48 +97,32 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                     return Container(
                       key: ValueKey("media_${item.hashCode}_$index"),
                       width: 120,
-                      margin: EdgeInsets.only(right: 15),
+                      margin: const EdgeInsets.only(right: 16),
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(
+                          AdminTheme.radiusMd,
+                        ),
+                        border: Border.all(color: AdminTheme.border),
+                      ),
+                      clipBehavior: Clip.antiAlias,
                       child: Stack(
                         children: [
                           Positioned.fill(
-                            child: Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(8),
-                                border: Border.all(color: Color(0xffe2e2e2)),
-                                image: DecorationImage(
-                                  image: isExisting
-                                      ? NetworkImage(item) as ImageProvider
-                                      : MemoryImage(item as Uint8List),
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
+                            child: Image(
+                              image: isExisting
+                                  ? NetworkImage(item) as ImageProvider
+                                  : MemoryImage(item as Uint8List),
+                              fit: BoxFit.cover,
                             ),
                           ),
+                          // ── Actions Overlay ──────────────
                           Positioned(
                             top: 6,
                             right: 6,
-                            child: InkWell(
-                              onTap: () {
-                                _removeImage(index);
-                              },
-                              child: Container(
-                                padding: EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: const Color.fromARGB(
-                                    232,
-                                    255,
-                                    255,
-                                    255,
-                                  ),
-                                  shape: BoxShape.circle,
-                                  boxShadow: [BoxShadow(blurRadius: 4)],
-                                ),
-                                child: Icon(
-                                  Icons.close,
-                                  size: 14,
-                                  color: Colors.redAccent,
-                                ),
-                              ),
+                            child: _buildActionBtn(
+                              icon: Icons.close,
+                              color: AdminTheme.danger,
+                              onTap: () => _removeImage(index),
                             ),
                           ),
                           Positioned(
@@ -147,23 +130,9 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                             left: 6,
                             child: ReorderableDragStartListener(
                               index: index,
-                              child: Container(
-                                padding: EdgeInsets.all(4),
-                                decoration: BoxDecoration(
-                                  color: const Color.fromARGB(
-                                    232,
-                                    255,
-                                    255,
-                                    255,
-                                  ),
-                                  shape: BoxShape.circle,
-                                  boxShadow: [BoxShadow(blurRadius: 4)],
-                                ),
-                                child: Icon(
-                                  Icons.drag_indicator,
-                                  size: 16,
-                                  color: Colors.black87,
-                                ),
+                              child: _buildActionBtn(
+                                icon: Icons.drag_indicator,
+                                color: AdminTheme.textPrimary,
                               ),
                             ),
                           ),
@@ -180,6 +149,24 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
     );
   }
 
+  Widget _buildActionBtn({
+    required IconData icon,
+    required Color color,
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        padding: const EdgeInsets.all(6),
+        decoration: BoxDecoration(
+          color: AdminTheme.surface.withValues(alpha: 0.6),
+          shape: BoxShape.circle,
+        ),
+        child: Icon(icon, size: 14, color: color),
+      ),
+    );
+  }
+
   Future<void> _pickImages() async {
     try {
       final List<XFile> pickedFiles = await _picker.pickMultiImage();
@@ -189,10 +176,7 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
           final bytes = await file.readAsBytes();
           newMedia.add(bytes);
         }
-        if (!mounted) {
-          debugPrint("Error: widget no está montado al cambiar imágenes");
-          return;
-        }
+        if (!mounted) return;
         widget.onMediaChanged(newMedia);
       }
     } catch (e) {

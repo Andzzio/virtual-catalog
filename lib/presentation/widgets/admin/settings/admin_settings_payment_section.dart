@@ -3,6 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_type.dart';
+import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 import 'package:markdown_editor_plus/markdown_editor_plus.dart';
 
 class AdminSettingsPaymentSection extends StatefulWidget {
@@ -49,12 +50,9 @@ class _AdminSettingsPaymentSectionState
 
   void _initControllers() {
     if (_initialized) return;
-    _usernameCtrl =
-        TextEditingController(text: widget.izipayUsername ?? "");
-    _passwordCtrl =
-        TextEditingController(text: widget.izipayPassword ?? "");
-    _publicKeyCtrl =
-        TextEditingController(text: widget.izipayPublicKey ?? "");
+    _usernameCtrl = TextEditingController(text: widget.izipayUsername ?? "");
+    _passwordCtrl = TextEditingController(text: widget.izipayPassword ?? "");
+    _publicKeyCtrl = TextEditingController(text: widget.izipayPublicKey ?? "");
     _initialized = true;
   }
 
@@ -120,10 +118,7 @@ class _AdminSettingsPaymentSectionState
           ),
           content: SizedBox(
             width: 600,
-            child: MarkdownField(
-              controller: controller,
-              emojiConvert: true,
-            ),
+            child: MarkdownField(controller: controller, emojiConvert: true),
           ),
           actions: [
             TextButton(
@@ -132,7 +127,7 @@ class _AdminSettingsPaymentSectionState
             ),
             FilledButton(
               style: const ButtonStyle(
-                backgroundColor: WidgetStatePropertyAll(Colors.black),
+                backgroundColor: WidgetStatePropertyAll(AdminTheme.accent),
               ),
               onPressed: () {
                 final val = controller.text.trim();
@@ -161,7 +156,7 @@ class _AdminSettingsPaymentSectionState
       children: [
         Row(
           children: [
-            Icon(Icons.payment_outlined, color: Colors.grey[700]),
+            Icon(Icons.payment_outlined, color: AdminTheme.textSecondary),
             const SizedBox(width: 10),
             Text(
               "Métodos de Pago",
@@ -204,28 +199,31 @@ class _AdminSettingsPaymentSectionState
       duration: const Duration(milliseconds: 300),
       curve: Curves.easeInOut,
       decoration: BoxDecoration(
-        color: const Color(0xFFF8F9FB),
+        color: AdminTheme.surface,
         borderRadius: BorderRadius.circular(10),
-        border: Border.all(color: const Color(0xFF3B82F6), width: 1.5),
+        border: Border.all(color: AdminTheme.accent, width: 1.5),
       ),
       padding: const EdgeInsets.all(20),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Skill: Wrap text in Flexible to prevent RenderFlex overflow
           Row(
             children: [
               Container(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                 decoration: BoxDecoration(
-                  color: const Color(0xFF3B82F6).withValues(alpha: 0.1),
+                  color: AdminTheme.accent.withValues(alpha: 0.1),
                   borderRadius: BorderRadius.circular(6),
                 ),
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    const Icon(Icons.lock_outline,
-                        size: 14, color: Color(0xFF3B82F6)),
+                    const Icon(
+                      Icons.lock_outline,
+                      size: 14,
+                      color: AdminTheme.accent,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       "Credenciales Izipay",
@@ -241,14 +239,12 @@ class _AdminSettingsPaymentSectionState
                   ],
                 ),
               ),
-              const Spacer(),
-              Icon(Icons.info_outline, size: 16, color: Colors.grey[400]),
-              const SizedBox(width: 4),
-              Text(
-                "Requerido para pagos con Izipay",
-                style: GoogleFonts.getFont(
-                  FontNames.fontNameH2,
-                  textStyle: TextStyle(fontSize: 11, color: Colors.grey[500]),
+              const SizedBox(width: 8),
+              Flexible(
+                child: Text(
+                  "Requerido para pagos con Izipay",
+                  style: AdminTheme.caption(),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
             ],
@@ -259,13 +255,12 @@ class _AdminSettingsPaymentSectionState
             label: "Shop ID (Usuario)",
             hint: "Ej: 14324588",
             isVisible: _showUsername,
-            onToggle: () =>
-                setState(() => _showUsername = !_showUsername),
+            onToggle: () => setState(() => _showUsername = !_showUsername),
             onChanged: (_) => _emitCredentials(),
             validator: _hasIzipay
                 ? (v) => (v == null || v.trim().isEmpty)
-                    ? "Requerido si usas Izipay"
-                    : null
+                      ? "Requerido si usas Izipay"
+                      : null
                 : null,
           ),
           const SizedBox(height: 12),
@@ -274,13 +269,12 @@ class _AdminSettingsPaymentSectionState
             label: "Contraseña de Producción",
             hint: "Clave API REST",
             isVisible: _showPassword,
-            onToggle: () =>
-                setState(() => _showPassword = !_showPassword),
+            onToggle: () => setState(() => _showPassword = !_showPassword),
             onChanged: (_) => _emitCredentials(),
             validator: _hasIzipay
                 ? (v) => (v == null || v.trim().isEmpty)
-                    ? "Requerido si usas Izipay"
-                    : null
+                      ? "Requerido si usas Izipay"
+                      : null
                 : null,
           ),
           const SizedBox(height: 12),
@@ -289,13 +283,12 @@ class _AdminSettingsPaymentSectionState
             label: "Llave Pública",
             hint: "Clave pública para el formulario de pago",
             isVisible: _showPublicKey,
-            onToggle: () =>
-                setState(() => _showPublicKey = !_showPublicKey),
+            onToggle: () => setState(() => _showPublicKey = !_showPublicKey),
             onChanged: (_) => _emitCredentials(),
             validator: _hasIzipay
                 ? (v) => (v == null || v.trim().isEmpty)
-                    ? "Requerido si usas Izipay"
-                    : null
+                      ? "Requerido si usas Izipay"
+                      : null
                 : null,
           ),
         ],
@@ -322,7 +315,7 @@ class _AdminSettingsPaymentSectionState
             textStyle: TextStyle(
               fontSize: 12,
               fontWeight: FontWeight.w500,
-              color: Colors.grey[700],
+              color: AdminTheme.textSecondary,
             ),
           ),
         ),
@@ -332,30 +325,34 @@ class _AdminSettingsPaymentSectionState
           obscureText: !isVisible,
           validator: validator,
           onChanged: onChanged,
-          style: GoogleFonts.getFont(FontNames.fontNameH2,
-              textStyle: const TextStyle(fontSize: 13)),
+          style: GoogleFonts.getFont(
+            FontNames.fontNameH2,
+            textStyle: const TextStyle(fontSize: 13),
+          ),
           decoration: InputDecoration(
             hintText: hint,
             hintStyle: GoogleFonts.getFont(
               FontNames.fontNameH2,
-              textStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
+              textStyle: TextStyle(color: AdminTheme.textMuted, fontSize: 13),
             ),
             isDense: true,
-            contentPadding:
-                const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+            contentPadding: const EdgeInsets.symmetric(
+              horizontal: 12,
+              vertical: 12,
+            ),
             filled: true,
-            fillColor: Colors.white,
+            fillColor: AdminTheme.inputFill,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: Color(0xFFE2E2E2)),
+              borderSide: BorderSide(color: AdminTheme.border),
             ),
             enabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: Color(0xFFE2E2E2)),
+              borderSide: BorderSide(color: AdminTheme.border),
             ),
             focusedBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
-              borderSide: const BorderSide(color: Color(0xFF3B82F6)),
+              borderSide: BorderSide(color: AdminTheme.accent),
             ),
             errorBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(6),
@@ -370,7 +367,7 @@ class _AdminSettingsPaymentSectionState
               icon: Icon(
                 isVisible ? Icons.visibility_off : Icons.visibility,
                 size: 18,
-                color: Colors.grey[500],
+                color: AdminTheme.textMuted,
               ),
             ),
           ),
@@ -384,15 +381,15 @@ class _AdminSettingsPaymentSectionState
       width: double.infinity,
       padding: const EdgeInsets.all(20),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
+        color: AdminTheme.surface,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE2E2E2)),
+        border: Border.all(color: AdminTheme.border),
       ),
       child: Text(
         text,
         style: GoogleFonts.getFont(
           FontNames.fontNameH2,
-          textStyle: TextStyle(color: Colors.grey[500], fontSize: 13),
+          textStyle: TextStyle(color: AdminTheme.textMuted, fontSize: 13),
         ),
         textAlign: TextAlign.center,
       ),
@@ -405,7 +402,7 @@ class _AdminSettingsPaymentSectionState
       child: Container(
         padding: const EdgeInsets.all(12),
         decoration: BoxDecoration(
-          border: Border.all(color: const Color(0xFFE2E2E2)),
+          border: Border.all(color: AdminTheme.border),
           borderRadius: BorderRadius.circular(8),
         ),
         child: LayoutBuilder(
@@ -414,8 +411,10 @@ class _AdminSettingsPaymentSectionState
             final nameField = TextFormField(
               initialValue: method.name,
               decoration: _inputDecoration("Nombre"),
-              style: GoogleFonts.getFont(FontNames.fontNameH2,
-                  textStyle: const TextStyle(fontSize: 13)),
+              style: GoogleFonts.getFont(
+                FontNames.fontNameH2,
+                textStyle: const TextStyle(fontSize: 13),
+              ),
               onChanged: (val) => _updateMethod(
                 index,
                 PaymentMethod(
@@ -427,15 +426,17 @@ class _AdminSettingsPaymentSectionState
             );
             final typeField = DropdownButtonFormField<PaymentType>(
               initialValue: method.type,
+              dropdownColor: AdminTheme.cardBgElevated,
               decoration: _inputDecoration("Tipo"),
-              style: GoogleFonts.getFont(FontNames.fontNameH2,
-                  textStyle:
-                      const TextStyle(fontSize: 13, color: Colors.black)),
+              style: GoogleFonts.getFont(
+                FontNames.fontNameH2,
+                textStyle: const TextStyle(
+                  fontSize: 13,
+                  color: AdminTheme.textPrimary,
+                ),
+              ),
               items: PaymentType.values
-                  .map((t) => DropdownMenuItem(
-                        value: t,
-                        child: Text(t.label),
-                      ))
+                  .map((t) => DropdownMenuItem(value: t, child: Text(t.label)))
                   .toList(),
               onChanged: (val) {
                 if (val == null) return;
@@ -456,16 +457,15 @@ class _AdminSettingsPaymentSectionState
                 method.description?.isNotEmpty == true
                     ? "Editar Desc."
                     : "Añadir Desc.",
-                style: GoogleFonts.getFont(FontNames.fontNameH2,
-                    textStyle: const TextStyle(fontSize: 13)),
-              ),
-              style: OutlinedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(6),
+                style: GoogleFonts.getFont(
+                  FontNames.fontNameH2,
+                  textStyle: const TextStyle(fontSize: 13),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
-                side: const BorderSide(color: Color(0xFFE2E2E2)),
-                foregroundColor: Colors.black87,
+              ),
+              style: AdminTheme.outlinedButton().copyWith(
+                padding: WidgetStateProperty.all(
+                  const EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+                ),
               ),
             );
             final deleteBtn = IconButton(
@@ -509,28 +509,8 @@ class _AdminSettingsPaymentSectionState
   }
 
   InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: GoogleFonts.getFont(
-        FontNames.fontNameH2,
-        textStyle: TextStyle(color: Colors.grey[400], fontSize: 13),
-      ),
-      isDense: true,
+    return AdminTheme.inputDecoration(hintText: hint).copyWith(
       contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
-        borderSide: const BorderSide(color: Color(0xFFE2E2E2)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
-        borderSide: const BorderSide(color: Color(0xFFE2E2E2)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(6),
-        borderSide: const BorderSide(color: Colors.black),
-      ),
     );
   }
 }

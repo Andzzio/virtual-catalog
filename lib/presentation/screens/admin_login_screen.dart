@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
-import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/providers/auth_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
-
+import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 
 class AdminLoginScreen extends StatefulWidget {
   final String businessSlug;
@@ -38,15 +36,15 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text("Correo de recuperación enviado a $email"),
-          backgroundColor: Colors.green,
+          backgroundColor: AdminTheme.success,
         ),
       );
     } catch (e) {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
+        const SnackBar(
           content: Text("Error: no se pudo enviar el correo de recuperación."),
-          backgroundColor: Colors.redAccent,
+          backgroundColor: AdminTheme.danger,
         ),
       );
     }
@@ -54,187 +52,115 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Center(
-          child: Container(
-            margin: EdgeInsets.symmetric(vertical: 100, horizontal: 20),
-            padding: EdgeInsets.all(50),
-            constraints: BoxConstraints(maxWidth: 550),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(8),
-              boxShadow: [
-                BoxShadow(
-                  offset: Offset(2, 2),
-                  blurRadius: 4,
-                  color: Colors.grey,
-                ),
-              ],
-            ),
-            child: Column(
-              children: [
-                Text(
-                  "Bienvenido",
-                  style: GoogleFonts.getFont(
-                    FontNames.fontNameH2,
-                    textStyle: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
+    return Theme(
+      data: AdminTheme.darkTheme,
+      child: Scaffold(
+        backgroundColor: AdminTheme.surface,
+        body: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 40),
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 450),
+              decoration: AdminTheme.cardDecoration(),
+              padding: const EdgeInsets.all(40),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  // ── Logo / Header ────────────────────────
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: AdminTheme.accent.withValues(alpha: 0.1),
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(
+                      Icons.admin_panel_settings_rounded,
+                      size: 40,
+                      color: AdminTheme.accent,
                     ),
                   ),
-                ),
-                SizedBox(height: 10),
-                Text(
-                  "Inicia sesión para gestionar tu catálogo",
-                  style: GoogleFonts.getFont(
-                    FontNames.fontNameH2,
-                    textStyle: TextStyle(color: Colors.grey[600]),
+                  const SizedBox(height: 24),
+                  Text("Admin Panel", style: AdminTheme.heading1()),
+                  const SizedBox(height: 8),
+                  Text(
+                    "Inicia sesión para gestionar tu catálogo",
+                    style: AdminTheme.bodySmall(),
+                    textAlign: TextAlign.center,
                   ),
-                ),
-                SizedBox(height: 40),
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Form(
+                  const SizedBox(height: 40),
+
+                  // ── Form ───────────────────────────────
+                  Form(
                     key: formKey,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          "Correo Electrónico",
-                          style: GoogleFonts.getFont(
-                            FontNames.fontNameH2,
-                            textStyle: TextStyle(fontWeight: FontWeight.w500),
-                          ),
-                        ),
-                        SizedBox(height: 10),
+                        _fieldLabel("Correo Electrónico"),
                         TextFormField(
                           controller: emailCtrl,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Por favor, ingresa tu correo electrónico";
-                            }
-                            return null;
-                          },
-                          decoration: _inputDecoration(isPassword: false),
-                        ),
-                        SizedBox(height: 20),
-                        Text(
-                          "Contraseña",
-                          style: GoogleFonts.getFont(
-                            FontNames.fontNameH2,
-                            textStyle: TextStyle(fontWeight: FontWeight.w500),
+                          style: AdminTheme.body(),
+                          validator: (v) => v == null || v.isEmpty
+                              ? "Ingresa tu correo"
+                              : null,
+                          decoration: AdminTheme.inputDecoration(
+                            hintText: "admin@email.com",
+                            prefixIcon: const Icon(Icons.email_outlined, size: 20),
                           ),
                         ),
-                        SizedBox(height: 10),
+                        const SizedBox(height: 24),
+                        _fieldLabel("Contraseña"),
                         TextFormField(
                           controller: passCtrl,
                           obscureText: isObscure,
-                          validator: (value) {
-                            if (value == null || value.isEmpty) {
-                              return "Por favor, ingresa tu contraseña";
-                            }
-                            return null;
-                          },
-                          decoration: _inputDecoration(isPassword: true),
-                        ),
-                        SizedBox(height: 35),
-                        ElevatedButton(
-                          onPressed: () async {
-                            if (!formKey.currentState!.validate()) return;
-
-                            final email = emailCtrl.text.trim();
-                            final password = passCtrl.text.trim();
-
-                            if (email.isEmpty || password.isEmpty) return;
-
-                            final authProvider = context.read<AuthProvider>();
-
-                            final businessProvider = context
-                                .read<BusinessProvider>();
-
-                            final success = await authProvider.login(
-                              email,
-                              password,
-                            );
-
-                            if (!success && context.mounted) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text(authProvider.errorMsg),
-                                  backgroundColor: Colors.redAccent,
-                                ),
-                              );
-                              return;
-                            }
-
-                            if (success && context.mounted) {
-                              await businessProvider.loadBusiness(
-                                widget.businessSlug,
-                              );
-                              final business = businessProvider.business;
-                              final user = authProvider.user;
-
-                              if (business != null &&
-                                  user != null &&
-                                  business.ownerId == user.uid) {
-                                // ignore: use_build_context_synchronously
-                                context.go(
-                                  "/${widget.businessSlug}/admin/dashboard",
-                                );
-                              } else {
-                                await authProvider.logout();
-                                if (context.mounted) {
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    SnackBar(
-                                      content: Text(
-                                        "No tienes permiso para administrar este negocio",
-                                      ),
-                                      backgroundColor: Colors.redAccent,
-                                    ),
-                                  );
-                                }
-                              }
-                            }
-                          },
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: Colors.black,
-                            foregroundColor: Colors.white,
-                            minimumSize: Size(double.infinity, 55),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadiusGeometry.circular(8),
+                          style: AdminTheme.body(),
+                          validator: (v) => v == null || v.isEmpty
+                              ? "Ingresa tu contraseña"
+                              : null,
+                          decoration: AdminTheme.inputDecoration(
+                            hintText: "••••••••",
+                            prefixIcon: const Icon(Icons.lock_outline, size: 20),
+                            suffixIcon: IconButton(
+                              onPressed: () => setState(() => isObscure = !isObscure),
+                              icon: Icon(
+                                isObscure
+                                    ? Icons.visibility_off_outlined
+                                    : Icons.visibility_outlined,
+                                size: 20,
+                              ),
                             ),
                           ),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Text(
-                                "Ingresar",
-                                style: GoogleFonts.getFont(
-                                  FontNames.fontNameH2,
-                                  textStyle: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 10),
-                              Icon(Icons.input_rounded),
-                            ],
+                        ),
+                        const SizedBox(height: 40),
+
+                        // ── Submit Button ──────────────────
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _handleLogin,
+                            style: AdminTheme.primaryButton(),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text("Ingresar", style: AdminTheme.body().copyWith(fontWeight: FontWeight.bold, color: Colors.white)),
+                                const SizedBox(width: 8),
+                                const Icon(Icons.arrow_forward_rounded, size: 18),
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
-                ),
-                SizedBox(height: 20),
-                TextButton(
-                  onPressed: () => _resetPassword(context),
-                  child: Text(
-                    "Olvidé mi contraseña",
-                    style: GoogleFonts.getFont(FontNames.fontNameH2),
+                  const SizedBox(height: 24),
+                  TextButton(
+                    onPressed: () => _resetPassword(context),
+                    child: Text(
+                      "¿Olvidaste tu contraseña?",
+                      style: AdminTheme.bodySmall().copyWith(color: AdminTheme.accentLight),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
         ),
@@ -242,53 +168,66 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     );
   }
 
-  InputDecoration _inputDecoration({required bool isPassword}) {
-    return InputDecoration(
-      hintText: isPassword ? "Contraseña" : "admin@email.com",
-      hintStyle: GoogleFonts.getFont(
-        FontNames.fontNameH2,
-        textStyle: TextStyle(color: Colors.grey),
-      ),
-      prefixIcon: isPassword
-          ? Icon(Icons.lock_outline, color: Colors.grey)
-          : Icon(Icons.email_outlined, color: Colors.grey),
-      suffixIcon: isPassword
-          ? IconButton(
-              onPressed: () {
-                setState(() {
-                  isObscure = !isObscure;
-                });
-              },
-              icon: Icon(
-                isObscure
-                    ? Icons.remove_red_eye_outlined
-                    : Icons.visibility_off_outlined,
-              ),
-            )
-          : null,
-      filled: true,
-      fillColor: Color.fromARGB(255, 238, 239, 240),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.grey),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.redAccent),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.redAccent),
-        borderRadius: BorderRadius.circular(8),
+  Widget _fieldLabel(String label) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 8),
+      child: Text(
+        label,
+        style: AdminTheme.bodySmall().copyWith(
+          fontWeight: FontWeight.bold,
+          color: AdminTheme.textPrimary,
+        ),
       ),
     );
+  }
+
+  Future<void> _handleLogin() async {
+    if (!formKey.currentState!.validate()) return;
+
+    final email = emailCtrl.text.trim();
+    final password = passCtrl.text.trim();
+
+    final authProvider = context.read<AuthProvider>();
+    final businessProvider = context.read<BusinessProvider>();
+
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (context) => Center(child: CircularProgressIndicator(color: AdminTheme.accent)),
+    );
+
+    final success = await authProvider.login(email, password);
+
+    if (!mounted) return;
+    Navigator.pop(context); // Close loading
+
+    if (!success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(authProvider.errorMsg),
+          backgroundColor: AdminTheme.danger,
+        ),
+      );
+      return;
+    }
+
+    await businessProvider.loadBusiness(widget.businessSlug);
+    final business = businessProvider.business;
+    final user = authProvider.user;
+
+    if (business != null && user != null && business.ownerId == user.uid) {
+      if (!mounted) return;
+      context.go("/${widget.businessSlug}/admin/dashboard");
+    } else {
+      await authProvider.logout();
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("No tienes permiso para administrar este negocio"),
+          backgroundColor: AdminTheme.danger,
+        ),
+      );
+    }
   }
 
   @override

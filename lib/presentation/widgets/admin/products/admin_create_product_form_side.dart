@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 
 class AdminCreateProductFormSide extends StatelessWidget {
   final Function(String) onNameChanged;
@@ -28,25 +27,20 @@ class AdminCreateProductFormSide extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 25, vertical: 25),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Color(0xFFE2E2E2)),
-      ),
+      decoration: AdminTheme.cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
             "Nombre del Producto",
-            style: GoogleFonts.getFont(
-              FontNames.fontNameH2,
-              textStyle: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            style: AdminTheme.body().copyWith(fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 10),
           TextFormField(
             initialValue: initialName,
-            decoration: _inputDecoration(hintText: "ej. Camiseta Amarilla..."),
+            decoration: AdminTheme.inputDecoration(
+              hintText: "ej. Camiseta Amarilla...",
+            ),
             onChanged: (value) => onNameChanged(value),
             validator: (value) {
               if (value == null || value.isEmpty) {
@@ -56,71 +50,40 @@ class AdminCreateProductFormSide extends StatelessWidget {
             },
           ),
           SizedBox(height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: Column(
+          // Skill: LayoutBuilder for responsive row
+          LayoutBuilder(
+            builder: (context, constraints) {
+              final isMobile =
+                  constraints.maxWidth < AdminTheme.breakpointMobile;
+
+              if (isMobile) {
+                return Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      "Categoría",
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameH2,
-                        textStyle: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    TextFormField(
-                      initialValue: initialCategory,
-                      decoration: _inputDecoration(
-                        hintText: "ej. Pantalones...",
-                      ),
-                      onChanged: (value) => onCategoryChanged(value),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "La categoría es obligatoria";
-                        }
-                        return null;
-                      },
-                    ),
+                    _buildCategoryField(),
+                    SizedBox(height: 20),
+                    _buildSkuField(),
                   ],
-                ),
-              ),
-              SizedBox(width: 20),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "SKU (Opcional)",
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameH2,
-                        textStyle: TextStyle(fontWeight: FontWeight.bold),
-                      ),
-                    ),
-                    SizedBox(height: 10),
-                    TextFormField(
-                      initialValue: initialSku,
-                      decoration: _inputDecoration(hintText: "VC-001..."),
-                      onChanged: (value) => onSkuChanged(value),
-                    ),
-                  ],
-                ),
-              ),
-            ],
+                );
+              }
+              return Row(
+                children: [
+                  Expanded(child: _buildCategoryField()),
+                  SizedBox(width: 20),
+                  Expanded(child: _buildSkuField()),
+                ],
+              );
+            },
           ),
           SizedBox(height: 20),
           Text(
             "Descripción",
-            style: GoogleFonts.getFont(
-              FontNames.fontNameH2,
-              textStyle: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            style: AdminTheme.body().copyWith(fontWeight: FontWeight.bold),
           ),
           SizedBox(height: 10),
           TextFormField(
             initialValue: initialDescription,
-            decoration: _inputDecoration(
+            decoration: AdminTheme.inputDecoration(
               hintText:
                   "Describe las características y materiales del producto...",
             ),
@@ -138,35 +101,45 @@ class AdminCreateProductFormSide extends StatelessWidget {
     );
   }
 
-  InputDecoration _inputDecoration({String hintText = ""}) {
-    return InputDecoration(
-      hintText: hintText,
-      hintStyle: GoogleFonts.getFont(
-        FontNames.fontNameH2,
-        textStyle: TextStyle(color: Colors.grey),
-      ),
-      filled: true,
-      fillColor: Color.fromARGB(255, 255, 255, 255),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFFE2E2E2)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.redAccent),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.redAccent),
-        borderRadius: BorderRadius.circular(8),
-      ),
+  Widget _buildCategoryField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "Categoría",
+          style: AdminTheme.body().copyWith(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 10),
+        TextFormField(
+          initialValue: initialCategory,
+          decoration: AdminTheme.inputDecoration(hintText: "ej. Pantalones..."),
+          onChanged: (value) => onCategoryChanged(value),
+          validator: (value) {
+            if (value == null || value.isEmpty) {
+              return "La categoría es obligatoria";
+            }
+            return null;
+          },
+        ),
+      ],
+    );
+  }
+
+  Widget _buildSkuField() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          "SKU (Opcional)",
+          style: AdminTheme.body().copyWith(fontWeight: FontWeight.bold),
+        ),
+        SizedBox(height: 10),
+        TextFormField(
+          initialValue: initialSku,
+          decoration: AdminTheme.inputDecoration(hintText: "VC-001..."),
+          onChanged: (value) => onSkuChanged(value),
+        ),
+      ],
     );
   }
 }

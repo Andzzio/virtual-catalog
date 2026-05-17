@@ -19,6 +19,7 @@ import 'package:virtual_catalog_app/config/themes/app_theme_styles.dart';
 import 'package:virtual_catalog_app/presentation/widgets/checkout/summary_item_tile.dart';
 import 'package:virtual_catalog_app/presentation/widgets/checkout/summary_footer.dart';
 import 'package:virtual_catalog_app/presentation/widgets/catalog_footer.dart';
+import 'package:virtual_catalog_app/presentation/providers/shipping_zone_provider.dart';
 
 class CheckoutFormView extends StatefulWidget {
   const CheckoutFormView({super.key});
@@ -33,8 +34,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
   final lastNameCtrl = TextEditingController();
   final dniCtrl = TextEditingController();
   final addressCtrl = TextEditingController();
-  final cityCtrl = TextEditingController();
-  final regionCtrl = TextEditingController();
+  String? _selectedDepartamento;
+  String? _selectedProvincia;
+  String? _selectedDistrito;
   final zipCtrl = TextEditingController();
   final phoneCtrl = TextEditingController();
   final emailCtrl = TextEditingController();
@@ -46,11 +48,23 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
   final bCompanyCtrl = TextEditingController();
   final bAddressCtrl = TextEditingController();
   final bRefCtrl = TextEditingController();
-  final bDistrictCtrl = TextEditingController();
-  final bRegionCtrl = TextEditingController();
   final bZipCtrl = TextEditingController();
   final bPhoneCtrl = TextEditingController();
   String? _selectedBillingCountry;
+  String? _bSelectedDepartamento;
+  String? _bSelectedProvincia;
+  String? _bSelectedDistrito;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final business = context.read<BusinessProvider>().business;
+      if (business != null) {
+        context.read<ShippingZoneProvider>().loadZones(business.slug);
+      }
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -92,7 +106,12 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                             "RESUMEN DEL PEDIDO",
                             style: GoogleFonts.getFont(
                               FontNames.fontNameP,
-                              textStyle: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.textLight, letterSpacing: 1.5),
+                              textStyle: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.textLight,
+                                letterSpacing: 1.5,
+                              ),
                             ),
                           ),
                           subtitle: Text(
@@ -119,7 +138,12 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         "Métodos de Entrega",
                         style: GoogleFonts.getFont(
                           FontNames.fontNameH2,
-                          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textDark, letterSpacing: -0.5),
+                          textStyle: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
+                            letterSpacing: -0.5,
+                          ),
                         ),
                       ),
                       const SizedBox(height: AppPaddings.p16),
@@ -235,17 +259,18 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                             ),
                                           ),
                                           const SizedBox(width: 8),
-                                          if (method.price != null) Text(
-                                            method.price == 0
-                                                ? "Gratis"
-                                                : "S/. ${method.price}",
-                                            style: GoogleFonts.getFont(
-                                              FontNames.fontNameH2,
-                                              textStyle: TextStyle(
-                                                fontSize: 16,
+                                          if (method.price != null)
+                                            Text(
+                                              method.price == 0
+                                                  ? "Gratis"
+                                                  : "S/. ${method.price}",
+                                              style: GoogleFonts.getFont(
+                                                FontNames.fontNameH2,
+                                                textStyle: TextStyle(
+                                                  fontSize: 16,
+                                                ),
                                               ),
                                             ),
-                                          ),
                                           SizedBox(width: 16),
                                           Icon(
                                             method.type.icon,
@@ -419,72 +444,181 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           ),
                           SizedBox(height: 10),
                           if (isMobile) ...[
-                            TextFormField(
-                              controller: cityCtrl,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Por favor, ingrese su ciudad";
-                                }
-                                return null;
+                            Consumer<ShippingZoneProvider>(
+                              builder: (context, zp, child) {
+                                final deptos = zp.uniqueDepartamentos;
+                                return Column(
+                                  children: [
+                                    DropdownButtonFormField<String>(
+                                      key: ValueKey('dep_mob_$_selectedDepartamento'),
+                                      initialValue: _selectedDepartamento,
+                                      validator: (v) => v == null ? "Seleccione un departamento" : null,
+                                      decoration: _inputDecoration("Departamento"),
+                                      items: deptos.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                                      onChanged: (val) {
+                                        setState(() {
+                                          _selectedDepartamento = val;
+                                          _selectedProvincia = null;
+                                          _selectedDistrito = null;
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    DropdownButtonFormField<String>(
+                                      key: ValueKey('prov_mob_$_selectedProvincia'),
+                                      initialValue: _selectedProvincia,
+                                      validator: (v) => v == null ? "Seleccione una provincia" : null,
+                                      decoration: _inputDecoration("Provincia"),
+                                      items: _selectedDepartamento == null
+                                          ? []
+                                          : zp.provinciasForDepartamento(_selectedDepartamento!).map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+                                      onChanged: _selectedDepartamento == null ? null : (val) {
+                                        setState(() {
+                                          _selectedProvincia = val;
+                                          _selectedDistrito = null;
+                                        });
+                                      },
+                                    ),
+                                    const SizedBox(height: 10),
+                                    DropdownButtonFormField<String>(
+                                      key: ValueKey('dist_mob_$_selectedDistrito'),
+                                      initialValue: _selectedDistrito,
+                                      validator: (v) => v == null ? "Seleccione un distrito" : null,
+                                      decoration: _inputDecoration("Distrito"),
+                                      items: (_selectedDepartamento == null || _selectedProvincia == null)
+                                          ? []
+                                          : zp.distritosForProvincia(_selectedDepartamento!, _selectedProvincia!).map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                                      onChanged: (_selectedDepartamento == null || _selectedProvincia == null) ? null : (val) {
+                                        setState(() => _selectedDistrito = val);
+                                      },
+                                    ),
+                                  ],
+                                );
                               },
-                              decoration: _inputDecoration("Ciudad"),
-                            ),
-                            SizedBox(height: 10),
-                            TextFormField(
-                              controller: regionCtrl,
-                              validator: (value) {
-                                if (value == null || value.isEmpty) {
-                                  return "Por favor, ingrese su región";
-                                }
-                                return null;
-                              },
-                              decoration: _inputDecoration("Región"),
                             ),
                             SizedBox(height: 10),
                             TextFormField(
                               controller: zipCtrl,
-                              decoration: _inputDecoration(
-                                "Código postal (opcional)",
-                              ),
+                              decoration: _inputDecoration("Código postal (opcional)"),
                             ),
                           ] else
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: cityCtrl,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Por favor, ingrese su ciudad";
-                                      }
-                                      return null;
-                                    },
-                                    decoration: _inputDecoration("Ciudad"),
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: regionCtrl,
-                                    validator: (value) {
-                                      if (value == null || value.isEmpty) {
-                                        return "Por favor, ingrese su región";
-                                      }
-                                      return null;
-                                    },
-                                    decoration: _inputDecoration("Región"),
-                                  ),
-                                ),
-                                SizedBox(width: 10),
-                                Expanded(
-                                  child: TextFormField(
-                                    controller: zipCtrl,
-                                    decoration: _inputDecoration(
-                                      "Código postal (opcional)",
-                                    ),
-                                  ),
-                                ),
-                              ],
+                            Consumer<ShippingZoneProvider>(
+                              builder: (context, zp, child) {
+                                final deptos = zp.uniqueDepartamentos;
+                                return LayoutBuilder(
+                                  builder: (context, constraints) {
+                                    final bool stackFields = constraints.maxWidth < 600;
+                                    if (stackFields) {
+                                      return Column(
+                                        children: [
+                                          DropdownButtonFormField<String>(
+                                            key: ValueKey('dep_desk1_$_selectedDepartamento'),
+                                            initialValue: _selectedDepartamento,
+                                            validator: (v) => v == null ? "Seleccione departamento" : null,
+                                            decoration: _inputDecoration("Departamento"),
+                                            isExpanded: true,
+                                            items: deptos.map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(),
+                                            onChanged: (val) {
+                                              setState(() { _selectedDepartamento = val; _selectedProvincia = null; _selectedDistrito = null; });
+                                            },
+                                          ),
+                                          const SizedBox(height: 10),
+                                          DropdownButtonFormField<String>(
+                                            key: ValueKey('prov_desk1_$_selectedProvincia'),
+                                            initialValue: _selectedProvincia,
+                                            validator: (v) => v == null ? "Seleccione provincia" : null,
+                                            decoration: _inputDecoration("Provincia"),
+                                            isExpanded: true,
+                                            items: _selectedDepartamento == null
+                                                ? []
+                                                : zp.provinciasForDepartamento(_selectedDepartamento!).map((p) => DropdownMenuItem(value: p, child: Text(p, overflow: TextOverflow.ellipsis))).toList(),
+                                            onChanged: _selectedDepartamento == null ? null : (val) {
+                                              setState(() { _selectedProvincia = val; _selectedDistrito = null; });
+                                            },
+                                          ),
+                                          const SizedBox(height: 10),
+                                          DropdownButtonFormField<String>(
+                                            key: ValueKey('dist_desk1_$_selectedDistrito'),
+                                            initialValue: _selectedDistrito,
+                                            validator: (v) => v == null ? "Seleccione distrito" : null,
+                                            decoration: _inputDecoration("Distrito"),
+                                            isExpanded: true,
+                                            items: (_selectedDepartamento == null || _selectedProvincia == null)
+                                                ? []
+                                                : zp.distritosForProvincia(_selectedDepartamento!, _selectedProvincia!).map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(),
+                                            onChanged: (_selectedDepartamento == null || _selectedProvincia == null) ? null : (val) {
+                                              setState(() => _selectedDistrito = val);
+                                            },
+                                          ),
+                                          const SizedBox(height: 10),
+                                          TextFormField(controller: zipCtrl, decoration: _inputDecoration("Código postal (opcional)")),
+                                        ],
+                                      );
+                                    }
+                                    return Column(
+                                      children: [
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: DropdownButtonFormField<String>(
+                                                key: ValueKey('dep_desk2_$_selectedDepartamento'),
+                                                initialValue: _selectedDepartamento,
+                                                validator: (v) => v == null ? "Seleccione departamento" : null,
+                                                decoration: _inputDecoration("Departamento"),
+                                                isExpanded: true,
+                                                items: deptos.map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(),
+                                                onChanged: (val) {
+                                                  setState(() { _selectedDepartamento = val; _selectedProvincia = null; _selectedDistrito = null; });
+                                                },
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(
+                                              child: DropdownButtonFormField<String>(
+                                                key: ValueKey('prov_desk2_$_selectedProvincia'),
+                                                initialValue: _selectedProvincia,
+                                                validator: (v) => v == null ? "Seleccione provincia" : null,
+                                                decoration: _inputDecoration("Provincia"),
+                                                isExpanded: true,
+                                                items: _selectedDepartamento == null
+                                                    ? []
+                                                    : zp.provinciasForDepartamento(_selectedDepartamento!).map((p) => DropdownMenuItem(value: p, child: Text(p, overflow: TextOverflow.ellipsis))).toList(),
+                                                onChanged: _selectedDepartamento == null ? null : (val) {
+                                                  setState(() { _selectedProvincia = val; _selectedDistrito = null; });
+                                                },
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        const SizedBox(height: 10),
+                                        Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Expanded(
+                                              child: DropdownButtonFormField<String>(
+                                                key: ValueKey('dist_desk2_$_selectedDistrito'),
+                                                initialValue: _selectedDistrito,
+                                                validator: (v) => v == null ? "Seleccione distrito" : null,
+                                                decoration: _inputDecoration("Distrito"),
+                                                isExpanded: true,
+                                                items: (_selectedDepartamento == null || _selectedProvincia == null)
+                                                    ? []
+                                                    : zp.distritosForProvincia(_selectedDepartamento!, _selectedProvincia!).map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(),
+                                                onChanged: (_selectedDepartamento == null || _selectedProvincia == null) ? null : (val) {
+                                                  setState(() => _selectedDistrito = val);
+                                                },
+                                              ),
+                                            ),
+                                            const SizedBox(width: 10),
+                                            Expanded(child: TextFormField(controller: zipCtrl, decoration: _inputDecoration("Cód. Postal (opcional)"))),
+                                          ],
+                                        ),
+                                      ],
+                                    );
+                                  },
+                                );
+                              },
                             ),
                           SizedBox(height: 10),
                           TextFormField(
@@ -533,7 +667,12 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         "Dirección de facturación",
                         style: GoogleFonts.getFont(
                           FontNames.fontNameH2,
-                          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textDark, letterSpacing: -0.5),
+                          textStyle: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
+                            letterSpacing: -0.5,
+                          ),
                         ),
                       ),
                       const SizedBox(height: AppPaddings.p16),
@@ -548,15 +687,24 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                             MouseRegion(
                               cursor: SystemMouseCursors.click,
                               child: GestureDetector(
-                                onTap: () => setState(() => _isBillingSameAsShipping = true),
+                                onTap: () => setState(
+                                  () => _isBillingSameAsShipping = true,
+                                ),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 16,
+                                  ),
                                   color: Colors.transparent,
                                   child: Row(
                                     children: [
                                       Icon(
-                                        _isBillingSameAsShipping ? Icons.radio_button_checked : Icons.radio_button_off,
-                                        color: _isBillingSameAsShipping ? Theme.of(context).primaryColor : Colors.grey,
+                                        _isBillingSameAsShipping
+                                            ? Icons.radio_button_checked
+                                            : Icons.radio_button_off,
+                                        color: _isBillingSameAsShipping
+                                            ? Theme.of(context).primaryColor
+                                            : Colors.grey,
                                       ),
                                       const SizedBox(width: AppPaddings.p12),
                                       Expanded(
@@ -564,7 +712,10 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                           "La misma dirección de envío",
                                           style: GoogleFonts.getFont(
                                             FontNames.fontNameP,
-                                            textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                            textStyle: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -577,15 +728,24 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                             MouseRegion(
                               cursor: SystemMouseCursors.click,
                               child: GestureDetector(
-                                onTap: () => setState(() => _isBillingSameAsShipping = false),
+                                onTap: () => setState(
+                                  () => _isBillingSameAsShipping = false,
+                                ),
                                 child: Container(
-                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 16,
+                                  ),
                                   color: Colors.transparent,
                                   child: Row(
                                     children: [
                                       Icon(
-                                        !_isBillingSameAsShipping ? Icons.radio_button_checked : Icons.radio_button_off,
-                                        color: !_isBillingSameAsShipping ? Theme.of(context).primaryColor : Colors.grey,
+                                        !_isBillingSameAsShipping
+                                            ? Icons.radio_button_checked
+                                            : Icons.radio_button_off,
+                                        color: !_isBillingSameAsShipping
+                                            ? Theme.of(context).primaryColor
+                                            : Colors.grey,
                                       ),
                                       const SizedBox(width: AppPaddings.p12),
                                       Expanded(
@@ -593,7 +753,10 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                           "Usar una dirección de facturación distinta",
                                           style: GoogleFonts.getFont(
                                             FontNames.fontNameP,
-                                            textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                                            textStyle: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                           ),
                                         ),
                                       ),
@@ -733,77 +896,61 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                     ),
                                     SizedBox(height: 10),
                                     if (isMobile) ...[
-                                      TextFormField(
-                                        controller: bDistrictCtrl,
-                                        validator: (value) =>
-                                            !_isBillingSameAsShipping &&
-                                                (value == null || value.isEmpty)
-                                            ? "Requerido"
-                                            : null,
-                                        decoration: _inputDecoration(
-                                          "Distrito",
-                                        ),
+                                      Consumer<ShippingZoneProvider>(
+                                        builder: (context, zp, child) {
+                                          final deptos = zp.uniqueDepartamentos;
+                                          return Column(
+                                            children: [
+                                              DropdownButtonFormField<String>(
+                                                key: ValueKey('b_dep_mob_$_bSelectedDepartamento'),
+                                                initialValue: _bSelectedDepartamento,
+                                                validator: (v) => !_isBillingSameAsShipping && v == null ? "Requerido" : null,
+                                                decoration: _inputDecoration("Departamento"),
+                                                items: deptos.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                                                onChanged: (val) { setState(() { _bSelectedDepartamento = val; _bSelectedProvincia = null; _bSelectedDistrito = null; }); },
+                                              ),
+                                              const SizedBox(height: 10),
+                                              DropdownButtonFormField<String>(
+                                                key: ValueKey('b_prov_mob_$_bSelectedProvincia'),
+                                                initialValue: _bSelectedProvincia,
+                                                validator: (v) => !_isBillingSameAsShipping && v == null ? "Requerido" : null,
+                                                decoration: _inputDecoration("Provincia"),
+                                                items: _bSelectedDepartamento == null ? [] : zp.provinciasForDepartamento(_bSelectedDepartamento!).map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
+                                                onChanged: _bSelectedDepartamento == null ? null : (val) { setState(() { _bSelectedProvincia = val; _bSelectedDistrito = null; }); },
+                                              ),
+                                              const SizedBox(height: 10),
+                                              DropdownButtonFormField<String>(
+                                                key: ValueKey('b_dist_mob_$_bSelectedDistrito'),
+                                                initialValue: _bSelectedDistrito,
+                                                validator: (v) => !_isBillingSameAsShipping && v == null ? "Requerido" : null,
+                                                decoration: _inputDecoration("Distrito"),
+                                                items: (_bSelectedDepartamento == null || _bSelectedProvincia == null) ? [] : zp.distritosForProvincia(_bSelectedDepartamento!, _bSelectedProvincia!).map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                                                onChanged: (_bSelectedDepartamento == null || _bSelectedProvincia == null) ? null : (val) { setState(() => _bSelectedDistrito = val); },
+                                              ),
+                                            ],
+                                          );
+                                        },
                                       ),
                                       SizedBox(height: 10),
-                                      TextFormField(
-                                        controller: bRegionCtrl,
-                                        validator: (value) =>
-                                            !_isBillingSameAsShipping &&
-                                                (value == null || value.isEmpty)
-                                            ? "Requerido"
-                                            : null,
-                                        decoration: _inputDecoration("Región"),
-                                      ),
-                                      SizedBox(height: 10),
-                                      TextFormField(
-                                        controller: bZipCtrl,
-                                        decoration: _inputDecoration(
-                                          "Código postal (opcional)",
-                                        ),
-                                      ),
+                                      TextFormField(controller: bZipCtrl, decoration: _inputDecoration("Código postal (opcional)")),
                                     ] else
-                                      Row(
-                                        children: [
-                                          Expanded(
-                                            child: TextFormField(
-                                              controller: bDistrictCtrl,
-                                              validator: (value) =>
-                                                  !_isBillingSameAsShipping &&
-                                                      (value == null ||
-                                                          value.isEmpty)
-                                                  ? "Requerido"
-                                                  : null,
-                                              decoration: _inputDecoration(
-                                                "Distrito",
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(width: 10),
-                                          Expanded(
-                                            child: TextFormField(
-                                              controller: bRegionCtrl,
-                                              validator: (value) =>
-                                                  !_isBillingSameAsShipping &&
-                                                      (value == null ||
-                                                          value.isEmpty)
-                                                  ? "Requerido"
-                                                  : null,
-                                              decoration: _inputDecoration(
-                                                "Región",
-                                              ),
-                                            ),
-                                          ),
-                                          SizedBox(width: 10),
-                                          Expanded(
-                                            child: TextFormField(
-                                              controller: bZipCtrl,
-                                              decoration: _inputDecoration(
-                                                "Código postal (opcional)",
-                                              ),
-                                            ),
-                                          ),
-                                        ],
+                                      Consumer<ShippingZoneProvider>(
+                                        builder: (context, zp, child) {
+                                          final deptos = zp.uniqueDepartamentos;
+                                          return Row(
+                                            children: [
+                                              Expanded(child: DropdownButtonFormField<String>(key: ValueKey('b_dep_desk_$_bSelectedDepartamento'), initialValue: _bSelectedDepartamento, validator: (v) => !_isBillingSameAsShipping && v == null ? "Requerido" : null, decoration: _inputDecoration("Depto."), isExpanded: true, items: deptos.map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(), onChanged: (val) { setState(() { _bSelectedDepartamento = val; _bSelectedProvincia = null; _bSelectedDistrito = null; }); })),
+                                              const SizedBox(width: 10),
+                                              Expanded(child: DropdownButtonFormField<String>(key: ValueKey('b_prov_desk_$_bSelectedProvincia'), initialValue: _bSelectedProvincia, validator: (v) => !_isBillingSameAsShipping && v == null ? "Requerido" : null, decoration: _inputDecoration("Provincia"), isExpanded: true, items: _bSelectedDepartamento == null ? [] : zp.provinciasForDepartamento(_bSelectedDepartamento!).map((p) => DropdownMenuItem(value: p, child: Text(p, overflow: TextOverflow.ellipsis))).toList(), onChanged: _bSelectedDepartamento == null ? null : (val) { setState(() { _bSelectedProvincia = val; _bSelectedDistrito = null; }); })),
+                                              const SizedBox(width: 10),
+                                              Expanded(child: DropdownButtonFormField<String>(key: ValueKey('b_dist_desk_$_bSelectedDistrito'), initialValue: _bSelectedDistrito, validator: (v) => !_isBillingSameAsShipping && v == null ? "Requerido" : null, decoration: _inputDecoration("Distrito"), isExpanded: true, items: (_bSelectedDepartamento == null || _bSelectedProvincia == null) ? [] : zp.distritosForProvincia(_bSelectedDepartamento!, _bSelectedProvincia!).map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(), onChanged: (_bSelectedDepartamento == null || _bSelectedProvincia == null) ? null : (val) { setState(() => _bSelectedDistrito = val); })),
+                                              const SizedBox(width: 10),
+                                              Expanded(child: TextFormField(controller: bZipCtrl, decoration: _inputDecoration("Cód. Postal (opcional)"))),
+                                            ],
+                                          );
+                                        },
                                       ),
+                                    SizedBox(height: 10),
                                     SizedBox(height: 10),
                                     TextFormField(
                                       controller: bPhoneCtrl,
@@ -822,7 +969,12 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                         "Métodos de Pago",
                         style: GoogleFonts.getFont(
                           FontNames.fontNameH2,
-                          textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: AppColors.textDark, letterSpacing: -0.5),
+                          textStyle: const TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textDark,
+                            letterSpacing: -0.5,
+                          ),
                         ),
                       ),
                       const SizedBox(height: AppPaddings.p16),
@@ -1077,11 +1229,17 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           }
                         },
                         style: ButtonStyle(
-                          backgroundColor: WidgetStatePropertyAll(Theme.of(context).primaryColor),
-                          foregroundColor: const WidgetStatePropertyAll(Colors.white),
+                          backgroundColor: WidgetStatePropertyAll(
+                            Theme.of(context).primaryColor,
+                          ),
+                          foregroundColor: const WidgetStatePropertyAll(
+                            Colors.white,
+                          ),
                           shape: WidgetStatePropertyAll(
                             RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(AppBorders.radiusButton),
+                              borderRadius: BorderRadius.circular(
+                                AppBorders.radiusButton,
+                              ),
                             ),
                           ),
                           minimumSize: const WidgetStatePropertyAll(
@@ -1303,26 +1461,37 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
     sb.writeln("- Teléfono: ${phoneCtrl.text}");
     sb.writeln("- Dirección: ${addressCtrl.text}");
     sb.writeln("- País: $_selectedCountry");
-    sb.writeln("- Ciudad: ${cityCtrl.text}");
-    sb.writeln("- Región: ${regionCtrl.text}");
+    sb.writeln("- Departamento: $_selectedDepartamento");
+    sb.writeln("- Provincia: $_selectedProvincia");
+    sb.writeln("- Distrito: $_selectedDistrito");
     sb.writeln("- Código Postal: ${zipCtrl.text}");
     sb.writeln();
-    
+
     sb.writeln("\u{1F4C4} *Datos de Facturación:*");
-    sb.writeln("- Misma dirección que el envío: ${_isBillingSameAsShipping ? 'Sí' : 'No'}");
+    sb.writeln(
+      "- Misma dirección que el envío: ${_isBillingSameAsShipping ? 'Sí' : 'No'}",
+    );
     if (!_isBillingSameAsShipping) {
       if (bNameCtrl.text.isNotEmpty || bLastNameCtrl.text.isNotEmpty) {
         sb.writeln("- Nombre: ${bNameCtrl.text} ${bLastNameCtrl.text}".trim());
       }
-      if (bCompanyCtrl.text.isNotEmpty) sb.writeln("- Empresa: ${bCompanyCtrl.text}");
-      if (bAddressCtrl.text.isNotEmpty) {
-        final dist = bDistrictCtrl.text.isNotEmpty ? ", ${bDistrictCtrl.text}" : "";
-        final reg = bRegionCtrl.text.isNotEmpty ? ", ${bRegionCtrl.text}" : "";
-        sb.writeln("- Dirección: ${bAddressCtrl.text}$dist$reg");
+      if (bCompanyCtrl.text.isNotEmpty) {
+        sb.writeln("- Empresa: ${bCompanyCtrl.text}");
       }
-      if (bRefCtrl.text.isNotEmpty) sb.writeln("- Referencia: ${bRefCtrl.text}");
-      if (bPhoneCtrl.text.isNotEmpty) sb.writeln("- Teléfono: ${bPhoneCtrl.text}");
-      if (_selectedBillingCountry != null && _selectedBillingCountry!.isNotEmpty) {
+      if (bAddressCtrl.text.isNotEmpty) {
+        sb.writeln("- Dirección: ${bAddressCtrl.text}");
+        if (_bSelectedDepartamento != null) sb.writeln("- Departamento: $_bSelectedDepartamento");
+        if (_bSelectedProvincia != null) sb.writeln("- Provincia: $_bSelectedProvincia");
+        if (_bSelectedDistrito != null) sb.writeln("- Distrito: $_bSelectedDistrito");
+      }
+      if (bRefCtrl.text.isNotEmpty) {
+        sb.writeln("- Referencia: ${bRefCtrl.text}");
+      }
+      if (bPhoneCtrl.text.isNotEmpty) {
+        sb.writeln("- Teléfono: ${bPhoneCtrl.text}");
+      }
+      if (_selectedBillingCountry != null &&
+          _selectedBillingCountry!.isNotEmpty) {
         sb.writeln("- País: $_selectedBillingCountry");
       }
     }
@@ -1364,8 +1533,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       customerDni: dniCtrl.text,
       customerCountry: _selectedCountry,
       customerAddress: addressCtrl.text,
-      customerCity: cityCtrl.text,
-      customerRegion: regionCtrl.text,
+      customerDepartamento: _selectedDepartamento ?? '',
+      customerProvincia: _selectedProvincia ?? '',
+      customerDistrito: _selectedDistrito ?? '',
       customerZip: zipCtrl.text,
       customerEmail: emailCtrl.text,
       notes: noteCtrl.text,
@@ -1382,8 +1552,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       billingCountry: _isBillingSameAsShipping ? null : _selectedBillingCountry,
       billingAddress: _isBillingSameAsShipping ? null : bAddressCtrl.text,
       billingReference: _isBillingSameAsShipping ? null : bRefCtrl.text,
-      billingDistrict: _isBillingSameAsShipping ? null : bDistrictCtrl.text,
-      billingRegion: _isBillingSameAsShipping ? null : bRegionCtrl.text,
+      billingDepartamento: _isBillingSameAsShipping ? null : _bSelectedDepartamento,
+      billingProvincia: _isBillingSameAsShipping ? null : _bSelectedProvincia,
+      billingDistrito: _isBillingSameAsShipping ? null : _bSelectedDistrito,
       billingZip: _isBillingSameAsShipping ? null : bZipCtrl.text,
       billingPhone: _isBillingSameAsShipping ? null : bPhoneCtrl.text,
     );
@@ -1437,8 +1608,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       customerDni: dniCtrl.text,
       customerCountry: _selectedCountry,
       customerAddress: addressCtrl.text,
-      customerCity: cityCtrl.text,
-      customerRegion: regionCtrl.text,
+      customerDepartamento: _selectedDepartamento ?? '',
+      customerProvincia: _selectedProvincia ?? '',
+      customerDistrito: _selectedDistrito ?? '',
       customerZip: zipCtrl.text,
       customerEmail: emailCtrl.text,
       notes: noteCtrl.text,
@@ -1455,8 +1627,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       billingCountry: _isBillingSameAsShipping ? null : _selectedBillingCountry,
       billingAddress: _isBillingSameAsShipping ? null : bAddressCtrl.text,
       billingReference: _isBillingSameAsShipping ? null : bRefCtrl.text,
-      billingDistrict: _isBillingSameAsShipping ? null : bDistrictCtrl.text,
-      billingRegion: _isBillingSameAsShipping ? null : bRegionCtrl.text,
+      billingDepartamento: _isBillingSameAsShipping ? null : _bSelectedDepartamento,
+      billingProvincia: _isBillingSameAsShipping ? null : _bSelectedProvincia,
+      billingDistrito: _isBillingSameAsShipping ? null : _bSelectedDistrito,
       billingZip: _isBillingSameAsShipping ? null : bZipCtrl.text,
       billingPhone: _isBillingSameAsShipping ? null : bPhoneCtrl.text,
     );
@@ -1592,8 +1765,6 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
     lastNameCtrl.dispose();
     dniCtrl.dispose();
     addressCtrl.dispose();
-    cityCtrl.dispose();
-    regionCtrl.dispose();
     zipCtrl.dispose();
     phoneCtrl.dispose();
     emailCtrl.dispose();
@@ -1603,8 +1774,6 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
     bCompanyCtrl.dispose();
     bAddressCtrl.dispose();
     bRefCtrl.dispose();
-    bDistrictCtrl.dispose();
-    bRegionCtrl.dispose();
     bZipCtrl.dispose();
     bPhoneCtrl.dispose();
     super.dispose();

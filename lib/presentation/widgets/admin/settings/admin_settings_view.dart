@@ -11,6 +11,7 @@ import 'package:virtual_catalog_app/domain/entities/business.dart';
 import 'package:virtual_catalog_app/domain/entities/delivery_method.dart';
 import 'package:virtual_catalog_app/domain/entities/payment_method.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
+import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/settings/admin_settings_delivery_section.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/settings/admin_settings_payment_section.dart';
 import 'package:markdown_editor_plus/markdown_editor_plus.dart';
@@ -155,7 +156,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
 
     if (provider.isLoading) {
       return const Center(
-        child: CircularProgressIndicator(color: Colors.black),
+        child: CircularProgressIndicator(color: AdminTheme.accent),
       );
     }
     if (business == null) {
@@ -165,67 +166,41 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     _initFromBusiness(business);
 
     return Scaffold(
+      backgroundColor: AdminTheme.surface,
       appBar: AppBar(
-        backgroundColor: Colors.white,
+        backgroundColor: AdminTheme.cardBg,
+        surfaceTintColor: Colors.transparent,
         automaticallyImplyLeading: false,
+        elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: const Color(0xFFE2E2E2), height: 1.0),
+          child: Container(color: AdminTheme.border, height: 1.0),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Configuración",
-              style: GoogleFonts.getFont(
-                FontNames.fontNameH2,
-                textStyle: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-            Text(
-              "Ajustes generales de tu negocio.",
-              style: GoogleFonts.getFont(
-                FontNames.fontNameH2,
-                textStyle: TextStyle(fontSize: 13, color: Colors.grey[600]),
-              ),
-            ),
+            Text("Configuración", style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            )),
+            Text("Ajustes generales de tu negocio.", style: AdminTheme.bodySmall()),
           ],
         ),
         actions: [
           ElevatedButton.icon(
             onPressed: _isSaving ? null : _save,
             icon: _isSaving
-                ? const SizedBox(
-                    width: 18,
-                    height: 18,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      color: Colors.white,
-                    ),
-                  )
+                ? const SizedBox(width: 18, height: 18, child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white))
                 : const Icon(Icons.save),
-            style: ElevatedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              backgroundColor: Colors.black,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
-            label: Text(
-              "Guardar Cambios",
-              style: GoogleFonts.getFont(FontNames.fontNameH2),
-            ),
+            style: AdminTheme.primaryButton(),
+            label: Text("Guardar Cambios", style: GoogleFonts.getFont(FontNames.fontNameH2)),
           ),
           const SizedBox(width: 10),
         ],
       ),
       body: LayoutBuilder(
         builder: (context, constraints) {
-          final isMobile = constraints.maxWidth < 800;
+          final isMobile = constraints.maxWidth < AdminTheme.breakpointMobile;
           return SingleChildScrollView(
             child: Form(
               key: _formKey,
@@ -321,22 +296,19 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE2E2E2)),
-      ),
+      decoration: AdminTheme.cardDecoration(),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           _buildColorPickerRow(
             "Color de Acento del Tema",
-            "Define el color de los botones principales, título del negocio y controles activos.",
+            "Define el color de los botones principales.",
             _themeColorCtrl,
           ),
           const SizedBox(height: 20),
           _buildColorPickerRow(
             "Color de Fondo",
-            "Personaliza el fondo de las páginas del catálogo para los clientes.",
+            "Personaliza el fondo del catálogo.",
             _bgColorCtrl,
           ),
         ],
@@ -357,40 +329,32 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
             ? Colors.white
             : Colors.grey[400]!);
 
-    return Row(
-      children: [
-        GestureDetector(
+    // Skill: Use LayoutBuilder for responsive layout
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isNarrow = constraints.maxWidth < 400;
+
+        final colorSwatch = GestureDetector(
           onTap: () {
             showDialog(
               context: context,
               builder: (context) {
                 Color pickedColor = currentColor;
                 return AlertDialog(
-                  title: Text(
-                    "Selecciona el $label",
-                    style: GoogleFonts.getFont(FontNames.fontNameH2),
-                  ),
+                  title: Text("Selecciona el $label", style: GoogleFonts.getFont(FontNames.fontNameH2)),
                   content: SingleChildScrollView(
                     child: ColorPicker(
                       pickerColor: pickedColor,
-                      onColorChanged: (color) {
-                        pickedColor = color;
-                      },
+                      onColorChanged: (color) { pickedColor = color; },
                     ),
                   ),
                   actions: [
-                    TextButton(
-                      onPressed: () => Navigator.pop(context),
-                      child: const Text("Cancelar"),
-                    ),
+                    TextButton(onPressed: () => Navigator.pop(context), child: const Text("Cancelar")),
                     FilledButton(
-                      style: const ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(Colors.black),
-                      ),
+                      style: const ButtonStyle(backgroundColor: WidgetStatePropertyAll(AdminTheme.accent)),
                       onPressed: () {
                         setState(() {
-                          final hex =
-                              '#${pickedColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
+                          final hex = '#${pickedColor.toARGB32().toRadixString(16).substring(2).toUpperCase()}';
                           controller.text = hex;
                         });
                         Navigator.pop(context);
@@ -403,91 +367,77 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
             );
           },
           child: Tooltip(
-            message: "Hacer clic para abrir el selector de color",
-            child: MouseRegion(
-              cursor: SystemMouseCursors.click,
-              child: Container(
-                width: 48,
-                height: 48,
-                decoration: BoxDecoration(
-                  color: currentColor,
-                  borderRadius: BorderRadius.circular(8),
-                  border: Border.all(
-                    color: currentColor == Colors.white
-                        ? Colors.grey[300]!
-                        : const Color(0xFFE2E2E2),
-                    width: 1.5,
-                  ),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withValues(alpha: 0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: Center(
-                  child: Icon(
-                    Icons.palette_outlined,
-                    color: currentColor.computeLuminance() > 0.5
-                        ? Colors.black87
-                        : Colors.white70,
-                    size: 20,
-                  ),
-                ),
+            message: "Abrir selector de color",
+            child: Container(
+              width: 48, height: 48,
+              decoration: BoxDecoration(
+                color: currentColor,
+                borderRadius: BorderRadius.circular(8),
+                border: Border.all(color: currentColor == Colors.white ? Colors.grey[300]! : AdminTheme.border, width: 1.5),
+                boxShadow: AdminTheme.cardShadow,
+              ),
+              child: Center(
+                child: Icon(Icons.palette_outlined,
+                  color: currentColor.computeLuminance() > 0.5 ? Colors.black87 : Colors.white70, size: 20),
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: GoogleFonts.getFont(
-                  FontNames.fontNameH2,
-                  textStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-              const SizedBox(height: 2),
-              Text(
-                description,
-                style: GoogleFonts.getFont(
-                  FontNames.fontNameH2,
-                  textStyle: TextStyle(fontSize: 12, color: Colors.grey[600]),
-                ),
-              ),
-            ],
-          ),
-        ),
-        const SizedBox(width: 16),
-        SizedBox(
-          width: 120,
+        );
+
+        final hexField = SizedBox(
+          width: isNarrow ? double.infinity : 120,
           child: TextFormField(
             controller: controller,
             decoration: _inputDecoration("#HEX"),
             style: GoogleFonts.getFont(FontNames.fontNameH2),
-            onChanged: (val) {
-              setState(() {});
-            },
+            onChanged: (val) => setState(() {}),
           ),
-        ),
-      ],
+        );
+
+        if (isNarrow) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(children: [
+                colorSwatch,
+                const SizedBox(width: 12),
+                Expanded(child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(label, style: GoogleFonts.getFont(FontNames.fontNameH2, textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold))),
+                    Text(description, style: AdminTheme.caption()),
+                  ],
+                )),
+              ]),
+              const SizedBox(height: 8),
+              hexField,
+            ],
+          );
+        }
+
+        return Row(
+          children: [
+            colorSwatch,
+            const SizedBox(width: 16),
+            Expanded(child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(label, style: GoogleFonts.getFont(FontNames.fontNameH2, textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold))),
+                const SizedBox(height: 2),
+                Text(description, style: AdminTheme.caption()),
+              ],
+            )),
+            const SizedBox(width: 16),
+            hexField,
+          ],
+        );
+      },
     );
   }
 
   Widget _buildFooterSection() {
     return Container(
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE2E2E2)),
-        color: Colors.white,
-      ),
+      decoration: AdminTheme.cardDecoration(),
       padding: const EdgeInsets.all(8.0),
       child: MarkdownAutoPreview(controller: _termsCtrl, emojiConvert: true),
     );
@@ -497,44 +447,23 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     return Container(
       width: double.infinity,
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: const Color(0xFFE2E2E2)),
-      ),
+      decoration: AdminTheme.cardDecoration(),
       child: Column(
         children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Mostrar logo del Negocio en la vista de Escritorio",
-                style: GoogleFonts.getFont(FontNames.fontNameH2),
-              ),
-              Switch(
-                value: _showDesktopLogo,
-                onChanged: (value) {
-                  _showDesktopLogo = value;
-                  setState(() {});
-                },
-              ),
-            ],
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text("Mostrar logo en Escritorio", style: GoogleFonts.getFont(FontNames.fontNameH2)),
+            subtitle: Text("Logo visible en la versión de PC", style: AdminTheme.caption()),
+            value: _showDesktopLogo,
+            onChanged: (value) => setState(() => _showDesktopLogo = value),
           ),
           const SizedBox(height: 10),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              Text(
-                "Mostrar logo del Negocio en la vista de Móvil",
-                style: GoogleFonts.getFont(FontNames.fontNameH2),
-              ),
-              Switch(
-                value: _showMobileLogo,
-                onChanged: (value) {
-                  _showMobileLogo = value;
-                  setState(() {});
-                },
-              ),
-            ],
+          SwitchListTile(
+            contentPadding: EdgeInsets.zero,
+            title: Text("Mostrar logo en Móvil", style: GoogleFonts.getFont(FontNames.fontNameH2)),
+            subtitle: Text("Logo visible en celulares", style: AdminTheme.caption()),
+            value: _showMobileLogo,
+            onChanged: (value) => setState(() => _showMobileLogo = value),
           ),
         ],
       ),
@@ -544,7 +473,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   Widget _buildSectionHeader(IconData icon, String title) {
     return Row(
       children: [
-        Icon(icon, color: Colors.grey[700]),
+        Icon(icon, color: AdminTheme.textSecondary),
         const SizedBox(width: 10),
         Text(
           title,
@@ -560,70 +489,62 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     );
   }
 
+  // Skill: LayoutBuilder for responsive Row→Column
   Widget _buildGeneralSection(Business business) {
-    return Row(
-      crossAxisAlignment: CrossAxisAlignment.start,
+    final logoWidget = Column(
       children: [
-        Column(
-          children: [
-            GestureDetector(
-              onTap: _pickLogo,
-              child: Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: const Color(0xFFE2E2E2)),
-                  color: Colors.grey[50],
-                ),
-                child: _newLogo != null
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.memory(_newLogo!, fit: BoxFit.cover),
-                      )
-                    : (_currentLogoUrl != null && _currentLogoUrl!.isNotEmpty)
-                    ? ClipRRect(
-                        borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          _currentLogoUrl!,
-                          fit: BoxFit.cover,
-                        ),
-                      )
-                    : Icon(Icons.add_a_photo, color: Colors.grey[400]),
-              ),
+        GestureDetector(
+          onTap: _pickLogo,
+          child: Container(
+            width: 100, height: 100,
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+              border: Border.all(color: AdminTheme.border),
+              color: AdminTheme.surface,
             ),
-            const SizedBox(height: 6),
-            Text(
-              "Logo",
-              style: GoogleFonts.getFont(
-                FontNames.fontNameH2,
-                textStyle: TextStyle(fontSize: 11, color: Colors.grey[500]),
-              ),
-            ),
-          ],
-        ),
-        const SizedBox(width: 24),
-        Expanded(
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _nameCtrl,
-                decoration: _inputDecoration("Nombre del negocio"),
-                style: GoogleFonts.getFont(FontNames.fontNameH2),
-                validator: (v) =>
-                    (v == null || v.trim().isEmpty) ? "Requerido" : null,
-              ),
-              const SizedBox(height: 14),
-              TextFormField(
-                controller: _descCtrl,
-                decoration: _inputDecoration("Descripción"),
-                style: GoogleFonts.getFont(FontNames.fontNameH2),
-                maxLines: 3,
-              ),
-            ],
+            child: _newLogo != null
+                ? ClipRRect(borderRadius: BorderRadius.circular(AdminTheme.radiusMd), child: Image.memory(_newLogo!, fit: BoxFit.cover))
+                : (_currentLogoUrl != null && _currentLogoUrl!.isNotEmpty)
+                ? ClipRRect(borderRadius: BorderRadius.circular(AdminTheme.radiusMd), child: Image.network(_currentLogoUrl!, fit: BoxFit.cover))
+                : Icon(Icons.add_a_photo, color: AdminTheme.textMuted),
           ),
         ),
+        const SizedBox(height: 6),
+        Text("Logo", style: AdminTheme.caption()),
       ],
+    );
+
+    final fieldsWidget = Column(
+      children: [
+        TextFormField(
+          controller: _nameCtrl,
+          decoration: _inputDecoration("Nombre del negocio"),
+          style: GoogleFonts.getFont(FontNames.fontNameH2),
+          validator: (v) => (v == null || v.trim().isEmpty) ? "Requerido" : null,
+        ),
+        const SizedBox(height: 14),
+        TextFormField(
+          controller: _descCtrl,
+          decoration: _inputDecoration("Descripción"),
+          style: GoogleFonts.getFont(FontNames.fontNameH2),
+          maxLines: 3,
+        ),
+      ],
+    );
+
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        if (constraints.maxWidth < AdminTheme.breakpointMobile) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [logoWidget, const SizedBox(height: 16), fieldsWidget],
+          );
+        }
+        return Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [logoWidget, const SizedBox(width: 24), Expanded(child: fieldsWidget)],
+        );
+      },
     );
   }
 
@@ -649,31 +570,6 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   }
 
   InputDecoration _inputDecoration(String hint) {
-    return InputDecoration(
-      hintText: hint,
-      hintStyle: GoogleFonts.getFont(
-        FontNames.fontNameH2,
-        textStyle: TextStyle(color: Colors.grey[400]),
-      ),
-      filled: true,
-      fillColor: Colors.white,
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFFE2E2E2)),
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFFE2E2E2)),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.black),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.redAccent),
-      ),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 14),
-    );
+    return AdminTheme.inputDecoration(hintText: hint);
   }
 }

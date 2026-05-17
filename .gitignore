@@ -56,3 +56,7 @@ env
 
 #Firebase caché
 .firebase/
+
+# Antigravity Agent
+.agents/
+skills-lock.json

@@ -11,19 +11,30 @@ import 'package:virtual_catalog_app/data/datasources/business_datasource_impl.da
 import 'package:virtual_catalog_app/data/datasources/cart_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/datasources/izipay_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/datasources/product_datasource_impl.dart';
+import 'package:virtual_catalog_app/data/datasources/ubigeo_datasource_impl.dart';
+import 'package:virtual_catalog_app/data/datasources/shipping_zone_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/repos/auth_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/business_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/cart_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/izipay_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/order_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/product_repository_impl.dart';
+import 'package:virtual_catalog_app/data/repos/ubigeo_repository_impl.dart';
+import 'package:virtual_catalog_app/data/repos/shipping_zone_repository_impl.dart';
 import 'package:virtual_catalog_app/domain/usecases/create_izipay_payment.dart';
+import 'package:virtual_catalog_app/domain/usecases/get_departamentos.dart';
+import 'package:virtual_catalog_app/domain/usecases/get_provincias.dart';
+import 'package:virtual_catalog_app/domain/usecases/get_distritos.dart';
+import 'package:virtual_catalog_app/domain/usecases/get_shipping_zones.dart';
+import 'package:virtual_catalog_app/domain/usecases/save_shipping_zones.dart';
 import 'package:virtual_catalog_app/presentation/providers/auth_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/izipay_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/order_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/ubigeo_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/shipping_zone_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -38,6 +49,14 @@ class MainApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final dio = Dio();
+
+    final ubigeoDatasource = UbigeoDatasourceImpl(dio: dio);
+    final ubigeoRepo = UbigeoRepositoryImpl(datasource: ubigeoDatasource);
+
+    final shippingZoneDatasource = ShippingZoneDatasourceImpl();
+    final shippingZoneRepo = ShippingZoneRepositoryImpl(datasource: shippingZoneDatasource);
+
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(
@@ -70,14 +89,25 @@ class MainApp extends StatelessWidget {
           create: (_) => IzipayProvider(
             createIzipayPaymentUseCase: CreateIzipayPaymentUseCase(
               IzipayRepositoryImpl(
-                izipayDataSource: IzipayDatasourceImpl(dio: Dio()),
+                izipayDataSource: IzipayDatasourceImpl(dio: dio),
               ),
             ),
           ),
         ),
         ChangeNotifierProvider(
-          create: (_) => OrderProvider(
-            repository: OrderRepositoryImpl(),
+          create: (_) => OrderProvider(repository: OrderRepositoryImpl()),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => UbigeoProvider(
+            getDepartamentos: GetDepartamentos(ubigeoRepo),
+            getProvincias: GetProvincias(ubigeoRepo),
+            getDistritos: GetDistritos(ubigeoRepo),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ShippingZoneProvider(
+            getShippingZones: GetShippingZones(shippingZoneRepo),
+            saveShippingZones: SaveShippingZones(shippingZoneRepo),
           ),
         ),
       ],
@@ -85,7 +115,9 @@ class MainApp extends StatelessWidget {
         builder: (context, businessProvider, child) {
           final business = businessProvider.business;
           final customColor = ThemeConfig.hexToColor(business?.themeColorHex);
-          final customBgColor = ThemeConfig.hexToColor(business?.backgroundColorHex);
+          final customBgColor = ThemeConfig.hexToColor(
+            business?.backgroundColorHex,
+          );
 
           return MaterialApp.router(
             debugShowCheckedModeBanner: false,

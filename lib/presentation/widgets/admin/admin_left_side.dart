@@ -4,6 +4,8 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/providers/auth_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
+import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 
 class AdminLeftSide extends StatelessWidget {
   final String businessSlug;
@@ -11,140 +13,324 @@ class AdminLeftSide extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final currentPath = GoRouterState.of(context).uri.path;
+    final businessName =
+        context.watch<BusinessProvider>().business?.name ?? 'Mi Negocio';
+
     return Material(
-      color: Colors.white,
-      child: Container(
-        decoration: BoxDecoration(
-          border: Border(right: BorderSide(color: Colors.grey[350]!)),
-        ),
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          child: Column(
-            children: [
-              Row(
+      color: AdminTheme.sidebarBg,
+      child: SafeArea(
+        child: Column(
+          children: [
+            // ─── Business Header ─────────────────────────
+            Padding(
+              padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
+              child: Row(
                 children: [
-                  CircleAvatar(
-                    backgroundColor: Colors.blueAccent,
-                    foregroundColor: Colors.white,
-                    child: Icon(Icons.shield),
+                  Container(
+                    width: 40,
+                    height: 40,
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      ),
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Center(
+                      child: Icon(Icons.storefront_rounded,
+                          color: Colors.white, size: 20),
+                    ),
                   ),
-                  SizedBox(width: 20),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        "Admin Panel",
-                        style: GoogleFonts.getFont(
-                          FontNames.fontNameH2,
-                          textStyle: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          businessName,
+                          style: GoogleFonts.getFont(
+                            FontNames.fontNameH2,
+                            textStyle: const TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.w700,
+                              color: AdminTheme.textPrimary,
+                            ),
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        Text(
+                          "Panel de Administración",
+                          style: GoogleFonts.getFont(
+                            FontNames.fontNameH2,
+                            textStyle: const TextStyle(
+                              fontSize: 11,
+                              color: AdminTheme.sidebarTextMuted,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            const SizedBox(height: 16),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Divider(
+                  color: Colors.white.withValues(alpha: 0.08), height: 1),
+            ),
+            const SizedBox(height: 16),
+
+            // ─── Navigation (scroll-safe per skill) ──────
+            Expanded(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 12),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _sectionLabel("GENERAL"),
+                    const SizedBox(height: 4),
+                    _navItem(
+                      context,
+                      icon: Icons.dashboard_rounded,
+                      label: "Dashboard",
+                      route: "/$businessSlug/admin/dashboard",
+                      currentPath: currentPath,
+                      tooltip: "Resumen de ventas y pedidos",
+                    ),
+                    _navItem(
+                      context,
+                      icon: Icons.inventory_2_rounded,
+                      label: "Productos",
+                      route: "/$businessSlug/admin/products",
+                      currentPath: currentPath,
+                      tooltip: "Gestiona tu inventario",
+                    ),
+                    const SizedBox(height: 20),
+                    _sectionLabel("APARIENCIA"),
+                    const SizedBox(height: 4),
+                    _navItem(
+                      context,
+                      icon: Icons.image_rounded,
+                      label: "Banners",
+                      route: "/$businessSlug/admin/banners",
+                      currentPath: currentPath,
+                      tooltip: "Imágenes del carrusel principal",
+                    ),
+                    _navItem(
+                      context,
+                      icon: Icons.view_quilt_rounded,
+                      label: "Diseño del Home",
+                      route: "/$businessSlug/admin/home-builder",
+                      currentPath: currentPath,
+                      tooltip: "Personaliza tu página principal",
+                    ),
+                    const SizedBox(height: 20),
+                    _sectionLabel("CONFIGURACIÓN"),
+                    const SizedBox(height: 4),
+                    _navItem(
+                      context,
+                      icon: Icons.settings_rounded,
+                      label: "Ajustes",
+                      route: "/$businessSlug/admin/settings",
+                      currentPath: currentPath,
+                      tooltip: "Datos del negocio, pagos y envíos",
+                    ),
+                    _navItem(
+                      context,
+                      icon: Icons.location_on_rounded,
+                      label: "Ubicaciones",
+                      route: "/$businessSlug/admin/locations",
+                      currentPath: currentPath,
+                      tooltip: "Provincias y Distritos de entrega",
+                    ),
+                  ],
+                ),
+              ),
+            ),
+
+            // ─── Footer: User + Logout ───────────────────
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 12),
+              child: Divider(
+                  color: Colors.white.withValues(alpha: 0.08), height: 1),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 16, 12, 20),
+              child: Row(
+                children: [
+                  Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.1),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Icon(Icons.person_outline_rounded,
+                        color: AdminTheme.sidebarTextMuted, size: 20),
+                  ),
+                  const SizedBox(width: 10),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Administrador",
+                          style: GoogleFonts.getFont(
+                            FontNames.fontNameH2,
+                            textStyle: const TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.w500,
+                              color: AdminTheme.sidebarText,
+                            ),
+                          ),
+                        ),
+                        Text(
+                          businessSlug,
+                          style: GoogleFonts.getFont(
+                            FontNames.fontNameH2,
+                            textStyle: const TextStyle(
+                              fontSize: 11,
+                              color: AdminTheme.sidebarTextMuted,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Hit area 40x40 per skill
+                  Tooltip(
+                    message: "Cerrar sesión",
+                    child: Material(
+                      color: Colors.transparent,
+                      child: InkWell(
+                        borderRadius: BorderRadius.circular(8),
+                        onTap: () async {
+                          await context.read<AuthProvider>().logout();
+                          if (context.mounted) {
+                            context.go('/$businessSlug/admin/login');
+                          }
+                        },
+                        child: Container(
+                          width: 40,
+                          height: 40,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.logout_rounded,
+                            color: AdminTheme.sidebarTextMuted,
+                            size: 18,
                           ),
                         ),
                       ),
-                      Text(
-                        "Negocio",
-                        style: GoogleFonts.getFont(FontNames.fontNameH2),
-                      ),
-                    ],
+                    ),
                   ),
                 ],
               ),
-              SizedBox(height: 30),
-              ListTile(
-                leading: Icon(Icons.dashboard),
-                title: Text(
-                  "Dashboard",
-                  style: GoogleFonts.getFont(FontNames.fontNameH2),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _sectionLabel(String text) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 12, bottom: 4),
+      child: Text(
+        text,
+        style: GoogleFonts.getFont(
+          FontNames.fontNameH2,
+          textStyle: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: AdminTheme.sidebarTextMuted.withValues(alpha: 0.6),
+            letterSpacing: 1.2,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _navItem(
+    BuildContext context, {
+    required IconData icon,
+    required String label,
+    required String route,
+    required String currentPath,
+    String? tooltip,
+  }) {
+    final isActive = currentPath.startsWith(route);
+
+    return Tooltip(
+      message: tooltip ?? label,
+      waitDuration: const Duration(milliseconds: 600),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+          onTap: () {
+            context.go(route);
+            // Close drawer if in mobile
+            if (Scaffold.maybeOf(context)?.isDrawerOpen == true) {
+              Navigator.of(context).pop();
+            }
+          },
+          child: AnimatedContainer(
+            duration: const Duration(milliseconds: 200),
+            curve: Curves.easeOut,
+            margin: const EdgeInsets.only(bottom: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 11),
+            decoration: BoxDecoration(
+              color: isActive
+                  ? Colors.white.withValues(alpha: 0.1)
+                  : Colors.transparent,
+              borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+              border: isActive
+                  ? Border.all(color: Colors.white.withValues(alpha: 0.06))
+                  : null,
+            ),
+            child: Row(
+              children: [
+                Icon(
+                  icon,
+                  size: 20,
+                  color:
+                      isActive ? Colors.white : AdminTheme.sidebarTextMuted,
                 ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                onTap: () {
-                  context.go("/$businessSlug/admin/dashboard");
-                },
-              ),
-              SizedBox(height: 10),
-              ListTile(
-                leading: Icon(Icons.inventory),
-                title: Text(
-                  "Productos",
-                  style: GoogleFonts.getFont(FontNames.fontNameH2),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                onTap: () {
-                  context.go("/$businessSlug/admin/products");
-                },
-              ),
-              SizedBox(height: 10),
-              ListTile(
-                leading: Icon(Icons.image),
-                title: Text(
-                  "Banners",
-                  style: GoogleFonts.getFont(FontNames.fontNameH2),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                onTap: () {
-                  context.go("/$businessSlug/admin/banners");
-                },
-              ),
-              SizedBox(height: 10),
-              ListTile(
-                leading: Icon(Icons.settings),
-                title: Text(
-                  "Configuración",
-                  style: GoogleFonts.getFont(FontNames.fontNameH2),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                onTap: () {
-                  context.go("/$businessSlug/admin/settings");
-                },
-              ),
-              SizedBox(height: 10),
-              ListTile(
-                leading: Icon(Icons.view_quilt),
-                title: Text(
-                  "Diseño del Home",
-                  style: GoogleFonts.getFont(FontNames.fontNameH2),
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                onTap: () {
-                  context.go("/$businessSlug/admin/home-builder");
-                },
-              ),
-              Spacer(),
-              Divider(),
-              SizedBox(height: 20),
-              Row(
-                children: [
-                  CircleAvatar(child: Icon(Icons.person)),
-                  SizedBox(width: 20),
-                  Text(
-                    "Admin",
-                    style: GoogleFonts.getFont(FontNames.fontNameH2),
+                const SizedBox(width: 12),
+                Text(
+                  label,
+                  style: GoogleFonts.getFont(
+                    FontNames.fontNameH2,
+                    textStyle: TextStyle(
+                      fontSize: 14,
+                      fontWeight:
+                          isActive ? FontWeight.w600 : FontWeight.w400,
+                      color:
+                          isActive ? Colors.white : AdminTheme.sidebarText,
+                    ),
                   ),
-                  Spacer(),
-                  IconButton(
-                    onPressed: () async {
-                      await context.read<AuthProvider>().logout();
-                      if (context.mounted) {
-                        context.go('/$businessSlug/admin/login');
-                      }
-                    },
-                    icon: Icon(Icons.logout),
+                ),
+                if (isActive) ...[
+                  const Spacer(),
+                  Container(
+                    width: 6,
+                    height: 6,
+                    decoration: const BoxDecoration(
+                      color: AdminTheme.accent,
+                      shape: BoxShape.circle,
+                    ),
                   ),
                 ],
-              ),
-              SizedBox(height: 20),
-            ],
+              ],
+            ),
           ),
         ),
       ),

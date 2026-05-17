@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'package:go_router/go_router.dart';
-import 'package:google_fonts/google_fonts.dart';
-import 'package:virtual_catalog_app/config/themes/font_names.dart';
+import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 
 class AdminVariantCard extends StatefulWidget {
   final Map<String, dynamic> variant;
@@ -25,373 +24,324 @@ class AdminVariantCard extends StatefulWidget {
 
 class _AdminVariantCardState extends State<AdminVariantCard> {
   final TextEditingController _sizeCtrl = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(bottom: 20),
-      padding: EdgeInsets.symmetric(horizontal: 25, vertical: 25),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Color(0xFFE2E2E2)),
-      ),
-      child: Column(
-        children: [
-          Row(
-            spacing: 10,
-            children: [
-              Expanded(
-                flex: 4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Nombre",
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameH2,
-                        textStyle: TextStyle(
-                          overflow: TextOverflow.ellipsis,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    TextFormField(
-                      initialValue: widget.variant["name"],
-                      decoration: _inputDecoration(
-                        hintText: "ej. Camiseta Amarilla...",
-                      ),
-                      onChanged: (value) =>
-                          widget.onUpdate(widget.index, "name", value),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "El nombre es obligatorio";
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "SKU (Opcional)",
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameH2,
-                        textStyle: TextStyle(
-                          overflow: TextOverflow.ellipsis,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    TextFormField(
-                      initialValue: widget.variant["sku"],
-                      decoration: _inputDecoration(
-                        hintText: "ej. VC-001-VAR-001...",
-                      ),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final isMobile = constraints.maxWidth < AdminTheme.breakpointMobile;
 
-                      onChanged: (value) =>
-                          widget.onUpdate(widget.index, "sku", value),
-                    ),
-                  ],
-                ),
-              ),
-
-              Expanded(
-                flex: 1,
-                child: widget.showDelete
-                    ? IconButton(
-                        onPressed: () => widget.onRemove(widget.index),
-                        icon: Icon(
-                          Icons.delete,
-                          color: Color.fromARGB(255, 161, 161, 161),
-                        ),
-                      )
-                    : SizedBox.shrink(),
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Divider(color: Color(0xFFE2E2E2)),
-          SizedBox(height: 10),
-          Row(
-            spacing: 10,
+        return Container(
+          margin: const EdgeInsets.only(bottom: 24),
+          decoration: AdminTheme.cardDecoration(),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Expanded(
-                flex: 4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Precio Original",
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameH2,
-                        textStyle: TextStyle(
-                          overflow: TextOverflow.ellipsis,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    TextFormField(
-                      initialValue: widget.variant["origPrice"],
-                      decoration: _inputDecoration(hintText: "ej. 100.00..."),
-                      onChanged: (value) =>
-                          widget.onUpdate(widget.index, "origPrice", value),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "El precio es obligatorio";
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 4,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Descuento (Opcional)",
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameH2,
-                        textStyle: TextStyle(
-                          overflow: TextOverflow.ellipsis,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    TextFormField(
-                      initialValue: widget.variant["discountPrice"],
-                      decoration: _inputDecoration(hintText: "ej. 80..."),
-                      onChanged: (value) =>
-                          widget.onUpdate(widget.index, "discountPrice", value),
-                    ),
-                  ],
-                ),
-              ),
-
-              Expanded(
-                flex: 1,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Color",
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameH2,
-                        textStyle: TextStyle(
-                          overflow: TextOverflow.ellipsis,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    InkWell(
-                      onTap: _showColorPicker,
-                      child: Container(
-                        height: 48,
-                        padding: EdgeInsetsGeometry.symmetric(horizontal: 12),
-                        decoration: BoxDecoration(
-                          color: widget.variant["colorInt"] != null
-                              ? Color(widget.variant["colorInt"])
-                              : Colors.white,
-                          border: Border.all(color: Color(0xffe2e2e2)),
-                          shape: BoxShape.circle,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Divider(color: Color(0xFFE2E2E2)),
-          SizedBox(height: 10),
-          Row(
-            spacing: 10,
-            children: [
-              Expanded(
-                flex: 6,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Tallas",
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameH2,
-                        textStyle: TextStyle(
-                          overflow: TextOverflow.ellipsis,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    TextFormField(
-                      controller: _sizeCtrl,
-                      decoration: _inputDecoration(
-                        hintText: "Coloca UNA talla y presiona ENTER",
-                      ),
-                      onFieldSubmitted: (value) {
-                        if (value.trim().isNotEmpty) {
-                          final dynamic rawSizes = widget.variant["sizes"];
-                          List<String> currentSizes = (rawSizes is List)
-                              ? List<String>.from(rawSizes)
-                              : [];
-                          currentSizes.add(value.trim());
-                          widget.onUpdate(widget.index, "sizes", currentSizes);
-                          _sizeCtrl.clear();
-                        }
-                      },
-                    ),
-                  ],
-                ),
-              ),
-              Expanded(
-                flex: 3,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      "Stock",
-                      style: GoogleFonts.getFont(
-                        FontNames.fontNameH2,
-                        textStyle: TextStyle(
-                          overflow: TextOverflow.ellipsis,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ),
-                    TextFormField(
-                      initialValue: widget.variant["stock"],
-                      decoration: _inputDecoration(hintText: "ej. 100..."),
-                      onChanged: (value) =>
-                          widget.onUpdate(widget.index, "stock", value),
-                      validator: (value) {
-                        if (value == null || value.isEmpty) {
-                          return "El stock es obligatorio";
-                        }
-                        return null;
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-          SizedBox(height: 10),
-          Wrap(
-            spacing: 10,
-            runSpacing: 10,
-            children: List.generate(widget.variant["sizes"].length, (index) {
-              return InputChip(
-                label: Text(
-                  widget.variant["sizes"][index],
-                  style: GoogleFonts.getFont(
-                    FontNames.fontNameH2,
-                    textStyle: TextStyle(fontSize: 12),
+              // ── Header: Variant Title + Delete ────────────────
+              Container(
+                padding: const EdgeInsets.fromLTRB(20, 12, 12, 12),
+                decoration: BoxDecoration(
+                  color: AdminTheme.cardBgElevated,
+                  borderRadius: const BorderRadius.vertical(
+                    top: Radius.circular(AdminTheme.radiusMd),
                   ),
+                  border: Border(bottom: BorderSide(color: AdminTheme.border)),
                 ),
-                onDeleted: () {
-                  List<String> currentSizes = List<String>.from(
-                    widget.variant["sizes"],
-                  );
-                  currentSizes.remove(widget.variant["sizes"][index]);
-                  widget.onUpdate(widget.index, "sizes", currentSizes);
-                },
-              );
-            }),
+                child: Row(
+                  children: [
+                    Text(
+                      "Variante #${widget.index + 1}",
+                      style: AdminTheme.body().copyWith(
+                        fontWeight: FontWeight.bold,
+                        color: AdminTheme.accentLight,
+                      ),
+                    ),
+                    const Spacer(),
+                    if (widget.showDelete)
+                      IconButton(
+                        onPressed: () => widget.onRemove(widget.index),
+                        icon: const Icon(Icons.delete_outline, size: 20),
+                        color: AdminTheme.danger,
+                        tooltip: "Eliminar variante",
+                      ),
+                  ],
+                ),
+              ),
+
+              Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  children: [
+                    // ── Row 1: Name, SKU ────────────────────────
+                    _buildResponsiveRow(
+                      isMobile: isMobile,
+                      children: [
+                        _field(
+                          "Nombre de Variante",
+                          TextFormField(
+                            initialValue: widget.variant["name"],
+                            decoration: AdminTheme.inputDecoration(
+                              hintText: "ej. Rojo / XL...",
+                            ),
+                            onChanged: (v) =>
+                                widget.onUpdate(widget.index, "name", v),
+                            validator: (v) =>
+                                v == null || v.isEmpty ? "Requerido" : null,
+                          ),
+                          flex: 3,
+                        ),
+                        _field(
+                          "SKU (Opcional)",
+                          TextFormField(
+                            initialValue: widget.variant["sku"],
+                            decoration: AdminTheme.inputDecoration(
+                              hintText: "ej. VC-RED-XL",
+                            ),
+                            onChanged: (v) =>
+                                widget.onUpdate(widget.index, "sku", v),
+                          ),
+                          flex: 2,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // ── Row 2: Price, Discount, Color ───────────
+                    _buildResponsiveRow(
+                      isMobile: isMobile,
+                      children: [
+                        _field(
+                          "Precio Original",
+                          TextFormField(
+                            initialValue: widget.variant["origPrice"],
+                            decoration: AdminTheme.inputDecoration(
+                              hintText: "0.00",
+                            ),
+                            keyboardType: TextInputType.number,
+                            onChanged: (v) =>
+                                widget.onUpdate(widget.index, "origPrice", v),
+                            validator: (v) =>
+                                v == null || v.isEmpty ? "Requerido" : null,
+                          ),
+                        ),
+                        _field(
+                          "Precio Oferta",
+                          TextFormField(
+                            initialValue: widget.variant["discountPrice"],
+                            decoration: AdminTheme.inputDecoration(
+                              hintText: "Opcional",
+                            ),
+                            keyboardType: TextInputType.number,
+                            onChanged: (v) => widget.onUpdate(
+                              widget.index,
+                              "discountPrice",
+                              v,
+                            ),
+                          ),
+                        ),
+                        _field("Color", _buildColorButton(), flex: 0),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // ── Row 3: Stock ────────────────────────────
+                    _buildResponsiveRow(
+                      isMobile: isMobile,
+                      children: [
+                        _field(
+                          "Stock",
+                          TextFormField(
+                            initialValue: widget.variant["stock"],
+                            decoration: AdminTheme.inputDecoration(
+                              hintText: "100",
+                            ),
+                            keyboardType: TextInputType.number,
+                            onChanged: (v) =>
+                                widget.onUpdate(widget.index, "stock", v),
+                            validator: (v) =>
+                                v == null || v.isEmpty ? "Requerido" : null,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 20),
+
+                    // ── Section: Sizes ──────────────────────────
+                    _field(
+                      "Tallas disponibles",
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          TextFormField(
+                            controller: _sizeCtrl,
+                            decoration: AdminTheme.inputDecoration(
+                              hintText: "Escribe una talla y presiona Enter",
+                            ),
+                            onFieldSubmitted: _onSizeSubmitted,
+                          ),
+                          const SizedBox(height: 12),
+                          Wrap(
+                            spacing: 8,
+                            runSpacing: 8,
+                            children: List.generate(
+                              widget.variant["sizes"].length,
+                              (idx) {
+                                final size = widget.variant["sizes"][idx];
+                                return Chip(
+                                  label: Text(size),
+                                  labelStyle: AdminTheme.bodySmall().copyWith(
+                                    color: AdminTheme.textPrimary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  backgroundColor: AdminTheme.cardBgElevated,
+                                  side: BorderSide(color: AdminTheme.border),
+                                  onDeleted: () {
+                                    List<String> current = List<String>.from(
+                                      widget.variant["sizes"],
+                                    );
+                                    current.removeAt(idx);
+                                    widget.onUpdate(
+                                      widget.index,
+                                      "sizes",
+                                      current,
+                                    );
+                                  },
+                                  deleteIconColor: AdminTheme.danger,
+                                  deleteIcon: const Icon(Icons.close, size: 14),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
+        );
+      },
+    );
+  }
+
+  Widget _buildResponsiveRow({
+    required bool isMobile,
+    required List<Widget> children,
+  }) {
+    if (isMobile) {
+      return Column(
+        children: children
+            .map(
+              (c) =>
+                  Padding(padding: const EdgeInsets.only(bottom: 16), child: c),
+            )
+            .toList(),
+      );
+    }
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: children
+          .map(
+            (c) => Expanded(
+              flex: (c is _FieldWidget) ? c.flex : 1,
+              child: Padding(
+                padding: const EdgeInsets.only(right: 16),
+                child: c,
+              ),
+            ),
+          )
+          .toList(),
+    );
+  }
+
+  Widget _field(String label, Widget child, {int flex = 1}) {
+    return _FieldWidget(
+      label: label,
+      flex: flex,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            label,
+            style: AdminTheme.bodySmall().copyWith(fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 6),
+          child,
         ],
       ),
     );
   }
 
-  InputDecoration _inputDecoration({String hintText = ""}) {
-    return InputDecoration(
-      hintText: hintText,
-      hintStyle: GoogleFonts.getFont(
-        FontNames.fontNameH2,
-        textStyle: TextStyle(color: Colors.grey),
-      ),
-      filled: true,
-      fillColor: Color.fromARGB(255, 255, 255, 255),
-      border: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide.none,
-      ),
-      enabledBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Color(0xFFE2E2E2)),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      focusedBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.black),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      errorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.redAccent),
-        borderRadius: BorderRadius.circular(8),
-      ),
-      focusedErrorBorder: OutlineInputBorder(
-        borderSide: BorderSide(color: Colors.redAccent),
-        borderRadius: BorderRadius.circular(8),
+  Widget _buildColorButton() {
+    final color = widget.variant["colorInt"] != null
+        ? Color(widget.variant["colorInt"])
+        : AdminTheme.accent;
+
+    return InkWell(
+      onTap: _showColorPicker,
+      borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+      child: Container(
+        height: 48,
+        width: 60,
+        decoration: BoxDecoration(
+          color: color,
+          borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+          border: Border.all(color: AdminTheme.border, width: 2),
+          boxShadow: [
+            BoxShadow(
+              color: color.withValues(alpha: 0.3),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
+            ),
+          ],
+        ),
+        child: const Icon(Icons.colorize, color: Colors.white, size: 20),
       ),
     );
+  }
+
+  void _onSizeSubmitted(String value) {
+    if (value.trim().isNotEmpty) {
+      final List<String> current = List<String>.from(
+        widget.variant["sizes"] ?? [],
+      );
+      if (!current.contains(value.trim())) {
+        current.add(value.trim());
+        widget.onUpdate(widget.index, "sizes", current);
+      }
+      _sizeCtrl.clear();
+    }
   }
 
   void _showColorPicker() {
     Color pickerColor = widget.variant["colorInt"] != null
         ? Color(widget.variant["colorInt"])
-        : Colors.blue;
+        : AdminTheme.accent;
 
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadiusGeometry.circular(8),
-        ),
-        title: Text(
-          "Selecciona el color",
-          style: GoogleFonts.getFont(FontNames.fontNameH2),
-        ),
+        title: Text("Color de variante", style: AdminTheme.heading2()),
         content: SingleChildScrollView(
-          child: Theme(
-            data: Theme.of(context).copyWith(
-              textTheme: TextTheme(
-                bodyMedium: GoogleFonts.getFont(FontNames.fontNameH2),
-                bodyLarge: GoogleFonts.getFont(FontNames.fontNameH2),
-                bodySmall: GoogleFonts.getFont(FontNames.fontNameH2),
-              ),
-            ),
-            child: ColorPicker(
-              pickerColor: pickerColor,
-              onColorChanged: (value) {
-                pickerColor = value;
-              },
-              pickerAreaHeightPercent: 0.8,
-            ),
+          child: ColorPicker(
+            pickerColor: pickerColor,
+            onColorChanged: (c) => pickerColor = c,
+            pickerAreaHeightPercent: 0.8,
           ),
         ),
-        actions: <Widget>[
+        actions: [
           TextButton(
             onPressed: () => context.pop(),
-            child: Text(
-              "Cancelar",
-              style: GoogleFonts.getFont(FontNames.fontNameH2),
-            ),
+            child: const Text("Cancelar"),
           ),
           ElevatedButton(
             onPressed: () {
               widget.onUpdate(widget.index, "colorInt", pickerColor.toARGB32());
               context.pop();
             },
-            child: Text(
-              "Seleccionar",
-              style: GoogleFonts.getFont(FontNames.fontNameH2),
-            ),
+            style: AdminTheme.primaryButton(),
+            child: const Text("Aplicar"),
           ),
         ],
       ),
@@ -403,4 +353,14 @@ class _AdminVariantCardState extends State<AdminVariantCard> {
     _sizeCtrl.dispose();
     super.dispose();
   }
+}
+
+class _FieldWidget extends StatelessWidget {
+  final String label;
+  final Widget child;
+  final int flex;
+  const _FieldWidget({required this.label, required this.child, this.flex = 1});
+
+  @override
+  Widget build(BuildContext context) => child;
 }
