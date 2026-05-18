@@ -1,6 +1,7 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
@@ -87,7 +88,7 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
                     final slug = GoRouterState.of(
                       context,
                     ).pathParameters["businessSlug"];
-                    context.go("/$slug");
+                    NavigationHelper.go(context, "/$slug");
                   },
                   child: Text(
                     "Inicio",
@@ -107,7 +108,7 @@ class CatalogAppBar extends StatelessWidget implements PreferredSizeWidget {
                     final String slug = GoRouterState.of(
                       context,
                     ).pathParameters["businessSlug"]!;
-                    context.go("/$slug/catalog");
+                    NavigationHelper.go(context, "/$slug/catalog");
                   },
                   child: Text(
                     "Catálogo",

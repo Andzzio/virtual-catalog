@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
@@ -210,7 +210,7 @@ class _AdminProductTableState extends State<AdminProductTable> {
                   ),
                   onSelected: (value) {
                     if (value == 'edit') {
-                      context.go(
+                      NavigationHelper.go(context, 
                         "/${widget.businessSlug}/admin/products/edit/${product.id}",
                       );
                     } else if (value == 'delete') {
@@ -405,7 +405,7 @@ class _AdminProductTableState extends State<AdminProductTable> {
                             height: 40,
                             child: IconButton(
                               onPressed: () {
-                                context.go(
+                                NavigationHelper.go(context, 
                                   "/${widget.businessSlug}/admin/products/edit/${product.id}",
                                 );
                               },

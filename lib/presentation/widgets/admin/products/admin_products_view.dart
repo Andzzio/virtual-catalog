@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
@@ -58,7 +58,7 @@ class _AdminProductsViewState extends State<AdminProductsView> {
         actions: [
           ElevatedButton.icon(
             onPressed: () {
-              context.go("/${widget.businessSlug}/admin/products/create");
+              NavigationHelper.go(context, "/${widget.businessSlug}/admin/products/create");
             },
             icon: Icon(Icons.add),
             style: AdminTheme.primaryButton(),

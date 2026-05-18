@@ -13,6 +13,11 @@ class BusinessRepositoryImpl implements BusinessRepository {
   }
 
   @override
+  Future<Business?> getBusinessByDomain(String domain) {
+    return datasource.getBusinessByDomain(domain);
+  }
+
+  @override
   Future<void> updateBusiness(String slug, Business business) {
     return datasource.updateBusiness(slug, business);
   }

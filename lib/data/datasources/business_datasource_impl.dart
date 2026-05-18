@@ -14,6 +14,17 @@ class BusinessDatasourceImpl implements BusinessDatasource {
   }
 
   @override
+  Future<Business?> getBusinessByDomain(String domain) async {
+    final snapshot = await _db
+        .collection("businesses")
+        .where("customDomain", isEqualTo: domain)
+        .limit(1)
+        .get();
+    if (snapshot.docs.isEmpty) return null;
+    return BusinessModel.fromFirestore(snapshot.docs.first).toEntity();
+  }
+
+  @override
   Future<void> updateBusiness(String slug, Business business) async {
     final model = BusinessModel.fromEntity(business);
     await _db.collection("businesses").doc(slug).update(model.toJson());

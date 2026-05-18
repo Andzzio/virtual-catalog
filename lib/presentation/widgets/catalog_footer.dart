@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
@@ -60,7 +60,7 @@ class CatalogFooter extends StatelessWidget {
             const SizedBox(height: AppPaddings.p24),
             InkWell(
               onTap: () {
-                context.go('/${business.slug}/terms');
+                NavigationHelper.go(context, '/${business.slug}/terms');
               },
               hoverColor: Colors.transparent,
               child: Text(

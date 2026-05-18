@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:smooth_page_indicator/smooth_page_indicator.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
@@ -36,7 +36,7 @@ class _ProductCardState extends State<ProductCard> {
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
         onTap: () {
-          context.go(
+          NavigationHelper.go(context, 
             "/${widget.product.businessId}/product/${widget.product.id}",
           );
         },
@@ -311,7 +311,7 @@ class _ProductCardState extends State<ProductCard> {
                       ),
                     );
                   } else {
-                    context.go(
+                    NavigationHelper.go(context, 
                       "/${widget.product.businessId}/product/${widget.product.id}",
                     );
                   }

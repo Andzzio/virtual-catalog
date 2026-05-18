@@ -34,6 +34,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   late TextEditingController _termsCtrl;
   late TextEditingController _themeColorCtrl;
   late TextEditingController _bgColorCtrl;
+  late TextEditingController _domainCtrl;
 
   Uint8List? _newLogo;
   String? _currentLogoUrl;
@@ -57,6 +58,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     _bgColorCtrl = TextEditingController(
       text: business.backgroundColorHex ?? "",
     );
+    _domainCtrl = TextEditingController(text: business.customDomain ?? "");
     _currentLogoUrl = business.logoUrl;
     _deliveryMethods = List.from(business.deliveryMethods);
     _paymentMethods = List.from(business.paymentMethods);
@@ -77,6 +79,7 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
       _termsCtrl.dispose();
       _themeColorCtrl.dispose();
       _bgColorCtrl.dispose();
+      _domainCtrl.dispose();
     }
     super.dispose();
   }
@@ -129,6 +132,9 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         backgroundColorHex: _bgColorCtrl.text.trim().isEmpty
             ? null
             : _bgColorCtrl.text.trim(),
+        customDomain: _domainCtrl.text.trim().isEmpty
+            ? null
+            : _domainCtrl.text.trim(),
       );
 
       if (!mounted) return;
@@ -219,6 +225,13 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
                     ),
                     const SizedBox(height: 16),
                     _buildGeneralSection(business),
+                    const SizedBox(height: 30),
+                    const Divider(),
+                    const SizedBox(height: 30),
+                    // Domain Section
+                    _buildSectionHeader(Icons.language_outlined, "Dominio Personalizado"),
+                    const SizedBox(height: 16),
+                    _buildDomainSection(),
                     const SizedBox(height: 30),
                     const Divider(),
                     const SizedBox(height: 30),
@@ -545,6 +558,47 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
           children: [logoWidget, const SizedBox(width: 24), Expanded(child: fieldsWidget)],
         );
       },
+    );
+  }
+
+  Widget _buildDomainSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(15),
+      decoration: AdminTheme.cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                child: TextFormField(
+                  controller: _domainCtrl,
+                  decoration: _inputDecoration("ejemplo: mitienda.com"),
+                  style: GoogleFonts.getFont(FontNames.fontNameH2),
+                ),
+              ),
+              const SizedBox(width: 10),
+              Tooltip(
+                message: "Para activar tu dominio propio, debes contactar al proveedor del catálogo\npara la configuración inicial de DNS (Registros A y TXT).",
+                margin: const EdgeInsets.symmetric(horizontal: 20),
+                padding: const EdgeInsets.all(12),
+                showDuration: const Duration(seconds: 4),
+                child: const Icon(
+                  Icons.info_outline,
+                  color: Colors.amber,
+                  size: 28,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Si no tienes un dominio configurado, deja este campo en blanco.",
+            style: AdminTheme.caption(),
+          ),
+        ],
+      ),
     );
   }
 

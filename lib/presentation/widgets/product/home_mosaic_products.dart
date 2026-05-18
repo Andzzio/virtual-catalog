@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/home_block.dart';
@@ -170,7 +170,7 @@ class _MosaicTile extends StatelessWidget {
       cursor: SystemMouseCursors.click,
       child: GestureDetector(
         onTap: () {
-          context.go("/${product.businessId}/product/${product.id}");
+          NavigationHelper.go(context, "/${product.businessId}/product/${product.id}");
         },
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),

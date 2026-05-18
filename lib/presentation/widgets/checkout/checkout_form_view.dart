@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+
+import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:flutter/services.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -450,11 +451,24 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                 return Column(
                                   children: [
                                     DropdownButtonFormField<String>(
-                                      key: ValueKey('dep_mob_$_selectedDepartamento'),
+                                      key: ValueKey(
+                                        'dep_mob_$_selectedDepartamento',
+                                      ),
                                       initialValue: _selectedDepartamento,
-                                      validator: (v) => v == null ? "Seleccione un departamento" : null,
-                                      decoration: _inputDecoration("Departamento"),
-                                      items: deptos.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
+                                      validator: (v) => v == null
+                                          ? "Seleccione un departamento"
+                                          : null,
+                                      decoration: _inputDecoration(
+                                        "Departamento",
+                                      ),
+                                      items: deptos
+                                          .map(
+                                            (d) => DropdownMenuItem(
+                                              value: d,
+                                              child: Text(d),
+                                            ),
+                                          )
+                                          .toList(),
                                       onChanged: (val) {
                                         setState(() {
                                           _selectedDepartamento = val;
@@ -465,32 +479,71 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                     ),
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
-                                      key: ValueKey('prov_mob_$_selectedProvincia'),
+                                      key: ValueKey(
+                                        'prov_mob_$_selectedProvincia',
+                                      ),
                                       initialValue: _selectedProvincia,
-                                      validator: (v) => v == null ? "Seleccione una provincia" : null,
+                                      validator: (v) => v == null
+                                          ? "Seleccione una provincia"
+                                          : null,
                                       decoration: _inputDecoration("Provincia"),
                                       items: _selectedDepartamento == null
                                           ? []
-                                          : zp.provinciasForDepartamento(_selectedDepartamento!).map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
-                                      onChanged: _selectedDepartamento == null ? null : (val) {
-                                        setState(() {
-                                          _selectedProvincia = val;
-                                          _selectedDistrito = null;
-                                        });
-                                      },
+                                          : zp
+                                                .provinciasForDepartamento(
+                                                  _selectedDepartamento!,
+                                                )
+                                                .map(
+                                                  (p) => DropdownMenuItem(
+                                                    value: p,
+                                                    child: Text(p),
+                                                  ),
+                                                )
+                                                .toList(),
+                                      onChanged: _selectedDepartamento == null
+                                          ? null
+                                          : (val) {
+                                              setState(() {
+                                                _selectedProvincia = val;
+                                                _selectedDistrito = null;
+                                              });
+                                            },
                                     ),
                                     const SizedBox(height: 10),
                                     DropdownButtonFormField<String>(
-                                      key: ValueKey('dist_mob_$_selectedDistrito'),
+                                      key: ValueKey(
+                                        'dist_mob_$_selectedDistrito',
+                                      ),
                                       initialValue: _selectedDistrito,
-                                      validator: (v) => v == null ? "Seleccione un distrito" : null,
+                                      validator: (v) => v == null
+                                          ? "Seleccione un distrito"
+                                          : null,
                                       decoration: _inputDecoration("Distrito"),
-                                      items: (_selectedDepartamento == null || _selectedProvincia == null)
+                                      items:
+                                          (_selectedDepartamento == null ||
+                                              _selectedProvincia == null)
                                           ? []
-                                          : zp.distritosForProvincia(_selectedDepartamento!, _selectedProvincia!).map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
-                                      onChanged: (_selectedDepartamento == null || _selectedProvincia == null) ? null : (val) {
-                                        setState(() => _selectedDistrito = val);
-                                      },
+                                          : zp
+                                                .distritosForProvincia(
+                                                  _selectedDepartamento!,
+                                                  _selectedProvincia!,
+                                                )
+                                                .map(
+                                                  (d) => DropdownMenuItem(
+                                                    value: d,
+                                                    child: Text(d),
+                                                  ),
+                                                )
+                                                .toList(),
+                                      onChanged:
+                                          (_selectedDepartamento == null ||
+                                              _selectedProvincia == null)
+                                          ? null
+                                          : (val) {
+                                              setState(
+                                                () => _selectedDistrito = val,
+                                              );
+                                            },
                                     ),
                                   ],
                                 );
@@ -499,7 +552,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                             SizedBox(height: 10),
                             TextFormField(
                               controller: zipCtrl,
-                              decoration: _inputDecoration("Código postal (opcional)"),
+                              decoration: _inputDecoration(
+                                "Código postal (opcional)",
+                              ),
                             ),
                           ] else
                             Consumer<ShippingZoneProvider>(
@@ -507,111 +562,302 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                 final deptos = zp.uniqueDepartamentos;
                                 return LayoutBuilder(
                                   builder: (context, constraints) {
-                                    final bool stackFields = constraints.maxWidth < 600;
+                                    final bool stackFields =
+                                        constraints.maxWidth < 600;
                                     if (stackFields) {
                                       return Column(
                                         children: [
                                           DropdownButtonFormField<String>(
-                                            key: ValueKey('dep_desk1_$_selectedDepartamento'),
+                                            key: ValueKey(
+                                              'dep_desk1_$_selectedDepartamento',
+                                            ),
                                             initialValue: _selectedDepartamento,
-                                            validator: (v) => v == null ? "Seleccione departamento" : null,
-                                            decoration: _inputDecoration("Departamento"),
+                                            validator: (v) => v == null
+                                                ? "Seleccione departamento"
+                                                : null,
+                                            decoration: _inputDecoration(
+                                              "Departamento",
+                                            ),
                                             isExpanded: true,
-                                            items: deptos.map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(),
+                                            items: deptos
+                                                .map(
+                                                  (d) => DropdownMenuItem(
+                                                    value: d,
+                                                    child: Text(
+                                                      d,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                    ),
+                                                  ),
+                                                )
+                                                .toList(),
                                             onChanged: (val) {
-                                              setState(() { _selectedDepartamento = val; _selectedProvincia = null; _selectedDistrito = null; });
+                                              setState(() {
+                                                _selectedDepartamento = val;
+                                                _selectedProvincia = null;
+                                                _selectedDistrito = null;
+                                              });
                                             },
                                           ),
                                           const SizedBox(height: 10),
                                           DropdownButtonFormField<String>(
-                                            key: ValueKey('prov_desk1_$_selectedProvincia'),
+                                            key: ValueKey(
+                                              'prov_desk1_$_selectedProvincia',
+                                            ),
                                             initialValue: _selectedProvincia,
-                                            validator: (v) => v == null ? "Seleccione provincia" : null,
-                                            decoration: _inputDecoration("Provincia"),
+                                            validator: (v) => v == null
+                                                ? "Seleccione provincia"
+                                                : null,
+                                            decoration: _inputDecoration(
+                                              "Provincia",
+                                            ),
                                             isExpanded: true,
                                             items: _selectedDepartamento == null
                                                 ? []
-                                                : zp.provinciasForDepartamento(_selectedDepartamento!).map((p) => DropdownMenuItem(value: p, child: Text(p, overflow: TextOverflow.ellipsis))).toList(),
-                                            onChanged: _selectedDepartamento == null ? null : (val) {
-                                              setState(() { _selectedProvincia = val; _selectedDistrito = null; });
-                                            },
+                                                : zp
+                                                      .provinciasForDepartamento(
+                                                        _selectedDepartamento!,
+                                                      )
+                                                      .map(
+                                                        (p) => DropdownMenuItem(
+                                                          value: p,
+                                                          child: Text(
+                                                            p,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                        ),
+                                                      )
+                                                      .toList(),
+                                            onChanged:
+                                                _selectedDepartamento == null
+                                                ? null
+                                                : (val) {
+                                                    setState(() {
+                                                      _selectedProvincia = val;
+                                                      _selectedDistrito = null;
+                                                    });
+                                                  },
                                           ),
                                           const SizedBox(height: 10),
                                           DropdownButtonFormField<String>(
-                                            key: ValueKey('dist_desk1_$_selectedDistrito'),
+                                            key: ValueKey(
+                                              'dist_desk1_$_selectedDistrito',
+                                            ),
                                             initialValue: _selectedDistrito,
-                                            validator: (v) => v == null ? "Seleccione distrito" : null,
-                                            decoration: _inputDecoration("Distrito"),
+                                            validator: (v) => v == null
+                                                ? "Seleccione distrito"
+                                                : null,
+                                            decoration: _inputDecoration(
+                                              "Distrito",
+                                            ),
                                             isExpanded: true,
-                                            items: (_selectedDepartamento == null || _selectedProvincia == null)
+                                            items:
+                                                (_selectedDepartamento ==
+                                                        null ||
+                                                    _selectedProvincia == null)
                                                 ? []
-                                                : zp.distritosForProvincia(_selectedDepartamento!, _selectedProvincia!).map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(),
-                                            onChanged: (_selectedDepartamento == null || _selectedProvincia == null) ? null : (val) {
-                                              setState(() => _selectedDistrito = val);
-                                            },
+                                                : zp
+                                                      .distritosForProvincia(
+                                                        _selectedDepartamento!,
+                                                        _selectedProvincia!,
+                                                      )
+                                                      .map(
+                                                        (d) => DropdownMenuItem(
+                                                          value: d,
+                                                          child: Text(
+                                                            d,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                        ),
+                                                      )
+                                                      .toList(),
+                                            onChanged:
+                                                (_selectedDepartamento ==
+                                                        null ||
+                                                    _selectedProvincia == null)
+                                                ? null
+                                                : (val) {
+                                                    setState(
+                                                      () => _selectedDistrito =
+                                                          val,
+                                                    );
+                                                  },
                                           ),
                                           const SizedBox(height: 10),
-                                          TextFormField(controller: zipCtrl, decoration: _inputDecoration("Código postal (opcional)")),
+                                          TextFormField(
+                                            controller: zipCtrl,
+                                            decoration: _inputDecoration(
+                                              "Código postal (opcional)",
+                                            ),
+                                          ),
                                         ],
                                       );
                                     }
                                     return Column(
                                       children: [
                                         Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Expanded(
                                               child: DropdownButtonFormField<String>(
-                                                key: ValueKey('dep_desk2_$_selectedDepartamento'),
-                                                initialValue: _selectedDepartamento,
-                                                validator: (v) => v == null ? "Seleccione departamento" : null,
-                                                decoration: _inputDecoration("Departamento"),
+                                                key: ValueKey(
+                                                  'dep_desk2_$_selectedDepartamento',
+                                                ),
+                                                initialValue:
+                                                    _selectedDepartamento,
+                                                validator: (v) => v == null
+                                                    ? "Seleccione departamento"
+                                                    : null,
+                                                decoration: _inputDecoration(
+                                                  "Departamento",
+                                                ),
                                                 isExpanded: true,
-                                                items: deptos.map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(),
+                                                items: deptos
+                                                    .map(
+                                                      (d) => DropdownMenuItem(
+                                                        value: d,
+                                                        child: Text(
+                                                          d,
+                                                          overflow: TextOverflow
+                                                              .ellipsis,
+                                                        ),
+                                                      ),
+                                                    )
+                                                    .toList(),
                                                 onChanged: (val) {
-                                                  setState(() { _selectedDepartamento = val; _selectedProvincia = null; _selectedDistrito = null; });
+                                                  setState(() {
+                                                    _selectedDepartamento = val;
+                                                    _selectedProvincia = null;
+                                                    _selectedDistrito = null;
+                                                  });
                                                 },
                                               ),
                                             ),
                                             const SizedBox(width: 10),
                                             Expanded(
                                               child: DropdownButtonFormField<String>(
-                                                key: ValueKey('prov_desk2_$_selectedProvincia'),
-                                                initialValue: _selectedProvincia,
-                                                validator: (v) => v == null ? "Seleccione provincia" : null,
-                                                decoration: _inputDecoration("Provincia"),
+                                                key: ValueKey(
+                                                  'prov_desk2_$_selectedProvincia',
+                                                ),
+                                                initialValue:
+                                                    _selectedProvincia,
+                                                validator: (v) => v == null
+                                                    ? "Seleccione provincia"
+                                                    : null,
+                                                decoration: _inputDecoration(
+                                                  "Provincia",
+                                                ),
                                                 isExpanded: true,
-                                                items: _selectedDepartamento == null
+                                                items:
+                                                    _selectedDepartamento ==
+                                                        null
                                                     ? []
-                                                    : zp.provinciasForDepartamento(_selectedDepartamento!).map((p) => DropdownMenuItem(value: p, child: Text(p, overflow: TextOverflow.ellipsis))).toList(),
-                                                onChanged: _selectedDepartamento == null ? null : (val) {
-                                                  setState(() { _selectedProvincia = val; _selectedDistrito = null; });
-                                                },
+                                                    : zp
+                                                          .provinciasForDepartamento(
+                                                            _selectedDepartamento!,
+                                                          )
+                                                          .map(
+                                                            (
+                                                              p,
+                                                            ) => DropdownMenuItem(
+                                                              value: p,
+                                                              child: Text(
+                                                                p,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                              ),
+                                                            ),
+                                                          )
+                                                          .toList(),
+                                                onChanged:
+                                                    _selectedDepartamento ==
+                                                        null
+                                                    ? null
+                                                    : (val) {
+                                                        setState(() {
+                                                          _selectedProvincia =
+                                                              val;
+                                                          _selectedDistrito =
+                                                              null;
+                                                        });
+                                                      },
                                               ),
                                             ),
                                           ],
                                         ),
                                         const SizedBox(height: 10),
                                         Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Expanded(
                                               child: DropdownButtonFormField<String>(
-                                                key: ValueKey('dist_desk2_$_selectedDistrito'),
+                                                key: ValueKey(
+                                                  'dist_desk2_$_selectedDistrito',
+                                                ),
                                                 initialValue: _selectedDistrito,
-                                                validator: (v) => v == null ? "Seleccione distrito" : null,
-                                                decoration: _inputDecoration("Distrito"),
+                                                validator: (v) => v == null
+                                                    ? "Seleccione distrito"
+                                                    : null,
+                                                decoration: _inputDecoration(
+                                                  "Distrito",
+                                                ),
                                                 isExpanded: true,
-                                                items: (_selectedDepartamento == null || _selectedProvincia == null)
+                                                items:
+                                                    (_selectedDepartamento ==
+                                                            null ||
+                                                        _selectedProvincia ==
+                                                            null)
                                                     ? []
-                                                    : zp.distritosForProvincia(_selectedDepartamento!, _selectedProvincia!).map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(),
-                                                onChanged: (_selectedDepartamento == null || _selectedProvincia == null) ? null : (val) {
-                                                  setState(() => _selectedDistrito = val);
-                                                },
+                                                    : zp
+                                                          .distritosForProvincia(
+                                                            _selectedDepartamento!,
+                                                            _selectedProvincia!,
+                                                          )
+                                                          .map(
+                                                            (
+                                                              d,
+                                                            ) => DropdownMenuItem(
+                                                              value: d,
+                                                              child: Text(
+                                                                d,
+                                                                overflow:
+                                                                    TextOverflow
+                                                                        .ellipsis,
+                                                              ),
+                                                            ),
+                                                          )
+                                                          .toList(),
+                                                onChanged:
+                                                    (_selectedDepartamento ==
+                                                            null ||
+                                                        _selectedProvincia ==
+                                                            null)
+                                                    ? null
+                                                    : (val) {
+                                                        setState(
+                                                          () =>
+                                                              _selectedDistrito =
+                                                                  val,
+                                                        );
+                                                      },
                                               ),
                                             ),
                                             const SizedBox(width: 10),
-                                            Expanded(child: TextFormField(controller: zipCtrl, decoration: _inputDecoration("Cód. Postal (opcional)"))),
+                                            Expanded(
+                                              child: TextFormField(
+                                                controller: zipCtrl,
+                                                decoration: _inputDecoration(
+                                                  "Cód. Postal (opcional)",
+                                                ),
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ],
@@ -902,50 +1148,308 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                                           return Column(
                                             children: [
                                               DropdownButtonFormField<String>(
-                                                key: ValueKey('b_dep_mob_$_bSelectedDepartamento'),
-                                                initialValue: _bSelectedDepartamento,
-                                                validator: (v) => !_isBillingSameAsShipping && v == null ? "Requerido" : null,
-                                                decoration: _inputDecoration("Departamento"),
-                                                items: deptos.map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
-                                                onChanged: (val) { setState(() { _bSelectedDepartamento = val; _bSelectedProvincia = null; _bSelectedDistrito = null; }); },
+                                                key: ValueKey(
+                                                  'b_dep_mob_$_bSelectedDepartamento',
+                                                ),
+                                                initialValue:
+                                                    _bSelectedDepartamento,
+                                                validator: (v) =>
+                                                    !_isBillingSameAsShipping &&
+                                                        v == null
+                                                    ? "Requerido"
+                                                    : null,
+                                                decoration: _inputDecoration(
+                                                  "Departamento",
+                                                ),
+                                                items: deptos
+                                                    .map(
+                                                      (d) => DropdownMenuItem(
+                                                        value: d,
+                                                        child: Text(d),
+                                                      ),
+                                                    )
+                                                    .toList(),
+                                                onChanged: (val) {
+                                                  setState(() {
+                                                    _bSelectedDepartamento =
+                                                        val;
+                                                    _bSelectedProvincia = null;
+                                                    _bSelectedDistrito = null;
+                                                  });
+                                                },
                                               ),
                                               const SizedBox(height: 10),
                                               DropdownButtonFormField<String>(
-                                                key: ValueKey('b_prov_mob_$_bSelectedProvincia'),
-                                                initialValue: _bSelectedProvincia,
-                                                validator: (v) => !_isBillingSameAsShipping && v == null ? "Requerido" : null,
-                                                decoration: _inputDecoration("Provincia"),
-                                                items: _bSelectedDepartamento == null ? [] : zp.provinciasForDepartamento(_bSelectedDepartamento!).map((p) => DropdownMenuItem(value: p, child: Text(p))).toList(),
-                                                onChanged: _bSelectedDepartamento == null ? null : (val) { setState(() { _bSelectedProvincia = val; _bSelectedDistrito = null; }); },
+                                                key: ValueKey(
+                                                  'b_prov_mob_$_bSelectedProvincia',
+                                                ),
+                                                initialValue:
+                                                    _bSelectedProvincia,
+                                                validator: (v) =>
+                                                    !_isBillingSameAsShipping &&
+                                                        v == null
+                                                    ? "Requerido"
+                                                    : null,
+                                                decoration: _inputDecoration(
+                                                  "Provincia",
+                                                ),
+                                                items:
+                                                    _bSelectedDepartamento ==
+                                                        null
+                                                    ? []
+                                                    : zp
+                                                          .provinciasForDepartamento(
+                                                            _bSelectedDepartamento!,
+                                                          )
+                                                          .map(
+                                                            (p) =>
+                                                                DropdownMenuItem(
+                                                                  value: p,
+                                                                  child: Text(
+                                                                    p,
+                                                                  ),
+                                                                ),
+                                                          )
+                                                          .toList(),
+                                                onChanged:
+                                                    _bSelectedDepartamento ==
+                                                        null
+                                                    ? null
+                                                    : (val) {
+                                                        setState(() {
+                                                          _bSelectedProvincia =
+                                                              val;
+                                                          _bSelectedDistrito =
+                                                              null;
+                                                        });
+                                                      },
                                               ),
                                               const SizedBox(height: 10),
                                               DropdownButtonFormField<String>(
-                                                key: ValueKey('b_dist_mob_$_bSelectedDistrito'),
-                                                initialValue: _bSelectedDistrito,
-                                                validator: (v) => !_isBillingSameAsShipping && v == null ? "Requerido" : null,
-                                                decoration: _inputDecoration("Distrito"),
-                                                items: (_bSelectedDepartamento == null || _bSelectedProvincia == null) ? [] : zp.distritosForProvincia(_bSelectedDepartamento!, _bSelectedProvincia!).map((d) => DropdownMenuItem(value: d, child: Text(d))).toList(),
-                                                onChanged: (_bSelectedDepartamento == null || _bSelectedProvincia == null) ? null : (val) { setState(() => _bSelectedDistrito = val); },
+                                                key: ValueKey(
+                                                  'b_dist_mob_$_bSelectedDistrito',
+                                                ),
+                                                initialValue:
+                                                    _bSelectedDistrito,
+                                                validator: (v) =>
+                                                    !_isBillingSameAsShipping &&
+                                                        v == null
+                                                    ? "Requerido"
+                                                    : null,
+                                                decoration: _inputDecoration(
+                                                  "Distrito",
+                                                ),
+                                                items:
+                                                    (_bSelectedDepartamento ==
+                                                            null ||
+                                                        _bSelectedProvincia ==
+                                                            null)
+                                                    ? []
+                                                    : zp
+                                                          .distritosForProvincia(
+                                                            _bSelectedDepartamento!,
+                                                            _bSelectedProvincia!,
+                                                          )
+                                                          .map(
+                                                            (d) =>
+                                                                DropdownMenuItem(
+                                                                  value: d,
+                                                                  child: Text(
+                                                                    d,
+                                                                  ),
+                                                                ),
+                                                          )
+                                                          .toList(),
+                                                onChanged:
+                                                    (_bSelectedDepartamento ==
+                                                            null ||
+                                                        _bSelectedProvincia ==
+                                                            null)
+                                                    ? null
+                                                    : (val) {
+                                                        setState(
+                                                          () =>
+                                                              _bSelectedDistrito =
+                                                                  val,
+                                                        );
+                                                      },
                                               ),
                                             ],
                                           );
                                         },
                                       ),
                                       SizedBox(height: 10),
-                                      TextFormField(controller: bZipCtrl, decoration: _inputDecoration("Código postal (opcional)")),
+                                      TextFormField(
+                                        controller: bZipCtrl,
+                                        decoration: _inputDecoration(
+                                          "Código postal (opcional)",
+                                        ),
+                                      ),
                                     ] else
                                       Consumer<ShippingZoneProvider>(
                                         builder: (context, zp, child) {
                                           final deptos = zp.uniqueDepartamentos;
                                           return Row(
                                             children: [
-                                              Expanded(child: DropdownButtonFormField<String>(key: ValueKey('b_dep_desk_$_bSelectedDepartamento'), initialValue: _bSelectedDepartamento, validator: (v) => !_isBillingSameAsShipping && v == null ? "Requerido" : null, decoration: _inputDecoration("Depto."), isExpanded: true, items: deptos.map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(), onChanged: (val) { setState(() { _bSelectedDepartamento = val; _bSelectedProvincia = null; _bSelectedDistrito = null; }); })),
+                                              Expanded(
+                                                child: DropdownButtonFormField<String>(
+                                                  key: ValueKey(
+                                                    'b_dep_desk_$_bSelectedDepartamento',
+                                                  ),
+                                                  initialValue:
+                                                      _bSelectedDepartamento,
+                                                  validator: (v) =>
+                                                      !_isBillingSameAsShipping &&
+                                                          v == null
+                                                      ? "Requerido"
+                                                      : null,
+                                                  decoration: _inputDecoration(
+                                                    "Depto.",
+                                                  ),
+                                                  isExpanded: true,
+                                                  items: deptos
+                                                      .map(
+                                                        (d) => DropdownMenuItem(
+                                                          value: d,
+                                                          child: Text(
+                                                            d,
+                                                            overflow:
+                                                                TextOverflow
+                                                                    .ellipsis,
+                                                          ),
+                                                        ),
+                                                      )
+                                                      .toList(),
+                                                  onChanged: (val) {
+                                                    setState(() {
+                                                      _bSelectedDepartamento =
+                                                          val;
+                                                      _bSelectedProvincia =
+                                                          null;
+                                                      _bSelectedDistrito = null;
+                                                    });
+                                                  },
+                                                ),
+                                              ),
                                               const SizedBox(width: 10),
-                                              Expanded(child: DropdownButtonFormField<String>(key: ValueKey('b_prov_desk_$_bSelectedProvincia'), initialValue: _bSelectedProvincia, validator: (v) => !_isBillingSameAsShipping && v == null ? "Requerido" : null, decoration: _inputDecoration("Provincia"), isExpanded: true, items: _bSelectedDepartamento == null ? [] : zp.provinciasForDepartamento(_bSelectedDepartamento!).map((p) => DropdownMenuItem(value: p, child: Text(p, overflow: TextOverflow.ellipsis))).toList(), onChanged: _bSelectedDepartamento == null ? null : (val) { setState(() { _bSelectedProvincia = val; _bSelectedDistrito = null; }); })),
+                                              Expanded(
+                                                child: DropdownButtonFormField<String>(
+                                                  key: ValueKey(
+                                                    'b_prov_desk_$_bSelectedProvincia',
+                                                  ),
+                                                  initialValue:
+                                                      _bSelectedProvincia,
+                                                  validator: (v) =>
+                                                      !_isBillingSameAsShipping &&
+                                                          v == null
+                                                      ? "Requerido"
+                                                      : null,
+                                                  decoration: _inputDecoration(
+                                                    "Provincia",
+                                                  ),
+                                                  isExpanded: true,
+                                                  items:
+                                                      _bSelectedDepartamento ==
+                                                          null
+                                                      ? []
+                                                      : zp
+                                                            .provinciasForDepartamento(
+                                                              _bSelectedDepartamento!,
+                                                            )
+                                                            .map(
+                                                              (
+                                                                p,
+                                                              ) => DropdownMenuItem(
+                                                                value: p,
+                                                                child: Text(
+                                                                  p,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                ),
+                                                              ),
+                                                            )
+                                                            .toList(),
+                                                  onChanged:
+                                                      _bSelectedDepartamento ==
+                                                          null
+                                                      ? null
+                                                      : (val) {
+                                                          setState(() {
+                                                            _bSelectedProvincia =
+                                                                val;
+                                                            _bSelectedDistrito =
+                                                                null;
+                                                          });
+                                                        },
+                                                ),
+                                              ),
                                               const SizedBox(width: 10),
-                                              Expanded(child: DropdownButtonFormField<String>(key: ValueKey('b_dist_desk_$_bSelectedDistrito'), initialValue: _bSelectedDistrito, validator: (v) => !_isBillingSameAsShipping && v == null ? "Requerido" : null, decoration: _inputDecoration("Distrito"), isExpanded: true, items: (_bSelectedDepartamento == null || _bSelectedProvincia == null) ? [] : zp.distritosForProvincia(_bSelectedDepartamento!, _bSelectedProvincia!).map((d) => DropdownMenuItem(value: d, child: Text(d, overflow: TextOverflow.ellipsis))).toList(), onChanged: (_bSelectedDepartamento == null || _bSelectedProvincia == null) ? null : (val) { setState(() => _bSelectedDistrito = val); })),
+                                              Expanded(
+                                                child: DropdownButtonFormField<String>(
+                                                  key: ValueKey(
+                                                    'b_dist_desk_$_bSelectedDistrito',
+                                                  ),
+                                                  initialValue:
+                                                      _bSelectedDistrito,
+                                                  validator: (v) =>
+                                                      !_isBillingSameAsShipping &&
+                                                          v == null
+                                                      ? "Requerido"
+                                                      : null,
+                                                  decoration: _inputDecoration(
+                                                    "Distrito",
+                                                  ),
+                                                  isExpanded: true,
+                                                  items:
+                                                      (_bSelectedDepartamento ==
+                                                              null ||
+                                                          _bSelectedProvincia ==
+                                                              null)
+                                                      ? []
+                                                      : zp
+                                                            .distritosForProvincia(
+                                                              _bSelectedDepartamento!,
+                                                              _bSelectedProvincia!,
+                                                            )
+                                                            .map(
+                                                              (
+                                                                d,
+                                                              ) => DropdownMenuItem(
+                                                                value: d,
+                                                                child: Text(
+                                                                  d,
+                                                                  overflow:
+                                                                      TextOverflow
+                                                                          .ellipsis,
+                                                                ),
+                                                              ),
+                                                            )
+                                                            .toList(),
+                                                  onChanged:
+                                                      (_bSelectedDepartamento ==
+                                                              null ||
+                                                          _bSelectedProvincia ==
+                                                              null)
+                                                      ? null
+                                                      : (val) {
+                                                          setState(
+                                                            () =>
+                                                                _bSelectedDistrito =
+                                                                    val,
+                                                          );
+                                                        },
+                                                ),
+                                              ),
                                               const SizedBox(width: 10),
-                                              Expanded(child: TextFormField(controller: bZipCtrl, decoration: _inputDecoration("Cód. Postal (opcional)"))),
+                                              Expanded(
+                                                child: TextFormField(
+                                                  controller: bZipCtrl,
+                                                  decoration: _inputDecoration(
+                                                    "Cód. Postal (opcional)",
+                                                  ),
+                                                ),
+                                              ),
                                             ],
                                           );
                                         },
@@ -1480,9 +1984,15 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       }
       if (bAddressCtrl.text.isNotEmpty) {
         sb.writeln("- Dirección: ${bAddressCtrl.text}");
-        if (_bSelectedDepartamento != null) sb.writeln("- Departamento: $_bSelectedDepartamento");
-        if (_bSelectedProvincia != null) sb.writeln("- Provincia: $_bSelectedProvincia");
-        if (_bSelectedDistrito != null) sb.writeln("- Distrito: $_bSelectedDistrito");
+        if (_bSelectedDepartamento != null) {
+          sb.writeln("- Departamento: $_bSelectedDepartamento");
+        }
+        if (_bSelectedProvincia != null) {
+          sb.writeln("- Provincia: $_bSelectedProvincia");
+        }
+        if (_bSelectedDistrito != null) {
+          sb.writeln("- Distrito: $_bSelectedDistrito");
+        }
       }
       if (bRefCtrl.text.isNotEmpty) {
         sb.writeln("- Referencia: ${bRefCtrl.text}");
@@ -1552,7 +2062,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       billingCountry: _isBillingSameAsShipping ? null : _selectedBillingCountry,
       billingAddress: _isBillingSameAsShipping ? null : bAddressCtrl.text,
       billingReference: _isBillingSameAsShipping ? null : bRefCtrl.text,
-      billingDepartamento: _isBillingSameAsShipping ? null : _bSelectedDepartamento,
+      billingDepartamento: _isBillingSameAsShipping
+          ? null
+          : _bSelectedDepartamento,
       billingProvincia: _isBillingSameAsShipping ? null : _bSelectedProvincia,
       billingDistrito: _isBillingSameAsShipping ? null : _bSelectedDistrito,
       billingZip: _isBillingSameAsShipping ? null : bZipCtrl.text,
@@ -1579,7 +2091,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
         const SnackBar(content: Text("✅ ¡Pedido enviado por WhatsApp!")),
       );
       final slug = businessProvider.business?.slug ?? "";
-      context.go("/$slug");
+      NavigationHelper.go(context, "/$slug");
     } else {
       if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1627,7 +2139,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
       billingCountry: _isBillingSameAsShipping ? null : _selectedBillingCountry,
       billingAddress: _isBillingSameAsShipping ? null : bAddressCtrl.text,
       billingReference: _isBillingSameAsShipping ? null : bRefCtrl.text,
-      billingDepartamento: _isBillingSameAsShipping ? null : _bSelectedDepartamento,
+      billingDepartamento: _isBillingSameAsShipping
+          ? null
+          : _bSelectedDepartamento,
       billingProvincia: _isBillingSameAsShipping ? null : _bSelectedProvincia,
       billingDistrito: _isBillingSameAsShipping ? null : _bSelectedDistrito,
       billingZip: _isBillingSameAsShipping ? null : bZipCtrl.text,
@@ -1683,7 +2197,7 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
                           cartProvider.clearCart();
                         }
                         Navigator.of(context, rootNavigator: true).pop();
-                        context.go("/${businessProvider.business!.slug}");
+                        NavigationHelper.go(context, "/${businessProvider.business!.slug}");
                       },
                       child: const Text("VOLVER A LA TIENDA"),
                     ),

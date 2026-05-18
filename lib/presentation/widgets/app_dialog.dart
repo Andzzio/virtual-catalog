@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
@@ -96,7 +97,7 @@ class _AppDialogState extends State<AppDialog> {
                                 ? uri.pathSegments.first
                                 : null;
                             Navigator.pop(context);
-                            context.go(
+                            NavigationHelper.go(context, 
                               FilterCatalog.buildCatalogUrl(
                                 slug,
                                 search: _query,

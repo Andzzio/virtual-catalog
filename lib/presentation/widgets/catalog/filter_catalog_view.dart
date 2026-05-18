@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:go_router/go_router.dart';
+import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/presentation/utils/filter_catalog.dart';
@@ -64,7 +64,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
                     if (route != null && route is PopupRoute) {
                       Navigator.of(context).pop(url);
                     } else {
-                      context.go(url);
+                      NavigationHelper.go(context, url);
                     }
                     if (_minController.text.isNotEmpty) {
                       _minController.clear();
@@ -386,7 +386,7 @@ class _FilterCatalogViewState extends State<FilterCatalogView> {
     if (route != null && route is PopupRoute) {
       Navigator.of(context).pop(url);
     } else {
-      context.go(url);
+      NavigationHelper.go(context, url);
     }
   }
 

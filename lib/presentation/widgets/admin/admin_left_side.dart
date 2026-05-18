@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
@@ -213,7 +214,7 @@ class AdminLeftSide extends StatelessWidget {
                         onTap: () async {
                           await context.read<AuthProvider>().logout();
                           if (context.mounted) {
-                            context.go('/$businessSlug/admin/login');
+                            NavigationHelper.go(context, '/$businessSlug/admin/login');
                           }
                         },
                         child: Container(
@@ -276,7 +277,7 @@ class AdminLeftSide extends StatelessWidget {
         child: InkWell(
           borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
           onTap: () {
-            context.go(route);
+            NavigationHelper.go(context, route);
             // Close drawer if in mobile
             if (Scaffold.maybeOf(context)?.isDrawerOpen == true) {
               Navigator.of(context).pop();

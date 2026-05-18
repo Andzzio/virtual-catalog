@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
+import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/auth_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
@@ -217,7 +217,7 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
 
     if (business != null && user != null && business.ownerId == user.uid) {
       if (!mounted) return;
-      context.go("/${widget.businessSlug}/admin/dashboard");
+      NavigationHelper.go(context, "/${widget.businessSlug}/admin/dashboard");
     } else {
       await authProvider.logout();
       if (!mounted) return;

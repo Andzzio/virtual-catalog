@@ -22,6 +22,7 @@ import 'package:virtual_catalog_app/data/repos/product_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/ubigeo_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/shipping_zone_repository_impl.dart';
 import 'package:virtual_catalog_app/domain/usecases/create_izipay_payment.dart';
+import 'package:virtual_catalog_app/domain/usecases/get_business_by_domain.dart';
 import 'package:virtual_catalog_app/domain/usecases/get_departamentos.dart';
 import 'package:virtual_catalog_app/domain/usecases/get_provincias.dart';
 import 'package:virtual_catalog_app/domain/usecases/get_distritos.dart';
@@ -33,6 +34,7 @@ import 'package:virtual_catalog_app/presentation/providers/cart_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/izipay_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/order_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/tenant_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/ubigeo_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/shipping_zone_provider.dart';
 
@@ -59,6 +61,13 @@ class MainApp extends StatelessWidget {
 
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(
+          create: (_) => TenantProvider(
+            getBusinessByDomain: GetBusinessByDomain(
+              BusinessRepositoryImpl(datasource: BusinessDatasourceImpl()),
+            ),
+          ),
+        ),
         ChangeNotifierProvider(
           create: (_) => ProductProvider(
             repository: ProductRepositoryImpl(
@@ -111,8 +120,31 @@ class MainApp extends StatelessWidget {
           ),
         ),
       ],
-      child: Consumer<BusinessProvider>(
-        builder: (context, businessProvider, child) {
+      child: Consumer2<TenantProvider, BusinessProvider>(
+        builder: (context, tenantProvider, businessProvider, child) {
+          if (tenantProvider.isLoading) {
+            return const MaterialApp(
+              debugShowCheckedModeBanner: false,
+              home: Scaffold(
+                body: Center(child: CircularProgressIndicator()),
+              ),
+            );
+          }
+
+          if (tenantProvider.errorMessage != null) {
+            return MaterialApp(
+              debugShowCheckedModeBanner: false,
+              home: Scaffold(
+                body: Center(
+                  child: Text(
+                    tenantProvider.errorMessage!,
+                    style: const TextStyle(fontSize: 18),
+                  ),
+                ),
+              ),
+            );
+          }
+
           final business = businessProvider.business;
           final customColor = ThemeConfig.hexToColor(business?.themeColorHex);
           final customBgColor = ThemeConfig.hexToColor(
@@ -127,7 +159,7 @@ class MainApp extends StatelessWidget {
               customColor: customColor,
               customBgColor: customBgColor,
             ).getTheme(),
-            routerConfig: appRouter,
+            routerConfig: AppRouter.create(tenantProvider),
           );
         },
       ),
