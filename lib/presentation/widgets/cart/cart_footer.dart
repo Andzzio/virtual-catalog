@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -93,9 +92,7 @@ class CartFooter extends StatelessWidget {
                   deliveryMethods,
                   paymentMethods,
                 );
-                final slug = GoRouterState.of(
-                  context,
-                ).pathParameters["businessSlug"];
+                final slug = NavigationHelper.getSlug(context);
                 NavigationHelper.go(context, "/$slug/checkout");
               },
               style: ButtonStyle(

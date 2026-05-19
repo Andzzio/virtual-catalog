@@ -45,4 +45,48 @@ class Business {
     this.backgroundColorHex,
     this.customDomain,
   });
+
+  Business copyWith({
+    String? slug,
+    String? ownerId,
+    String? name,
+    String? description,
+    String? logoUrl,
+    String? whatsappNumber,
+    List<BannerItem>? banners,
+    List<DeliveryMethod>? deliveryMethods,
+    List<PaymentMethod>? paymentMethods,
+    bool? showDesktopLogo,
+    bool? showMobileLogo,
+    String? termsAndConditions,
+    List<HomeBlock>? homeBlocks,
+    String? izipayUsername,
+    String? izipayPassword,
+    String? izipayPublicKey,
+    String? themeColorHex,
+    String? backgroundColorHex,
+    String? customDomain,
+  }) {
+    return Business(
+      slug: slug ?? this.slug,
+      ownerId: ownerId ?? this.ownerId,
+      name: name ?? this.name,
+      description: description ?? this.description,
+      logoUrl: logoUrl ?? this.logoUrl,
+      whatsappNumber: whatsappNumber ?? this.whatsappNumber,
+      banners: banners ?? this.banners,
+      deliveryMethods: deliveryMethods ?? this.deliveryMethods,
+      paymentMethods: paymentMethods ?? this.paymentMethods,
+      showDesktopLogo: showDesktopLogo ?? this.showDesktopLogo,
+      showMobileLogo: showMobileLogo ?? this.showMobileLogo,
+      termsAndConditions: termsAndConditions ?? this.termsAndConditions,
+      homeBlocks: homeBlocks ?? this.homeBlocks,
+      izipayUsername: izipayUsername ?? this.izipayUsername,
+      izipayPassword: izipayPassword ?? this.izipayPassword,
+      izipayPublicKey: izipayPublicKey ?? this.izipayPublicKey,
+      themeColorHex: themeColorHex ?? this.themeColorHex,
+      backgroundColorHex: backgroundColorHex ?? this.backgroundColorHex,
+      customDomain: customDomain ?? this.customDomain,
+    );
+  }
 }

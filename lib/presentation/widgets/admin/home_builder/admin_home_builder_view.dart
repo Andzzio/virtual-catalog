@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
-import 'package:virtual_catalog_app/domain/entities/business.dart';
 import 'package:virtual_catalog_app/domain/entities/home_block.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
@@ -25,21 +24,7 @@ class _AdminHomeBuilderViewState extends State<AdminHomeBuilderView> {
 
     setState(() => _isSaving = true);
 
-    final updated = Business(
-      slug: business.slug,
-      ownerId: business.ownerId,
-      name: business.name,
-      description: business.description,
-      logoUrl: business.logoUrl,
-      whatsappNumber: business.whatsappNumber,
-      banners: business.banners,
-      deliveryMethods: business.deliveryMethods,
-      paymentMethods: business.paymentMethods,
-      showDesktopLogo: business.showDesktopLogo,
-      showMobileLogo: business.showMobileLogo,
-      termsAndConditions: business.termsAndConditions,
-      homeBlocks: newBlocks,
-    );
+    final updated = business.copyWith(homeBlocks: newBlocks);
 
     try {
       await context.read<BusinessProvider>().updateBusiness(updated);

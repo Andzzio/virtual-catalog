@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
@@ -62,9 +61,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
               if (widget.block.showButton)
                 TextButton(
                   onPressed: () {
-                    final String slug = GoRouterState.of(
-                      context,
-                    ).pathParameters["businessSlug"]!;
+                    final String slug = NavigationHelper.getSlug(context);
                     NavigationHelper.go(context, "/$slug/catalog");
                   },
                   style: ButtonStyle(
@@ -111,9 +108,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
               if (widget.block.showButton)
                 TextButton(
                   onPressed: () {
-                    final String slug = GoRouterState.of(
-                      context,
-                    ).pathParameters["businessSlug"]!;
+                    final String slug = NavigationHelper.getSlug(context);
                     NavigationHelper.go(context, "/$slug/catalog");
                   },
                   style: ButtonStyle(

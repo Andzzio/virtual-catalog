@@ -163,21 +163,7 @@ class AdminBannersView extends StatelessWidget {
     final item = updatedBanners.removeAt(index);
     updatedBanners.insert(targetIndex, item);
 
-    final updated = Business(
-      slug: business.slug,
-      ownerId: business.ownerId,
-      name: business.name,
-      description: business.description,
-      logoUrl: business.logoUrl,
-      whatsappNumber: business.whatsappNumber,
-      banners: updatedBanners,
-      deliveryMethods: business.deliveryMethods,
-      paymentMethods: business.paymentMethods,
-      showDesktopLogo: business.showDesktopLogo,
-      showMobileLogo: business.showMobileLogo,
-      termsAndConditions: business.termsAndConditions,
-      homeBlocks: business.homeBlocks,
-    );
+    final updated = business.copyWith(banners: updatedBanners);
 
     try {
       await context.read<BusinessProvider>().updateBusiness(updated);
@@ -224,21 +210,7 @@ class AdminBannersView extends StatelessWidget {
       updatedBanners.add(newBanner);
     }
 
-    final updated = Business(
-      slug: business.slug,
-      ownerId: business.ownerId,
-      name: business.name,
-      description: business.description,
-      logoUrl: business.logoUrl,
-      whatsappNumber: business.whatsappNumber,
-      banners: updatedBanners,
-      deliveryMethods: business.deliveryMethods,
-      paymentMethods: business.paymentMethods,
-      showDesktopLogo: business.showDesktopLogo,
-      showMobileLogo: business.showMobileLogo,
-      termsAndConditions: business.termsAndConditions,
-      homeBlocks: business.homeBlocks,
-    );
+    final updated = business.copyWith(banners: updatedBanners);
 
     try {
       await context.read<BusinessProvider>().updateBusiness(updated);
@@ -312,21 +284,7 @@ class AdminBannersView extends StatelessWidget {
     final updatedBanners = List<BannerItem>.from(business.banners)
       ..removeAt(index);
 
-    final updated = Business(
-      slug: business.slug,
-      ownerId: business.ownerId,
-      name: business.name,
-      description: business.description,
-      logoUrl: business.logoUrl,
-      whatsappNumber: business.whatsappNumber,
-      banners: updatedBanners,
-      deliveryMethods: business.deliveryMethods,
-      paymentMethods: business.paymentMethods,
-      showDesktopLogo: business.showDesktopLogo,
-      showMobileLogo: business.showMobileLogo,
-      termsAndConditions: business.termsAndConditions,
-      homeBlocks: business.homeBlocks,
-    );
+    final updated = business.copyWith(banners: updatedBanners);
 
     try {
       await context.read<BusinessProvider>().updateBusiness(updated);

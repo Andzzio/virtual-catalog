@@ -153,7 +153,7 @@ class MainApp extends StatelessWidget {
 
           return MaterialApp.router(
             debugShowCheckedModeBanner: false,
-            title: "Virtual Catalog",
+            title: business?.name ?? "Virtual Catalog",
             theme: ThemeConfig(
               selectedColor: 0,
               customColor: customColor,

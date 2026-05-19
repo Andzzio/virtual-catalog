@@ -33,7 +33,7 @@ class MenuView extends StatelessWidget {
             icon: Icons.home_rounded,
             title: "Inicio",
             onTap: () {
-              final slug = GoRouterState.of(context).pathParameters["businessSlug"];
+              final slug = NavigationHelper.getSlug(context);
               context.pop();
               NavigationHelper.go(context, "/$slug");
             },
@@ -44,7 +44,7 @@ class MenuView extends StatelessWidget {
             icon: Icons.storefront_rounded,
             title: "Catálogo",
             onTap: () {
-              final slug = GoRouterState.of(context).pathParameters["businessSlug"];
+              final slug = NavigationHelper.getSlug(context);
               context.pop();
               NavigationHelper.go(context, "/$slug/catalog");
             },

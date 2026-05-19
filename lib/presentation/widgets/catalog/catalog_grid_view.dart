@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
 import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
@@ -58,10 +57,7 @@ class _CatalogGridViewState extends State<CatalogGridView> {
                       ? IconButton(
                           onPressed: () async {
                             final slug =
-                                GoRouterState.of(
-                                  context,
-                                ).pathParameters["businessSlug"] ??
-                                "";
+                                NavigationHelper.getSlug(context);
                             final String?
                             resultUrl = await showModalBottomSheet<String>(
                               context: context,
@@ -124,9 +120,7 @@ class _CatalogGridViewState extends State<CatalogGridView> {
                         ),
                         onChanged: (value) {},
                         onSubmitted: (value) {
-                          final slug = GoRouterState.of(
-                            context,
-                          ).pathParameters["businessSlug"];
+                          final slug = NavigationHelper.getSlug(context);
                           NavigationHelper.go(context, 
                             FilterCatalog.buildCatalogUrl(
                               slug,

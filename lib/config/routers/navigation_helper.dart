@@ -4,6 +4,14 @@ import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/tenant_provider.dart';
 
 class NavigationHelper {
+  static String getSlug(BuildContext context) {
+    final tenant = context.read<TenantProvider>();
+    if (tenant.isCustomDomain) {
+      return tenant.resolvedSlug!;
+    }
+    return GoRouterState.of(context).pathParameters["businessSlug"] ?? '';
+  }
+
   static void go(BuildContext context, String fullPath) {
     final tenant = context.read<TenantProvider>();
     if (tenant.isCustomDomain) {

@@ -109,32 +109,22 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         logoUrl = result["url"]!;
       }
 
-      final updated = Business(
-        slug: business.slug,
-        ownerId: business.ownerId,
+      final updated = business.copyWith(
         name: _nameCtrl.text.trim(),
         description: _descCtrl.text.trim(),
         logoUrl: logoUrl,
         whatsappNumber: _whatsappCtrl.text.trim(),
-        banners: business.banners,
         deliveryMethods: _deliveryMethods,
         paymentMethods: _paymentMethods,
         showDesktopLogo: _showDesktopLogo,
         showMobileLogo: _showMobileLogo,
         termsAndConditions: _termsCtrl.text.trim(),
-        homeBlocks: business.homeBlocks,
         izipayUsername: _izipayUsername,
         izipayPassword: _izipayPassword,
         izipayPublicKey: _izipayPublicKey,
-        themeColorHex: _themeColorCtrl.text.trim().isEmpty
-            ? null
-            : _themeColorCtrl.text.trim(),
-        backgroundColorHex: _bgColorCtrl.text.trim().isEmpty
-            ? null
-            : _bgColorCtrl.text.trim(),
-        customDomain: _domainCtrl.text.trim().isEmpty
-            ? null
-            : _domainCtrl.text.trim(),
+        themeColorHex: _themeColorCtrl.text.trim().isEmpty ? null : _themeColorCtrl.text.trim(),
+        backgroundColorHex: _bgColorCtrl.text.trim().isEmpty ? null : _bgColorCtrl.text.trim(),
+        customDomain: _domainCtrl.text.trim().isEmpty ? null : _domainCtrl.text.trim(),
       );
 
       if (!mounted) return;
