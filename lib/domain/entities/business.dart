@@ -23,6 +23,11 @@ class Business {
   final String? themeColorHex;
   final String? backgroundColorHex;
   final String? customDomain;
+  final String? apisPeruToken;
+  final String? ruc;
+  final String? address;
+  final String? nubefactUrl;
+  final String? nubefactToken;
 
   Business({
     required this.slug,
@@ -44,6 +49,11 @@ class Business {
     this.themeColorHex,
     this.backgroundColorHex,
     this.customDomain,
+    this.apisPeruToken,
+    this.ruc,
+    this.address,
+    this.nubefactUrl,
+    this.nubefactToken,
   });
 
   Business copyWith({
@@ -66,6 +76,11 @@ class Business {
     String? themeColorHex,
     String? backgroundColorHex,
     String? customDomain,
+    String? apisPeruToken,
+    String? ruc,
+    String? address,
+    String? nubefactUrl,
+    String? nubefactToken,
   }) {
     return Business(
       slug: slug ?? this.slug,
@@ -87,6 +102,11 @@ class Business {
       themeColorHex: themeColorHex ?? this.themeColorHex,
       backgroundColorHex: backgroundColorHex ?? this.backgroundColorHex,
       customDomain: customDomain ?? this.customDomain,
+      apisPeruToken: apisPeruToken ?? this.apisPeruToken,
+      ruc: ruc ?? this.ruc,
+      address: address ?? this.address,
+      nubefactUrl: nubefactUrl ?? this.nubefactUrl,
+      nubefactToken: nubefactToken ?? this.nubefactToken,
     );
   }
 }

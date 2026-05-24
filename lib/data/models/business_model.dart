@@ -25,6 +25,11 @@ class BusinessModel {
   final String? themeColorHex;
   final String? backgroundColorHex;
   final String? customDomain;
+  final String? apisPeruToken;
+  final String? ruc;
+  final String? address;
+  final String? nubefactUrl;
+  final String? nubefactToken;
 
   BusinessModel({
     required this.slug,
@@ -46,6 +51,11 @@ class BusinessModel {
     this.themeColorHex,
     this.backgroundColorHex,
     this.customDomain,
+    this.apisPeruToken,
+    this.ruc,
+    this.address,
+    this.nubefactUrl,
+    this.nubefactToken,
   });
 
   factory BusinessModel.fromFirestore(DocumentSnapshot doc) {
@@ -78,6 +88,11 @@ class BusinessModel {
       themeColorHex: json['themeColorHex'],
       backgroundColorHex: json['backgroundColorHex'],
       customDomain: json['customDomain'],
+      apisPeruToken: json['apisPeruToken'],
+      ruc: json['ruc'],
+      address: json['address'],
+      nubefactUrl: json['nubefactUrl'],
+      nubefactToken: json['nubefactToken'],
     );
   }
 
@@ -110,6 +125,11 @@ class BusinessModel {
       themeColorHex: json['themeColorHex'],
       backgroundColorHex: json['backgroundColorHex'],
       customDomain: json['customDomain'],
+      apisPeruToken: json['apisPeruToken'],
+      ruc: json['ruc'],
+      address: json['address'],
+      nubefactUrl: json['nubefactUrl'],
+      nubefactToken: json['nubefactToken'],
     );
   }
 
@@ -133,6 +153,11 @@ class BusinessModel {
     'themeColorHex': themeColorHex,
     'backgroundColorHex': backgroundColorHex,
     'customDomain': customDomain,
+    if (apisPeruToken != null) 'apisPeruToken': apisPeruToken,
+    if (ruc != null) 'ruc': ruc,
+    if (address != null) 'address': address,
+    if (nubefactUrl != null) 'nubefactUrl': nubefactUrl,
+    if (nubefactToken != null) 'nubefactToken': nubefactToken,
   };
 
   Business toEntity() => Business(
@@ -155,6 +180,11 @@ class BusinessModel {
     themeColorHex: themeColorHex,
     backgroundColorHex: backgroundColorHex,
     customDomain: customDomain,
+    apisPeruToken: apisPeruToken,
+    ruc: ruc,
+    address: address,
+    nubefactUrl: nubefactUrl,
+    nubefactToken: nubefactToken,
   );
 
   factory BusinessModel.fromEntity(Business entity) {
@@ -186,6 +216,11 @@ class BusinessModel {
       themeColorHex: entity.themeColorHex,
       backgroundColorHex: entity.backgroundColorHex,
       customDomain: entity.customDomain,
+      apisPeruToken: entity.apisPeruToken,
+      ruc: entity.ruc,
+      address: entity.address,
+      nubefactUrl: entity.nubefactUrl,
+      nubefactToken: entity.nubefactToken,
     );
   }
 }

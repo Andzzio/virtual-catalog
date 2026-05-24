@@ -35,7 +35,14 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   late TextEditingController _themeColorCtrl;
   late TextEditingController _bgColorCtrl;
   late TextEditingController _domainCtrl;
+  late TextEditingController _apisPeruTokenCtrl;
+  late TextEditingController _nubefactUrlCtrl;
+  late TextEditingController _nubefactTokenCtrl;
+  late TextEditingController _rucCtrl;
+  late TextEditingController _addressCtrl;
 
+  bool _showApisPeruToken = false;
+  bool _showNubefactToken = false;
   Uint8List? _newLogo;
   String? _currentLogoUrl;
   List<DeliveryMethod> _deliveryMethods = [];
@@ -59,6 +66,11 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
       text: business.backgroundColorHex ?? "",
     );
     _domainCtrl = TextEditingController(text: business.customDomain ?? "");
+    _apisPeruTokenCtrl = TextEditingController(text: business.apisPeruToken ?? "");
+    _nubefactUrlCtrl = TextEditingController(text: business.nubefactUrl ?? "");
+    _nubefactTokenCtrl = TextEditingController(text: business.nubefactToken ?? "");
+    _rucCtrl = TextEditingController(text: business.ruc ?? "");
+    _addressCtrl = TextEditingController(text: business.address ?? "");
     _currentLogoUrl = business.logoUrl;
     _deliveryMethods = List.from(business.deliveryMethods);
     _paymentMethods = List.from(business.paymentMethods);
@@ -80,6 +92,11 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
       _themeColorCtrl.dispose();
       _bgColorCtrl.dispose();
       _domainCtrl.dispose();
+      _apisPeruTokenCtrl.dispose();
+      _nubefactUrlCtrl.dispose();
+      _nubefactTokenCtrl.dispose();
+      _rucCtrl.dispose();
+      _addressCtrl.dispose();
     }
     super.dispose();
   }
@@ -125,6 +142,11 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         themeColorHex: _themeColorCtrl.text.trim().isEmpty ? null : _themeColorCtrl.text.trim(),
         backgroundColorHex: _bgColorCtrl.text.trim().isEmpty ? null : _bgColorCtrl.text.trim(),
         customDomain: _domainCtrl.text.trim().isEmpty ? null : _domainCtrl.text.trim(),
+        apisPeruToken: _apisPeruTokenCtrl.text.trim().isEmpty ? null : _apisPeruTokenCtrl.text.trim(),
+        nubefactUrl: _nubefactUrlCtrl.text.trim().isEmpty ? null : _nubefactUrlCtrl.text.trim(),
+        nubefactToken: _nubefactTokenCtrl.text.trim().isEmpty ? null : _nubefactTokenCtrl.text.trim(),
+        ruc: _rucCtrl.text.trim().isEmpty ? null : _rucCtrl.text.trim(),
+        address: _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
       );
 
       if (!mounted) return;
@@ -266,6 +288,24 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
                         });
                       },
                     ),
+                    const SizedBox(height: 30),
+                    const Divider(),
+                    const SizedBox(height: 30),
+                    _buildSectionHeader(
+                      Icons.receipt_long_outlined,
+                      "Facturación Electrónica (Nubefact)",
+                    ),
+                    const SizedBox(height: 16),
+                    _buildNubefactSection(),
+                    const SizedBox(height: 30),
+                    const Divider(),
+                    const SizedBox(height: 30),
+                    _buildSectionHeader(
+                      Icons.search_outlined,
+                      "Consulta DNI/RUC",
+                    ),
+                    const SizedBox(height: 16),
+                    _buildApisPeruSection(),
                     const SizedBox(height: 30),
                     const Divider(),
                     const SizedBox(height: 30),
@@ -438,6 +478,129 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     );
   }
 
+  Widget _buildApisPeruSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+      decoration: AdminTheme.cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Token de APIs Perú",
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AdminTheme.textSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: _apisPeruTokenCtrl,
+            obscureText: !_showApisPeruToken,
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(fontSize: 13),
+            ),
+            decoration: AdminTheme.inputDecoration(
+              hintText: "Token para consulta de RUC/DNI",
+            ).copyWith(
+              suffixIcon: IconButton(
+                onPressed: () => setState(() => _showApisPeruToken = !_showApisPeruToken),
+                icon: Icon(
+                  _showApisPeruToken ? Icons.visibility_off : Icons.visibility,
+                  size: 18,
+                  color: AdminTheme.textMuted,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Permite consultar DNI y RUC de clientes de forma automática mediante la API de dniruc.apisperu.com.",
+            style: AdminTheme.caption(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildNubefactSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+      decoration: AdminTheme.cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            "Ruta / Endpoint",
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AdminTheme.textSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: _nubefactUrlCtrl,
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(fontSize: 13),
+            ),
+            decoration: AdminTheme.inputDecoration(
+              hintText: "https://api.nubefact.com/api/v1/...",
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Token de Nubefact",
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AdminTheme.textSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: _nubefactTokenCtrl,
+            obscureText: !_showNubefactToken,
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(fontSize: 13),
+            ),
+            decoration: AdminTheme.inputDecoration(
+              hintText: "Token proporcionado por Nubefact",
+            ).copyWith(
+              suffixIcon: IconButton(
+                onPressed: () => setState(() => _showNubefactToken = !_showNubefactToken),
+                icon: Icon(
+                  _showNubefactToken ? Icons.visibility_off : Icons.visibility,
+                  size: 18,
+                  color: AdminTheme.textMuted,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            "Configura tu cuenta de Nubefact para emitir Boletas y Facturas electrónicas con validez SUNAT. El Certificado Digital y Clave SOL se gestionan directamente en Nubefact.",
+            style: AdminTheme.caption(),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildFooterSection() {
     return Container(
       decoration: AdminTheme.cardDecoration(),
@@ -524,6 +687,40 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
           decoration: _inputDecoration("Nombre del negocio"),
           style: GoogleFonts.getFont(FontNames.fontNameH2),
           validator: (v) => (v == null || v.trim().isEmpty) ? "Requerido" : null,
+        ),
+        const SizedBox(height: 14),
+        LayoutBuilder(
+          builder: (context, constraints) {
+            final isNarrow = constraints.maxWidth < 450;
+            final rucField = TextFormField(
+              controller: _rucCtrl,
+              decoration: _inputDecoration("R.U.C. del negocio (opcional)"),
+              style: GoogleFonts.getFont(FontNames.fontNameH2),
+              keyboardType: TextInputType.number,
+            );
+            final addressField = TextFormField(
+              controller: _addressCtrl,
+              decoration: _inputDecoration("Dirección física del negocio (opcional)"),
+              style: GoogleFonts.getFont(FontNames.fontNameH2),
+            );
+
+            if (isNarrow) {
+              return Column(
+                children: [
+                  rucField,
+                  const SizedBox(height: 14),
+                  addressField,
+                ],
+              );
+            }
+            return Row(
+              children: [
+                Expanded(child: rucField),
+                const SizedBox(width: 14),
+                Expanded(child: addressField),
+              ],
+            );
+          },
         ),
         const SizedBox(height: 14),
         TextFormField(

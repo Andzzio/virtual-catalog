@@ -12,6 +12,8 @@ import 'package:virtual_catalog_app/presentation/widgets/admin/home_builder/admi
 import 'package:virtual_catalog_app/presentation/widgets/admin/settings/admin_settings_view.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/locations/admin_shipping_zones_view.dart';
 import '../../presentation/widgets/admin/products/admin_products_view.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/inventory/admin_inventory_view.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/sales/admin_sales_view.dart';
 import 'package:virtual_catalog_app/presentation/providers/tenant_provider.dart';
 
 class AppRouter {
@@ -145,6 +147,20 @@ class AppRouter {
               builder: (context, state) {
                 final slug = _getSlug(context, state);
                 return AdminShippingZonesView(businessSlug: slug);
+              },
+            ),
+            GoRoute(
+              path: "inventory",
+              builder: (context, state) {
+                final slug = _getSlug(context, state);
+                return AdminInventoryView(businessSlug: slug);
+              },
+            ),
+            GoRoute(
+              path: "sales",
+              builder: (context, state) {
+                final slug = _getSlug(context, state);
+                return AdminSalesView(businessSlug: slug);
               },
             ),
           ],

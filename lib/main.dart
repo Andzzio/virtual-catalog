@@ -11,9 +11,11 @@ import 'package:virtual_catalog_app/data/datasources/business_datasource_impl.da
 import 'package:virtual_catalog_app/data/datasources/cart_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/datasources/izipay_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/datasources/product_datasource_impl.dart';
+import 'package:virtual_catalog_app/data/datasources/stock_movement_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/datasources/ubigeo_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/datasources/shipping_zone_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/repos/auth_repository_impl.dart';
+import 'package:virtual_catalog_app/data/repos/stock_movement_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/business_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/cart_repository_impl.dart';
 import 'package:virtual_catalog_app/data/repos/izipay_repository_impl.dart';
@@ -37,6 +39,12 @@ import 'package:virtual_catalog_app/presentation/providers/product_provider.dart
 import 'package:virtual_catalog_app/presentation/providers/tenant_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/ubigeo_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/shipping_zone_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/stock_movement_provider.dart';
+import 'package:virtual_catalog_app/data/datasources/sale_datasource_impl.dart';
+import 'package:virtual_catalog_app/data/repos/sale_repository_impl.dart';
+import 'package:virtual_catalog_app/domain/usecases/create_sale.dart';
+import 'package:virtual_catalog_app/domain/usecases/get_sales.dart';
+import 'package:virtual_catalog_app/presentation/providers/sales_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -58,6 +66,8 @@ class MainApp extends StatelessWidget {
 
     final shippingZoneDatasource = ShippingZoneDatasourceImpl();
     final shippingZoneRepo = ShippingZoneRepositoryImpl(datasource: shippingZoneDatasource);
+    final stockMovementRepo = StockMovementRepositoryImpl(datasource: StockMovementDatasourceImpl());
+    final saleRepo = SaleRepositoryImpl(datasource: SaleDatasourceImpl());
 
     return MultiProvider(
       providers: [
@@ -117,6 +127,18 @@ class MainApp extends StatelessWidget {
           create: (_) => ShippingZoneProvider(
             getShippingZones: GetShippingZones(shippingZoneRepo),
             saveShippingZones: SaveShippingZones(shippingZoneRepo),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => StockMovementProvider(
+            repository: stockMovementRepo,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SalesProvider(
+            getSalesUseCase: GetSales(saleRepo),
+            createSaleUseCase: CreateSale(saleRepo),
+            stockMovementRepository: stockMovementRepo,
           ),
         ),
       ],

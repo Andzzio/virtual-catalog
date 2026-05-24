@@ -44,3 +44,6 @@ flutter:
     - assets/images/
   # - assets/ShurumbaImagenes/
   # - assets/sabanaImages/
+
+dependency_overrides:
+  font_awesome_flutter: ^11.0.0

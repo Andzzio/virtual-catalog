@@ -77,11 +77,8 @@ class _ImagePickerUploaderState extends State<ImagePickerUploader> {
                   scrollDirection: Axis.horizontal,
                   buildDefaultDragHandles: false,
                   itemCount: widget.mediaItems.length,
-                  onReorder: (oldIndex, newIndex) {
+                  onReorderItem: (oldIndex, newIndex) {
                     setState(() {
-                      if (oldIndex < newIndex) {
-                        newIndex -= 1;
-                      }
                       final List<dynamic> updatedItems = List.from(
                         widget.mediaItems,
                       );

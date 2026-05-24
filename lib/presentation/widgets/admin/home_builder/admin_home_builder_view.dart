@@ -168,8 +168,7 @@ class _AdminHomeBuilderViewState extends State<AdminHomeBuilderView> {
                     ),
                     buildDefaultDragHandles: false, // Custom handle only
                     itemCount: blocks.length,
-                    onReorder: (oldIndex, newIndex) {
-                      if (oldIndex < newIndex) newIndex -= 1;
+                    onReorderItem: (oldIndex, newIndex) {
                       final currentBlocks = List<HomeBlock>.from(blocks);
                       final item = currentBlocks.removeAt(oldIndex);
                       currentBlocks.insert(newIndex, item);
