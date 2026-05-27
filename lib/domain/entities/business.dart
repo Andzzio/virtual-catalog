@@ -28,6 +28,12 @@ class Business {
   final String? address;
   final String? nubefactUrl;
   final String? nubefactToken;
+  final String? sunatUser;
+  final String? sunatPassword;
+  final String? sunatPfxPassword;
+  final String? sunatEnvironment;
+  final bool? hasCertificate;
+  final DateTime? certificateExpiresAt;
 
   Business({
     required this.slug,
@@ -54,6 +60,12 @@ class Business {
     this.address,
     this.nubefactUrl,
     this.nubefactToken,
+    this.sunatUser,
+    this.sunatPassword,
+    this.sunatPfxPassword,
+    this.sunatEnvironment,
+    this.hasCertificate,
+    this.certificateExpiresAt,
   });
 
   Business copyWith({
@@ -81,6 +93,12 @@ class Business {
     String? address,
     String? nubefactUrl,
     String? nubefactToken,
+    String? sunatUser,
+    String? sunatPassword,
+    String? sunatPfxPassword,
+    String? sunatEnvironment,
+    bool? hasCertificate,
+    DateTime? certificateExpiresAt,
   }) {
     return Business(
       slug: slug ?? this.slug,
@@ -107,6 +125,12 @@ class Business {
       address: address ?? this.address,
       nubefactUrl: nubefactUrl ?? this.nubefactUrl,
       nubefactToken: nubefactToken ?? this.nubefactToken,
+      sunatUser: sunatUser ?? this.sunatUser,
+      sunatPassword: sunatPassword ?? this.sunatPassword,
+      sunatPfxPassword: sunatPfxPassword ?? this.sunatPfxPassword,
+      sunatEnvironment: sunatEnvironment ?? this.sunatEnvironment,
+      hasCertificate: hasCertificate ?? this.hasCertificate,
+      certificateExpiresAt: certificateExpiresAt ?? this.certificateExpiresAt,
     );
   }
 }

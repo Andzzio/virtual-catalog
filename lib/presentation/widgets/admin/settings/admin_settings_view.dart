@@ -1,5 +1,9 @@
+import 'dart:convert';
 import 'dart:typed_data';
+import 'package:dio/dio.dart';
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
@@ -40,9 +44,13 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   late TextEditingController _nubefactTokenCtrl;
   late TextEditingController _rucCtrl;
   late TextEditingController _addressCtrl;
+  late TextEditingController _sunatUserCtrl;
+  late TextEditingController _sunatPasswordCtrl;
+  late TextEditingController _sunatPfxPasswordCtrl;
 
   bool _showApisPeruToken = false;
   bool _showNubefactToken = false;
+  bool _showSunatPassword = false;
   Uint8List? _newLogo;
   String? _currentLogoUrl;
   List<DeliveryMethod> _deliveryMethods = [];
@@ -54,6 +62,13 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   bool _isSaving = false;
   bool _showDesktopLogo = false;
   bool _showMobileLogo = false;
+
+  String _sunatEnvironment = 'beta';
+  Uint8List? _pfxBytes;
+  String? _pfxFileName;
+  bool _isUploadingCertificate = false;
+  bool _hasCertificate = false;
+  DateTime? _certificateExpiresAt;
 
   void _initFromBusiness(Business business) {
     if (_initialized) return;
@@ -71,6 +86,9 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     _nubefactTokenCtrl = TextEditingController(text: business.nubefactToken ?? "");
     _rucCtrl = TextEditingController(text: business.ruc ?? "");
     _addressCtrl = TextEditingController(text: business.address ?? "");
+    _sunatUserCtrl = TextEditingController(text: business.sunatUser ?? "");
+    _sunatPasswordCtrl = TextEditingController(text: business.sunatPassword ?? "");
+    _sunatPfxPasswordCtrl = TextEditingController();
     _currentLogoUrl = business.logoUrl;
     _deliveryMethods = List.from(business.deliveryMethods);
     _paymentMethods = List.from(business.paymentMethods);
@@ -79,6 +97,9 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     _izipayUsername = business.izipayUsername;
     _izipayPassword = business.izipayPassword;
     _izipayPublicKey = business.izipayPublicKey;
+    _sunatEnvironment = business.sunatEnvironment ?? 'beta';
+    _hasCertificate = business.hasCertificate ?? false;
+    _certificateExpiresAt = business.certificateExpiresAt;
     _initialized = true;
   }
 
@@ -97,6 +118,9 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
       _nubefactTokenCtrl.dispose();
       _rucCtrl.dispose();
       _addressCtrl.dispose();
+      _sunatUserCtrl.dispose();
+      _sunatPasswordCtrl.dispose();
+      _sunatPfxPasswordCtrl.dispose();
     }
     super.dispose();
   }
@@ -147,6 +171,12 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         nubefactToken: _nubefactTokenCtrl.text.trim().isEmpty ? null : _nubefactTokenCtrl.text.trim(),
         ruc: _rucCtrl.text.trim().isEmpty ? null : _rucCtrl.text.trim(),
         address: _addressCtrl.text.trim().isEmpty ? null : _addressCtrl.text.trim(),
+        sunatUser: _sunatUserCtrl.text.trim().isEmpty ? null : _sunatUserCtrl.text.trim(),
+        sunatPassword: _sunatPasswordCtrl.text.trim().isEmpty ? null : _sunatPasswordCtrl.text.trim(),
+        sunatPfxPassword: _sunatPfxPasswordCtrl.text.isNotEmpty ? _sunatPfxPasswordCtrl.text : null,
+        sunatEnvironment: _sunatEnvironment,
+        hasCertificate: _hasCertificate,
+        certificateExpiresAt: _certificateExpiresAt,
       );
 
       if (!mounted) return;
@@ -163,6 +193,86 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
         ScaffoldMessenger.of(
           context,
         ).showSnackBar(SnackBar(content: Text("❌ Error: $e")));
+      }
+    }
+  }
+
+  Future<void> _selectCertificateFile() async {
+    final result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pfx', 'p12'],
+    );
+    if (result == null || result.files.isEmpty) return;
+    setState(() {
+      _pfxBytes = result.files.first.bytes;
+      _pfxFileName = result.files.first.name;
+    });
+  }
+
+  Future<void> _uploadCertificate() async {
+    if (_pfxBytes == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("❌ Primero selecciona un archivo .pfx")),
+      );
+      return;
+    }
+
+    final business = context.read<BusinessProvider>().business;
+    if (business == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("❌ Error: Negocio no cargado")),
+        );
+      }
+      return;
+    }
+
+    setState(() => _isUploadingCertificate = true);
+
+    try {
+      final dio = Dio();
+      dio.options.validateStatus = (status) => true;
+      final functionUrl = dotenv.env['FUNCTION_UPLOAD_CERTIFICATE'] ??
+          "https://us-central1-catalogo-virtual-app.cloudfunctions.net/upload_certificate";
+      final response = await dio.post(functionUrl, data: {
+        "ruc": business.ruc ?? "",
+        "pfxBase64": base64Encode(_pfxBytes!),
+        "password": _sunatPfxPasswordCtrl.text,
+        "environment": _sunatEnvironment,
+      });
+
+      if (!mounted) return;
+
+      final errorMsg = response.data["error"] as String?;
+      if (response.data["success"] == true) {
+        setState(() {
+          _hasCertificate = true;
+          _certificateExpiresAt = DateTime.parse(response.data["expiresAt"]);
+          _isUploadingCertificate = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "✅ Certificado cargado - Válido hasta ${_certificateExpiresAt!.toLocal().toString().substring(0, 10)}",
+            ),
+          ),
+        );
+      } else {
+        setState(() => _isUploadingCertificate = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "❌ ${errorMsg ?? "Error al subir certificado"}",
+            ),
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() => _isUploadingCertificate = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("❌ Error de conexión: $e")),
+        );
       }
     }
   }
@@ -297,6 +407,15 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
                     ),
                     const SizedBox(height: 16),
                     _buildNubefactSection(),
+                    const SizedBox(height: 30),
+                    const Divider(),
+                    const SizedBox(height: 30),
+                    _buildSectionHeader(
+                      Icons.receipt_long_outlined,
+                      "SUNAT Directo (Gratuito)",
+                    ),
+                    const SizedBox(height: 16),
+                    _buildSunatDirectSection(),
                     const SizedBox(height: 30),
                     const Divider(),
                     const SizedBox(height: 30),
@@ -595,6 +714,288 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
           Text(
             "Configura tu cuenta de Nubefact para emitir Boletas y Facturas electrónicas con validez SUNAT. El Certificado Digital y Clave SOL se gestionan directamente en Nubefact.",
             style: AdminTheme.caption(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSunatDirectSection() {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 20),
+      decoration: AdminTheme.cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Credenciales SOL
+          Text(
+            "Usuario SOL",
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AdminTheme.textSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: _sunatUserCtrl,
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(fontSize: 13),
+            ),
+            decoration: AdminTheme.inputDecoration(
+              hintText: "Ej: FACSIS11",
+            ),
+          ),
+          const SizedBox(height: 16),
+          Text(
+            "Contraseña SOL",
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AdminTheme.textSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 4),
+          TextFormField(
+            controller: _sunatPasswordCtrl,
+            obscureText: !_showSunatPassword,
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(fontSize: 13),
+            ),
+            decoration: AdminTheme.inputDecoration(
+              hintText: "Contraseña del usuario SOL",
+            ).copyWith(
+              suffixIcon: IconButton(
+                onPressed: () =>
+                    setState(() => _showSunatPassword = !_showSunatPassword),
+                icon: Icon(
+                  _showSunatPassword
+                      ? Icons.visibility_off
+                      : Icons.visibility,
+                  size: 18,
+                  color: AdminTheme.textMuted,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          // Ambiente (beta / prod)
+          Text(
+            "Ambiente SUNAT",
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AdminTheme.textSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          SegmentedButton<String>(
+            segments: const [
+              ButtonSegment(
+                value: "beta",
+                label: Text("BETA (Pruebas)"),
+                icon: Icon(Icons.science_outlined, size: 18),
+              ),
+              ButtonSegment(
+                value: "prod",
+                label: Text("Producción"),
+                icon: Icon(Icons.rocket_launch_outlined, size: 18),
+              ),
+            ],
+            selected: {_sunatEnvironment},
+            onSelectionChanged: (selected) {
+              setState(() => _sunatEnvironment = selected.first);
+            },
+            style: ButtonStyle(
+              visualDensity: VisualDensity.compact,
+              textStyle: WidgetStatePropertyAll(
+                GoogleFonts.getFont(FontNames.fontNameH2, fontSize: 12),
+              ),
+            ),
+          ),
+          const SizedBox(height: 16),
+          const Divider(),
+          const SizedBox(height: 16),
+          // Área de certificado digital
+          Text(
+            "Certificado Digital (.pfx)",
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(
+                fontSize: 12,
+                fontWeight: FontWeight.w500,
+                color: AdminTheme.textSecondary,
+              ),
+            ),
+          ),
+          const SizedBox(height: 8),
+          _buildCertificateArea(),
+          const SizedBox(height: 8),
+          Text(
+            "El certificado digital (.pfx) es emitido por RENIEC (gratuito para MYPE) o una CA privada. Se almacena de forma segura en Google Cloud Secret Manager.",
+            style: AdminTheme.caption(),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCertificateArea() {
+    if (_hasCertificate && _certificateExpiresAt != null) {
+      final daysUntilExpiry = _certificateExpiresAt!.difference(DateTime.now()).inDays;
+      return Container(
+        padding: const EdgeInsets.all(12),
+        decoration: BoxDecoration(
+          color: daysUntilExpiry < 30
+              ? Colors.orange.withValues(alpha: 0.1)
+              : Colors.green.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: daysUntilExpiry < 30 ? Colors.orange : Colors.green,
+          ),
+        ),
+        child: Row(
+          children: [
+            Icon(
+              daysUntilExpiry < 30
+                  ? Icons.warning_amber_rounded
+                  : Icons.check_circle,
+              color: daysUntilExpiry < 30 ? Colors.orange : Colors.green,
+              size: 28,
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Certificado cargado",
+                    style: GoogleFonts.getFont(
+                      FontNames.fontNameH2,
+                      textStyle: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    "Vence: ${_certificateExpiresAt!.toLocal().toString().substring(0, 10)} "
+                    "($daysUntilExpiry días)",
+                    style: GoogleFonts.getFont(
+                      FontNames.fontNameH2,
+                      textStyle: TextStyle(
+                        fontSize: 12,
+                        color: daysUntilExpiry < 30
+                            ? Colors.orange.shade800
+                            : Colors.green.shade700,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            TextButton.icon(
+              onPressed: _selectCertificateFile,
+              icon: const Icon(Icons.refresh, size: 18),
+              label: const Text("Renovar"),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        border: Border.all(color: AdminTheme.border, style: BorderStyle.solid),
+        borderRadius: BorderRadius.circular(8),
+        color: AdminTheme.surface,
+      ),
+      child: Column(
+        children: [
+          Icon(
+            Icons.file_upload_outlined,
+            size: 40,
+            color: AdminTheme.textMuted,
+          ),
+          const SizedBox(height: 8),
+          Text(
+            _pfxFileName ?? "Ningún archivo seleccionado",
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(
+                fontSize: 13,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _selectCertificateFile,
+              icon: const Icon(Icons.attach_file, size: 18),
+              label: Text(
+                "Seleccionar archivo .pfx",
+                style: GoogleFonts.getFont(FontNames.fontNameH2),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AdminTheme.accent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
+          ),
+          const SizedBox(height: 12),
+          TextFormField(
+            controller: _sunatPfxPasswordCtrl,
+            obscureText: true,
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(fontSize: 13),
+            ),
+            decoration: AdminTheme.inputDecoration(
+              hintText: "Contraseña del certificado .pfx",
+            ),
+          ),
+          const SizedBox(height: 12),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton.icon(
+              onPressed: _isUploadingCertificate ? null : _uploadCertificate,
+              icon: _isUploadingCertificate
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        color: Colors.white,
+                      ),
+                    )
+                  : const Icon(Icons.cloud_upload_outlined, size: 18),
+              label: Text(
+                _isUploadingCertificate ? "Subiendo..." : "Subir Certificado",
+                style: GoogleFonts.getFont(FontNames.fontNameH2),
+              ),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AdminTheme.accent,
+                foregroundColor: Colors.white,
+                padding: const EdgeInsets.symmetric(vertical: 12),
+              ),
+            ),
           ),
         ],
       ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/auth_provider.dart';
@@ -215,7 +216,19 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
     final business = businessProvider.business;
     final user = authProvider.user;
 
-    if (business != null && user != null && business.ownerId == user.uid) {
+    bool hasPermission = false;
+    if (business != null && user != null) {
+      if (business.ownerId == user.uid) {
+        hasPermission = true;
+      } else {
+        final userDoc = await FirebaseFirestore.instance.collection("users").doc(user.uid).get();
+        if (userDoc.exists && userDoc.data()?["businessId"] == widget.businessSlug) {
+          hasPermission = true;
+        }
+      }
+    }
+
+    if (business != null && user != null && hasPermission) {
       if (!mounted) return;
       NavigationHelper.go(context, "/${widget.businessSlug}/admin/dashboard");
     } else {

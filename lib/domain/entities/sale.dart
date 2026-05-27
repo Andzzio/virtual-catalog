@@ -23,6 +23,10 @@ class Sale {
   final String? pdfUrl;
   final String? xmlUrl;
   final String? cdrUrl;
+  final String? motivoCodigo;
+  final String? motivoDescripcion;
+  final String? refDocSerie;
+  final int? refDocNumero;
 
   Sale({
     required this.id,
@@ -47,5 +51,9 @@ class Sale {
     this.pdfUrl,
     this.xmlUrl,
     this.cdrUrl,
+    this.motivoCodigo,
+    this.motivoDescripcion,
+    this.refDocSerie,
+    this.refDocNumero,
   });
 }

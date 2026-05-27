@@ -26,6 +26,10 @@ class SaleModel extends Sale {
     super.pdfUrl,
     super.xmlUrl,
     super.cdrUrl,
+    super.motivoCodigo,
+    super.motivoDescripcion,
+    super.refDocSerie,
+    super.refDocNumero,
   });
 
   Map<String, dynamic> toFirestore() {
@@ -64,6 +68,10 @@ class SaleModel extends Sale {
       if (pdfUrl != null) 'pdfUrl': pdfUrl,
       if (xmlUrl != null) 'xmlUrl': xmlUrl,
       if (cdrUrl != null) 'cdrUrl': cdrUrl,
+      if (motivoCodigo != null) 'motivoCodigo': motivoCodigo,
+      if (motivoDescripcion != null) 'motivoDescripcion': motivoDescripcion,
+      if (refDocSerie != null) 'refDocSerie': refDocSerie,
+      if (refDocNumero != null) 'refDocNumero': refDocNumero,
     };
   }
 
@@ -96,6 +104,10 @@ class SaleModel extends Sale {
       pdfUrl: json['pdfUrl'],
       xmlUrl: json['xmlUrl'],
       cdrUrl: json['cdrUrl'],
+      motivoCodigo: json['motivoCodigo'],
+      motivoDescripcion: json['motivoDescripcion'],
+      refDocSerie: json['refDocSerie'],
+      refDocNumero: json['refDocNumero'],
     );
   }
 }

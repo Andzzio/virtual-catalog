@@ -41,6 +41,12 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
   bool _isQueryingDoc = false;
   bool _isSubmitting = false;
 
+  // NC/ND fields
+  String? _motivoCodigo;
+  final _motivoDescCtrl = TextEditingController();
+  final _refDocCtrl = TextEditingController();
+  String _refDocType = '01'; // '01' = factura, '03' = boleta
+
   @override
   void initState() {
     super.initState();
@@ -50,7 +56,17 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
         business.nubefactUrl!.isNotEmpty &&
         business.nubefactToken != null &&
         business.nubefactToken!.isNotEmpty;
-    _documentType = hasNubefact ? 'boleta' : 'nota_venta';
+    final hasSunatDirect = business != null &&
+        business.hasCertificate == true &&
+        business.ruc != null &&
+        business.ruc!.isNotEmpty &&
+        business.sunatUser != null &&
+        business.sunatUser!.isNotEmpty &&
+        business.sunatPassword != null &&
+        business.sunatPassword!.isNotEmpty &&
+        business.sunatPfxPassword != null &&
+        business.sunatPfxPassword!.isNotEmpty;
+    _documentType = (hasNubefact || hasSunatDirect) ? 'boleta' : 'nota_venta';
   }
 
   @override
@@ -61,6 +77,8 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
     _phoneCtrl.dispose();
     _notesCtrl.dispose();
     _qtyCtrl.dispose();
+    _motivoDescCtrl.dispose();
+    _refDocCtrl.dispose();
     super.dispose();
   }
 
@@ -153,6 +171,94 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
     });
   }
 
+  String? _extractRefSerie() {
+    if (_documentType != 'nota_credito' && _documentType != 'nota_debito') return null;
+    final parts = _refDocCtrl.text.trim().split('-');
+    return parts.isNotEmpty ? parts[0] : null;
+  }
+
+  int? _extractRefNumero() {
+    if (_documentType != 'nota_credito' && _documentType != 'nota_debito') return null;
+    final parts = _refDocCtrl.text.trim().split('-');
+    if (parts.length > 1) return int.tryParse(parts[1]);
+    return null;
+  }
+
+  void _selectExistingSale(BuildContext context) {
+    final salesProvider = context.read<SalesProvider>();
+    final electronicSales = salesProvider.sales
+        .where((s) => s.documentType == 'boleta' || s.documentType == 'factura')
+        .toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
+    if (electronicSales.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('No hay boletas o facturas emitidas')),
+      );
+      return;
+    }
+
+    showDialog(
+      context: context,
+      builder: (ctx) => Dialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AdminTheme.radiusLg)),
+        backgroundColor: AdminTheme.cardBg,
+        child: Container(
+          width: 500,
+          constraints: const BoxConstraints(maxHeight: 500),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text('Seleccionar comprobante',
+                style: GoogleFonts.getFont(FontNames.fontNameH2, textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: AdminTheme.textPrimary)),
+              ),
+              const SizedBox(height: 16),
+              Expanded(
+                child: ListView.separated(
+                  itemCount: electronicSales.length,
+                  separatorBuilder: (_, _) => const Divider(height: 1),
+                  itemBuilder: (_, i) {
+                    final s = electronicSales[i];
+                    final tipo = s.documentType == 'factura' ? 'FACTURA' : 'BOLETA';
+                    return ListTile(
+                      dense: true,
+                      title: Text('${s.number}  -  ${s.customerName}', style: GoogleFonts.getFont(FontNames.fontNameH2, fontSize: 13)),
+                      subtitle: Text('${s.customerDoc}  |  S/ ${s.total.toStringAsFixed(2)}', style: GoogleFonts.getFont(FontNames.fontNameH2, fontSize: 11, color: AdminTheme.textMuted)),
+                      trailing: Text(tipo, style: GoogleFonts.getFont(FontNames.fontNameH2, fontSize: 10, color: s.documentType == 'factura' ? Colors.purple : Colors.blue)),
+                      onTap: () {
+                        setState(() {
+                          _refDocType = s.documentType == 'factura' ? '01' : '03';
+                          _refDocCtrl.text = s.number;
+                          _docCtrl.text = s.customerDoc;
+                          _nameCtrl.text = s.customerName;
+                          _addressCtrl.text = s.customerAddress;
+                          _items.clear();
+                          for (var item in s.items) {
+                            _items.add(SaleItem(
+                              productId: item.productId,
+                              productName: item.productName,
+                              productSku: item.productSku,
+                              variantName: item.variantName,
+                              quantity: item.quantity,
+                              unitPrice: item.unitPrice,
+                              lineTotal: item.lineTotal,
+                            ));
+                          }
+                        });
+                        Navigator.pop(ctx);
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   Future<void> _submit() async {
     if (!_formKey.currentState!.validate()) return;
     if (_items.isEmpty) {
@@ -185,6 +291,11 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
         currentProducts: productProvider.products,
         onUpdateProduct: (p) => productProvider.updateProduct(widget.businessSlug, p),
         business: businessProvider.business,
+        motivoCodigo: (_documentType == 'nota_credito' || _documentType == 'nota_debito') ? _motivoCodigo : null,
+        motivoDescripcion: (_documentType == 'nota_credito' || _documentType == 'nota_debito') ? _motivoDescCtrl.text.trim() : null,
+        refDocSerie: _extractRefSerie(),
+        refDocNumero: _extractRefNumero(),
+        refDocType: (_documentType == 'nota_credito' || _documentType == 'nota_debito') ? _refDocType : null,
       );
 
       if (mounted) {
@@ -219,6 +330,17 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
         business.nubefactUrl!.isNotEmpty &&
         business.nubefactToken != null &&
         business.nubefactToken!.isNotEmpty;
+    final hasSunatDirect = business != null &&
+        business.hasCertificate == true &&
+        business.ruc != null &&
+        business.ruc!.isNotEmpty &&
+        business.sunatUser != null &&
+        business.sunatUser!.isNotEmpty &&
+        business.sunatPassword != null &&
+        business.sunatPassword!.isNotEmpty &&
+        business.sunatPfxPassword != null &&
+        business.sunatPfxPassword!.isNotEmpty;
+    final canEmitElectronic = hasNubefact || hasSunatDirect;
     final paymentMethods = business?.paymentMethods ?? [];
 
     if (_selectedPaymentMethod == null && paymentMethods.isNotEmpty) {
@@ -283,10 +405,12 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
                                     dropdownColor: AdminTheme.cardBgElevated,
                                     decoration: AdminTheme.inputDecoration(hintText: 'Tipo Comprobante'),
                                     style: GoogleFonts.getFont(FontNames.fontNameH2, textStyle: const TextStyle(color: AdminTheme.textPrimary)),
-                                    items: hasNubefact
+                                    items: canEmitElectronic
                                         ? const [
                                             DropdownMenuItem(value: 'boleta', child: Text('Boleta de Venta')),
                                             DropdownMenuItem(value: 'factura', child: Text('Factura')),
+                                            DropdownMenuItem(value: 'nota_credito', child: Text('Nota de Crédito')),
+                                            DropdownMenuItem(value: 'nota_debito', child: Text('Nota de Débito')),
                                             DropdownMenuItem(value: 'nota_venta', child: Text('Nota de Venta')),
                                           ]
                                         : const [
@@ -310,7 +434,9 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
                                           ? 'DNI (8 dígitos)'
                                           : _documentType == 'factura'
                                               ? 'RUC (11 dígitos)'
-                                              : 'Documento (Opcional)',
+                                              : _documentType == 'nota_credito' || _documentType == 'nota_debito'
+                                                  ? (_refDocType == '01' ? 'RUC (11 dígitos)' : 'DNI (8 dígitos)')
+                                                  : 'Documento (Opcional)',
                                       suffixIcon: _isQueryingDoc
                                           ? const Padding(
                                               padding: EdgeInsets.all(12.0),
@@ -326,7 +452,12 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
                                     style: GoogleFonts.getFont(FontNames.fontNameH2),
                                     keyboardType: TextInputType.number,
                                     onChanged: (val) {
-                                      if (token.isNotEmpty && ((_documentType == 'boleta' && val.length == 8) || (_documentType == 'factura' && val.length == 11))) {
+                                      final shouldQuery = (_documentType == 'boleta' && val.length == 8) ||
+                                          (_documentType == 'factura' && val.length == 11) ||
+                                          ((_documentType == 'nota_credito' || _documentType == 'nota_debito') &&
+                                              ((_refDocType == '01' && val.length == 11) ||
+                                                  (_refDocType == '03' && val.length == 8)));
+                                      if (token.isNotEmpty && shouldQuery) {
                                         _queryDocument(val, token);
                                       }
                                     },
@@ -335,6 +466,10 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
                                       if (v == null || v.trim().isEmpty) return 'Requerido';
                                       if (_documentType == 'boleta' && v.trim().length != 8) return 'Debe tener 8 dígitos';
                                       if (_documentType == 'factura' && v.trim().length != 11) return 'Debe tener 11 dígitos';
+                                      if (_documentType == 'nota_credito' || _documentType == 'nota_debito') {
+                                        if (_refDocType == '01' && v.trim().length != 11) return 'Debe tener 11 dígitos (RUC)';
+                                        if (_refDocType == '03' && v.trim().length != 8) return 'Debe tener 8 dígitos (DNI)';
+                                      }
                                       return null;
                                     },
                                   ),
@@ -347,7 +482,7 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
                               decoration: AdminTheme.inputDecoration(
                                 hintText: _documentType == 'boleta'
                                     ? 'Nombre del Cliente'
-                                    : _documentType == 'factura'
+                                    : _documentType == 'factura' || _documentType == 'nota_credito' || _documentType == 'nota_debito'
                                         ? 'Razón Social'
                                         : 'Cliente / Nombre',
                               ),
@@ -360,6 +495,63 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
                               decoration: AdminTheme.inputDecoration(hintText: 'Dirección (Opcional)'),
                               style: GoogleFonts.getFont(FontNames.fontNameH2),
                             ),
+                            if (_documentType == 'nota_credito' || _documentType == 'nota_debito') ...[
+                              const SizedBox(height: 12),
+                              DropdownButtonFormField<String>(
+                                isExpanded: true,
+                                dropdownColor: AdminTheme.cardBgElevated,
+                                decoration: AdminTheme.inputDecoration(hintText: 'Motivo'),
+                                style: GoogleFonts.getFont(FontNames.fontNameH2, textStyle: const TextStyle(color: AdminTheme.textPrimary)),
+                                items: const [
+                                  DropdownMenuItem(value: '01', child: Text('01 - Anulación')),
+                                  DropdownMenuItem(value: '02', child: Text('02 - Devolución total')),
+                                  DropdownMenuItem(value: '03', child: Text('03 - Bonificación')),
+                                  DropdownMenuItem(value: '04', child: Text('04 - Disminución valor')),
+                                  DropdownMenuItem(value: '05', child: Text('05 - Devolución item')),
+                                  DropdownMenuItem(value: '06', child: Text('06 - Descuento global')),
+                                  DropdownMenuItem(value: '07', child: Text('07 - Ajuste operaciones')),
+                                  DropdownMenuItem(value: '08', child: Text('08 - Corrección descripción')),
+                                ],
+                                onChanged: (val) => setState(() => _motivoCodigo = val),
+                              ),
+                              const SizedBox(height: 12),
+                              TextFormField(
+                                controller: _motivoDescCtrl,
+                                decoration: AdminTheme.inputDecoration(hintText: 'Descripción del motivo'),
+                                style: GoogleFonts.getFont(FontNames.fontNameH2),
+                              ),
+                              const SizedBox(height: 12),
+                              SegmentedButton<String>(
+                                segments: const [
+                                  ButtonSegment(value: '01', label: Text('Factura'), icon: Icon(Icons.description, size: 16)),
+                                  ButtonSegment(value: '03', label: Text('Boleta'), icon: Icon(Icons.receipt, size: 16)),
+                                ],
+                                selected: {_refDocType},
+                                onSelectionChanged: (selected) {
+                                  setState(() => _refDocType = selected.first);
+                                },
+                                style: ButtonStyle(
+                                  visualDensity: VisualDensity.compact,
+                                  textStyle: WidgetStatePropertyAll(
+                                    GoogleFonts.getFont(FontNames.fontNameH2, fontSize: 12),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              TextFormField(
+                                controller: _refDocCtrl,
+                                decoration: AdminTheme.inputDecoration(
+                                  hintText: _refDocType == '01' ? 'Nro Factura (ej: F001-00000001)' : 'Nro Boleta (ej: B001-00000001)',
+                                  suffixIcon: IconButton(
+                                    icon: const Icon(Icons.search, size: 20),
+                                    onPressed: () => _selectExistingSale(context),
+                                    tooltip: 'Seleccionar venta existente',
+                                  ),
+                                ),
+                                style: GoogleFonts.getFont(FontNames.fontNameH2),
+                                validator: (v) => (v == null || v.trim().isEmpty) ? 'Requerido para NC/ND' : null,
+                              ),
+                            ],
                             const SizedBox(height: 12),
                             Row(
                               children: [

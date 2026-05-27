@@ -30,6 +30,12 @@ class BusinessModel {
   final String? address;
   final String? nubefactUrl;
   final String? nubefactToken;
+  final String? sunatUser;
+  final String? sunatPassword;
+  final String? sunatPfxPassword;
+  final String? sunatEnvironment;
+  final bool? hasCertificate;
+  final DateTime? certificateExpiresAt;
 
   BusinessModel({
     required this.slug,
@@ -56,6 +62,12 @@ class BusinessModel {
     this.address,
     this.nubefactUrl,
     this.nubefactToken,
+    this.sunatUser,
+    this.sunatPassword,
+    this.sunatPfxPassword,
+    this.sunatEnvironment,
+    this.hasCertificate,
+    this.certificateExpiresAt,
   });
 
   factory BusinessModel.fromFirestore(DocumentSnapshot doc) {
@@ -93,6 +105,16 @@ class BusinessModel {
       address: json['address'],
       nubefactUrl: json['nubefactUrl'],
       nubefactToken: json['nubefactToken'],
+      sunatUser: json['sunatUser'],
+      sunatPassword: json['sunatPassword'],
+      sunatPfxPassword: json['sunatPfxPassword'],
+      sunatEnvironment: json['sunatEnvironment'],
+      hasCertificate: json['hasCertificate'],
+      certificateExpiresAt: json['certificateExpiresAt'] != null
+          ? (json['certificateExpiresAt'] is Timestamp
+              ? (json['certificateExpiresAt'] as Timestamp).toDate()
+              : DateTime.tryParse(json['certificateExpiresAt'] as String))
+          : null,
     );
   }
 
@@ -130,6 +152,14 @@ class BusinessModel {
       address: json['address'],
       nubefactUrl: json['nubefactUrl'],
       nubefactToken: json['nubefactToken'],
+      sunatUser: json['sunatUser'],
+      sunatPassword: json['sunatPassword'],
+      sunatPfxPassword: json['sunatPfxPassword'],
+      sunatEnvironment: json['sunatEnvironment'],
+      hasCertificate: json['hasCertificate'],
+      certificateExpiresAt: json['certificateExpiresAt'] != null
+          ? DateTime.tryParse(json['certificateExpiresAt'] as String)
+          : null,
     );
   }
 
@@ -158,6 +188,12 @@ class BusinessModel {
     if (address != null) 'address': address,
     if (nubefactUrl != null) 'nubefactUrl': nubefactUrl,
     if (nubefactToken != null) 'nubefactToken': nubefactToken,
+    if (sunatUser != null) 'sunatUser': sunatUser,
+    if (sunatPassword != null) 'sunatPassword': sunatPassword,
+    if (sunatPfxPassword != null) 'sunatPfxPassword': sunatPfxPassword,
+    if (sunatEnvironment != null) 'sunatEnvironment': sunatEnvironment,
+    if (hasCertificate != null) 'hasCertificate': hasCertificate,
+    if (certificateExpiresAt != null) 'certificateExpiresAt': certificateExpiresAt?.toIso8601String(),
   };
 
   Business toEntity() => Business(
@@ -185,6 +221,12 @@ class BusinessModel {
     address: address,
     nubefactUrl: nubefactUrl,
     nubefactToken: nubefactToken,
+    sunatUser: sunatUser,
+    sunatPassword: sunatPassword,
+    sunatPfxPassword: sunatPfxPassword,
+    sunatEnvironment: sunatEnvironment,
+    hasCertificate: hasCertificate,
+    certificateExpiresAt: certificateExpiresAt,
   );
 
   factory BusinessModel.fromEntity(Business entity) {
@@ -221,6 +263,12 @@ class BusinessModel {
       address: entity.address,
       nubefactUrl: entity.nubefactUrl,
       nubefactToken: entity.nubefactToken,
+      sunatUser: entity.sunatUser,
+      sunatPassword: entity.sunatPassword,
+      sunatPfxPassword: entity.sunatPfxPassword,
+      sunatEnvironment: entity.sunatEnvironment,
+      hasCertificate: entity.hasCertificate,
+      certificateExpiresAt: entity.certificateExpiresAt,
     );
   }
 }

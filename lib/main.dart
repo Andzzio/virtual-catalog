@@ -45,6 +45,16 @@ import 'package:virtual_catalog_app/data/repos/sale_repository_impl.dart';
 import 'package:virtual_catalog_app/domain/usecases/create_sale.dart';
 import 'package:virtual_catalog_app/domain/usecases/get_sales.dart';
 import 'package:virtual_catalog_app/presentation/providers/sales_provider.dart';
+import 'package:virtual_catalog_app/data/datasources/chat_datasource_impl.dart';
+import 'package:virtual_catalog_app/data/repos/chat_repository_impl.dart';
+import 'package:virtual_catalog_app/presentation/providers/chat_provider.dart';
+import 'package:virtual_catalog_app/data/datasources/user_datasource_impl.dart';
+import 'package:virtual_catalog_app/data/repos/user_repository_impl.dart';
+import 'package:virtual_catalog_app/domain/usecases/get_users.dart';
+import 'package:virtual_catalog_app/domain/usecases/create_user.dart';
+import 'package:virtual_catalog_app/domain/usecases/delete_user.dart';
+import 'package:virtual_catalog_app/domain/usecases/update_user_role.dart';
+import 'package:virtual_catalog_app/presentation/providers/users_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -68,6 +78,7 @@ class MainApp extends StatelessWidget {
     final shippingZoneRepo = ShippingZoneRepositoryImpl(datasource: shippingZoneDatasource);
     final stockMovementRepo = StockMovementRepositoryImpl(datasource: StockMovementDatasourceImpl());
     final saleRepo = SaleRepositoryImpl(datasource: SaleDatasourceImpl());
+    final userRepo = UserRepositoryImpl(datasource: UserDatasourceImpl());
 
     return MultiProvider(
       providers: [
@@ -139,6 +150,22 @@ class MainApp extends StatelessWidget {
             getSalesUseCase: GetSales(saleRepo),
             createSaleUseCase: CreateSale(saleRepo),
             stockMovementRepository: stockMovementRepo,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ChatProvider(
+            chatRepository: ChatRepositoryImpl(
+              datasource: ChatDatasourceImpl(),
+            ),
+            izipayDataSource: IzipayDatasourceImpl(dio: dio),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => UsersProvider(
+            getUsersUseCase: GetUsers(userRepo),
+            createUserUseCase: CreateUser(userRepo),
+            deleteUserUseCase: DeleteUser(userRepo),
+            updateUserRoleUseCase: UpdateUserRole(userRepo),
           ),
         ),
       ],

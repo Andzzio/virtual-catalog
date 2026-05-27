@@ -14,7 +14,12 @@ import 'package:virtual_catalog_app/presentation/widgets/admin/locations/admin_s
 import '../../presentation/widgets/admin/products/admin_products_view.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/inventory/admin_inventory_view.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/sales/admin_sales_view.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/sales/admin_invoice_view.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/sales/admin_package_sticker_view.dart';
 import 'package:virtual_catalog_app/presentation/providers/tenant_provider.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/inbox/admin_inbox_view.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/users/admin_users_view.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/products/admin_stickers_hangtags_view.dart';
 
 class AppRouter {
   static String _getSlug(BuildContext context, GoRouterState state) {
@@ -161,6 +166,48 @@ class AppRouter {
               builder: (context, state) {
                 final slug = _getSlug(context, state);
                 return AdminSalesView(businessSlug: slug);
+              },
+              routes: [
+                GoRoute(
+                  path: ":saleId",
+                  builder: (context, state) {
+                    final slug = _getSlug(context, state);
+                    final saleId = state.pathParameters["saleId"]!;
+                    return AdminInvoiceView(businessSlug: slug, saleId: saleId);
+                  },
+                  routes: [
+                    GoRoute(
+                      path: "package",
+                      builder: (context, state) {
+                        final slug = _getSlug(context, state);
+                        final saleId = state.pathParameters["saleId"]!;
+                        return AdminPackageStickerView(
+                            businessSlug: slug, saleId: saleId);
+                      },
+                    ),
+                  ],
+                ),
+              ],
+            ),
+            GoRoute(
+              path: "inbox",
+              builder: (context, state) {
+                final slug = _getSlug(context, state);
+                return AdminInboxView(businessSlug: slug);
+              },
+            ),
+            GoRoute(
+              path: "users",
+              builder: (context, state) {
+                final slug = _getSlug(context, state);
+                return AdminUsersView(businessSlug: slug);
+              },
+            ),
+            GoRoute(
+              path: "stickers",
+              builder: (context, state) {
+                final slug = _getSlug(context, state);
+                return AdminStickersHangtagsView(businessSlug: slug);
               },
             ),
           ],

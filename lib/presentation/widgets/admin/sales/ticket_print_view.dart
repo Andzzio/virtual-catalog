@@ -58,15 +58,18 @@ class TicketPrintView extends StatelessWidget {
         "${sale.createdAt.day.toString().padLeft(2, '0')}/${sale.createdAt.month.toString().padLeft(2, '0')}/${sale.createdAt.year}";
     final timeStr =
         "${sale.createdAt.hour.toString().padLeft(2, '0')}:${sale.createdAt.minute.toString().padLeft(2, '0')}";
-    final docTypeNum = sale.documentType == 'factura' ? '01' : '03';
+    final docTypeNum = sale.documentType == 'factura' ? '01' : sale.documentType == 'boleta' ? '03' : sale.documentType == 'nota_credito' ? '07' : sale.documentType == 'nota_debito' ? '08' : '03';
     final numberParts = sale.number.split('-');
     final series = numberParts.isNotEmpty ? numberParts[0] : '';
     final correlative = numberParts.length > 1 ? numberParts[1] : '';
 
-    final qrData =
-        "${business.ruc ?? ''}|$docTypeNum|$series|$correlative|${sale.igv.toStringAsFixed(2)}|${sale.total.toStringAsFixed(2)}|$dateStr|${sale.customerDoc.length == 11 ? '6' : '1'}|${sale.customerDoc}|";
-    final qrUrl =
-        "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${Uri.encodeComponent(qrData)}";
+    final showQr = sale.documentType != 'nota_venta';
+    final qrData = showQr
+        ? "${business.ruc ?? ''}|$docTypeNum|$series|$correlative|${sale.igv.toStringAsFixed(2)}|${sale.total.toStringAsFixed(2)}|$dateStr|${sale.customerDoc.length == 11 ? '6' : '1'}|${sale.customerDoc}|"
+        : "";
+    final qrUrl = showQr
+        ? "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${Uri.encodeComponent(qrData)}"
+        : null;
     final amountInWords = numberToWords(sale.total);
 
     return Dialog(
@@ -165,7 +168,11 @@ class TicketPrintView extends StatelessWidget {
                               ? 'NOTA DE VENTA'
                               : sale.documentType == 'factura'
                                   ? 'FACTURA ELECTRÓNICA'
-                                  : 'BOLETA DE VENTA ELECTRÓNICA',
+                                  : sale.documentType == 'nota_credito'
+                                      ? 'NOTA DE CRÉDITO ELECTRÓNICA'
+                                      : sale.documentType == 'nota_debito'
+                                          ? 'NOTA DE DÉBITO ELECTRÓNICA'
+                                          : 'BOLETA DE VENTA ELECTRÓNICA',
                           style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black)),
                         ),
                       ),
@@ -175,6 +182,17 @@ class TicketPrintView extends StatelessWidget {
                           style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black)),
                         ),
                       ),
+                      if (sale.documentType == 'nota_credito' || sale.documentType == 'nota_debito')
+                        if (sale.refDocSerie != null && sale.refDocSerie!.isNotEmpty)
+                          Padding(
+                            padding: const EdgeInsets.only(top: 2),
+                            child: Center(
+                              child: Text(
+                                'Doc. que modifica: ${sale.refDocSerie}-${sale.refDocNumero?.toString().padLeft(8, '0') ?? ''}',
+                                style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 10, color: Colors.black54)),
+                              ),
+                            ),
+                          ),
                       const SizedBox(height: 6),
                       _buildDashedLine(),
                       const SizedBox(height: 8),
@@ -194,11 +212,11 @@ class TicketPrintView extends StatelessWidget {
                             TableRow(
                               children: [
                                 Text(
-                                  sale.documentType == 'factura'
-                                      ? 'R.U.C.:'
-                                      : sale.documentType == 'boleta'
-                                          ? 'D.N.I.:'
-                                          : 'DOC. IDENTIDAD:',
+                                  sale.documentType == 'nota_venta'
+                                      ? 'DOC. IDENTIDAD:'
+                                      : sale.customerDoc.length == 11
+                                          ? 'R.U.C.:'
+                                          : 'D.N.I.:',
                                   style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black)),
                                 ),
                                 Text(sale.customerDoc, style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 11, color: Colors.black))),
@@ -315,6 +333,16 @@ class TicketPrintView extends StatelessWidget {
                         amountInWords,
                         style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
                       ),
+                      if ((sale.documentType == 'nota_credito' || sale.documentType == 'nota_debito') && sale.motivoDescripcion != null) ...[
+                        const SizedBox(height: 6),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Motivo:', style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black))),
+                            Text(sale.motivoDescripcion!, style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 10, color: Colors.black))),
+                          ],
+                        ),
+                      ],
                       if (sale.notes.isNotEmpty) ...[
                         const SizedBox(height: 8),
                         _buildDashedLine(),
@@ -342,7 +370,11 @@ class TicketPrintView extends StatelessWidget {
                         child: Text(
                           sale.documentType == 'nota_venta'
                               ? 'Representación física de una Nota de Venta de uso interno.'
-                              : 'Representación impresa de la ${sale.documentType == 'factura' ? 'Factura' : 'Boleta'} Electrónica.',
+                              : sale.documentType == 'nota_credito'
+                                  ? 'Representación impresa de la Nota de Crédito Electrónica.'
+                                  : sale.documentType == 'nota_debito'
+                                      ? 'Representación impresa de la Nota de Débito Electrónica.'
+                                      : 'Representación impresa de la ${sale.documentType == 'factura' ? 'Factura' : 'Boleta'} Electrónica.',
                           style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 9, color: Colors.black54)),
                           textAlign: TextAlign.center,
                         ),
@@ -364,7 +396,7 @@ class TicketPrintView extends StatelessWidget {
                         const SizedBox(height: 12),
                         Center(
                           child: Image.network(
-                            qrUrl,
+                            qrUrl!,
                             width: 120,
                             height: 120,
                             fit: BoxFit.contain,

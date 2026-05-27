@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/sale.dart';
@@ -284,10 +285,17 @@ class _AdminSalesViewState extends State<AdminSalesView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  TextButton.icon(
+                  IconButton(
                     onPressed: () => _showTicketDialog(sale),
-                    icon: const Icon(Icons.print, size: 16),
-                    label: const Text('Ver / Imprimir'),
+                    icon: const Icon(Icons.print, size: 18),
+                    color: AdminTheme.textSecondary,
+                    tooltip: 'Imprimir Ticket',
+                  ),
+                  const SizedBox(width: 8),
+                  TextButton.icon(
+                    onPressed: () => context.push("/${widget.businessSlug}/admin/sales/${sale.id}"),
+                    icon: const Icon(Icons.receipt_long, size: 18),
+                    label: const Text('Ver Factura'),
                     style: TextButton.styleFrom(foregroundColor: AdminTheme.accent),
                   ),
                 ],
@@ -304,7 +312,9 @@ class _AdminSalesViewState extends State<AdminSalesView> {
       width: double.infinity,
       decoration: AdminTheme.cardDecoration(),
       child: SingleChildScrollView(
-        child: DataTable(
+        scrollDirection: Axis.horizontal,
+        child: SingleChildScrollView(
+          child: DataTable(
           showCheckboxColumn: false,
           headingRowColor: WidgetStateProperty.all(AdminTheme.surface),
           columns: [
@@ -323,7 +333,7 @@ class _AdminSalesViewState extends State<AdminSalesView> {
                 "${sale.createdAt.day.toString().padLeft(2, '0')}/${sale.createdAt.month.toString().padLeft(2, '0')}/${sale.createdAt.year.toString().substring(2)} ${sale.createdAt.hour.toString().padLeft(2, '0')}:${sale.createdAt.minute.toString().padLeft(2, '0')}";
 
             return DataRow(
-              onSelectChanged: (_) => _showTicketDialog(sale),
+              onSelectChanged: (_) => context.push("/${widget.businessSlug}/admin/sales/${sale.id}"),
               cells: [
                 DataCell(Text(sale.number, style: _cellStyle(fontWeight: FontWeight.bold))),
                 DataCell(
@@ -370,6 +380,7 @@ class _AdminSalesViewState extends State<AdminSalesView> {
             );
           }).toList(),
         ),
+      ),
       ),
     );
   }
