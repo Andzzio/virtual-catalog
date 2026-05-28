@@ -9,11 +9,13 @@ import 'package:virtual_catalog_app/presentation/widgets/product/home_featured_p
 class HomeBlockRenderer extends StatelessWidget {
   final HomeBlock block;
   final List<Product> products;
+  final bool isPreview;
 
   const HomeBlockRenderer({
     super.key,
     required this.block,
     required this.products,
+    this.isPreview = false,
   });
 
   @override
@@ -22,13 +24,13 @@ class HomeBlockRenderer extends StatelessWidget {
 
     switch (block.layout) {
       case BlockLayout.list:
-        return HomeListProducts(block: block, products: products);
+        return HomeListProducts(block: block, products: products, isPreview: isPreview);
       case BlockLayout.grid:
-        return HomeGridProducts(block: block, products: products);
+        return HomeGridProducts(block: block, products: products, isPreview: isPreview);
       case BlockLayout.mosaic:
-        return HomeMosaicProducts(block: block, products: products);
+        return HomeMosaicProducts(block: block, products: products, isPreview: isPreview);
       case BlockLayout.featured:
-        return HomeFeaturedProduct(block: block, product: products.first);
+        return HomeFeaturedProduct(block: block, product: products.first, isPreview: isPreview);
     }
   }
 }

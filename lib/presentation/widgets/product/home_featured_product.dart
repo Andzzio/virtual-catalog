@@ -9,11 +9,13 @@ import 'package:virtual_catalog_app/presentation/widgets/product/product_info_se
 class HomeFeaturedProduct extends StatelessWidget {
   final HomeBlock block;
   final Product product;
+  final bool isPreview;
 
   const HomeFeaturedProduct({
     super.key,
     required this.block,
     required this.product,
+    this.isPreview = false,
   });
 
   @override
@@ -51,7 +53,7 @@ class HomeFeaturedProduct extends StatelessWidget {
               ? Column(
                   children: [
                     ProductImageSection(product: product),
-                    ProductInfoSection(product: product),
+                    ProductInfoSection(product: product, isPreview: isPreview),
                   ],
                 )
               : Row(
@@ -62,7 +64,7 @@ class HomeFeaturedProduct extends StatelessWidget {
                     ),
                     Expanded(
                       flex: 4,
-                      child: ProductInfoSection(product: product),
+                      child: ProductInfoSection(product: product, isPreview: isPreview),
                     ),
                   ],
                 ),

@@ -9,10 +9,12 @@ import 'package:virtual_catalog_app/presentation/widgets/product/product_card.da
 class HomeListProducts extends StatefulWidget {
   final HomeBlock block;
   final List<Product> products;
+  final bool isPreview;
   const HomeListProducts({
     super.key,
     required this.block,
     required this.products,
+    this.isPreview = false,
   });
 
   @override
@@ -60,10 +62,12 @@ class _HomeListProductsState extends State<HomeListProducts> {
               ],
               if (widget.block.showButton)
                 TextButton(
-                  onPressed: () {
-                    final String slug = NavigationHelper.getSlug(context);
-                    NavigationHelper.go(context, "/$slug/catalog");
-                  },
+                  onPressed: widget.isPreview
+                      ? null
+                      : () {
+                          final String slug = NavigationHelper.getSlug(context);
+                          NavigationHelper.go(context, "/$slug/catalog");
+                        },
                   style: ButtonStyle(
                     side: WidgetStatePropertyAll(
                       BorderSide(color: Colors.black),
@@ -107,10 +111,12 @@ class _HomeListProductsState extends State<HomeListProducts> {
               ),
               if (widget.block.showButton)
                 TextButton(
-                  onPressed: () {
-                    final String slug = NavigationHelper.getSlug(context);
-                    NavigationHelper.go(context, "/$slug/catalog");
-                  },
+                  onPressed: widget.isPreview
+                      ? null
+                      : () {
+                          final String slug = NavigationHelper.getSlug(context);
+                          NavigationHelper.go(context, "/$slug/catalog");
+                        },
                   style: ButtonStyle(
                     side: WidgetStatePropertyAll(
                       BorderSide(color: Colors.black),
@@ -148,6 +154,7 @@ class _HomeListProductsState extends State<HomeListProducts> {
                       cardWidth: cardWidth,
                       isPageView: false,
                       product: product,
+                      isPreview: widget.isPreview,
                     ),
                   );
                 },

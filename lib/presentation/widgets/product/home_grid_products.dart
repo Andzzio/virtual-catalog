@@ -8,10 +8,12 @@ import 'package:virtual_catalog_app/presentation/widgets/product/product_card.da
 class HomeGridProducts extends StatefulWidget {
   final HomeBlock block;
   final List<Product> products;
+  final bool isPreview;
   const HomeGridProducts({
     super.key,
     required this.block,
     required this.products,
+    this.isPreview = false,
   });
 
   @override
@@ -71,6 +73,7 @@ class _HomeGridProductsState extends State<HomeGridProducts> {
                       cardWidth: double.infinity,
                       isPageView: true,
                       product: product,
+                      isPreview: widget.isPreview,
                     );
                   },
                 );

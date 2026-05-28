@@ -9,11 +9,13 @@ import 'package:virtual_catalog_app/presentation/widgets/catalog_image.dart';
 class HomeMosaicProducts extends StatelessWidget {
   final HomeBlock block;
   final List<Product> products;
+  final bool isPreview;
 
   const HomeMosaicProducts({
     super.key,
     required this.block,
     required this.products,
+    this.isPreview = false,
   });
 
   @override
@@ -56,7 +58,7 @@ class HomeMosaicProducts extends StatelessWidget {
           const SizedBox(height: 30),
           Center(
             child: OutlinedButton(
-              onPressed: () {},
+              onPressed: isPreview ? null : () {},
               style: OutlinedButton.styleFrom(
                 foregroundColor: Colors.black,
                 side: const BorderSide(color: Colors.black),
@@ -93,7 +95,7 @@ class HomeMosaicProducts extends StatelessWidget {
               return SizedBox(
                 height: leftHeight,
                 width: double.infinity,
-                child: _MosaicTile(product: products[0]),
+                child: _MosaicTile(product: products[0], isPreview: isPreview),
               );
             }
 
@@ -102,9 +104,9 @@ class HomeMosaicProducts extends StatelessWidget {
                 height: leftHeight,
                 child: Row(
                   children: [
-                    Expanded(flex: 2, child: _MosaicTile(product: products[0])),
+                    Expanded(flex: 2, child: _MosaicTile(product: products[0], isPreview: isPreview)),
                     const SizedBox(width: 15),
-                    Expanded(flex: 1, child: _MosaicTile(product: products[1])),
+                    Expanded(flex: 1, child: _MosaicTile(product: products[1], isPreview: isPreview)),
                   ],
                 ),
               );
@@ -114,15 +116,15 @@ class HomeMosaicProducts extends StatelessWidget {
               height: leftHeight,
               child: Row(
                 children: [
-                  Expanded(flex: 2, child: _MosaicTile(product: products[0])),
+                  Expanded(flex: 2, child: _MosaicTile(product: products[0], isPreview: isPreview)),
                   const SizedBox(width: 15),
                   Expanded(
                     flex: 1,
                     child: Column(
                       children: [
-                        Expanded(child: _MosaicTile(product: products[1])),
+                        Expanded(child: _MosaicTile(product: products[1], isPreview: isPreview)),
                         const SizedBox(height: 15),
-                        Expanded(child: _MosaicTile(product: products[2])),
+                        Expanded(child: _MosaicTile(product: products[2], isPreview: isPreview)),
                       ],
                     ),
                   ),
@@ -143,7 +145,7 @@ class HomeMosaicProducts extends StatelessWidget {
           child: SizedBox(
             height: 350,
             width: double.infinity,
-            child: _MosaicTile(product: product),
+            child: _MosaicTile(product: product, isPreview: isPreview),
           ),
         );
       }).toList(),
@@ -153,8 +155,12 @@ class HomeMosaicProducts extends StatelessWidget {
 
 class _MosaicTile extends StatelessWidget {
   final Product product;
+  final bool isPreview;
 
-  const _MosaicTile({required this.product});
+  const _MosaicTile({
+    required this.product,
+    required this.isPreview,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -167,11 +173,13 @@ class _MosaicTile extends StatelessWidget {
     final currentPrice = discountPrice ?? price;
 
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
+      cursor: isPreview ? SystemMouseCursors.basic : SystemMouseCursors.click,
       child: GestureDetector(
-        onTap: () {
-          NavigationHelper.go(context, "/${product.businessId}/product/${product.id}");
-        },
+        onTap: isPreview
+            ? null
+            : () {
+                NavigationHelper.go(context, "/${product.businessId}/product/${product.id}");
+              },
         child: ClipRRect(
           borderRadius: BorderRadius.circular(8),
           child: Stack(

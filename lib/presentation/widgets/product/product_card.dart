@@ -13,11 +13,13 @@ class ProductCard extends StatefulWidget {
   final bool isPageView;
   final double cardWidth;
   final Product product;
+  final bool isPreview;
   const ProductCard({
     super.key,
     required this.cardWidth,
     required this.isPageView,
     required this.product,
+    this.isPreview = false,
   });
 
   @override
@@ -31,15 +33,17 @@ class _ProductCardState extends State<ProductCard> {
   @override
   Widget build(BuildContext context) {
     return MouseRegion(
-      cursor: SystemMouseCursors.click,
+      cursor: widget.isPreview ? SystemMouseCursors.basic : SystemMouseCursors.click,
       onEnter: (_) => setState(() => _isHovered = true),
       onExit: (_) => setState(() => _isHovered = false),
       child: GestureDetector(
-        onTap: () {
-          NavigationHelper.go(context, 
-            "/${widget.product.businessId}/product/${widget.product.id}",
-          );
-        },
+        onTap: widget.isPreview
+            ? null
+            : () {
+                NavigationHelper.go(context, 
+                  "/${widget.product.businessId}/product/${widget.product.id}",
+                );
+              },
         child: AnimatedScale(
           scale: _isHovered ? 1.02 : 1.0,
           duration: const Duration(milliseconds: 200),
@@ -279,30 +283,32 @@ class _ProductCardState extends State<ProductCard> {
     return StatefulBuilder(
       builder: (context, setState) {
         return MouseRegion(
-          cursor: SystemMouseCursors.click,
+          cursor: widget.isPreview ? SystemMouseCursors.basic : SystemMouseCursors.click,
           onEnter: (_) => setState(() => isHovered = true),
           onExit: (_) => setState(() => isHovered = false),
           child: AnimatedScale(
-            scale: isHovered ? 1.15 : 1.0,
+            scale: isHovered && !widget.isPreview ? 1.15 : 1.0,
             duration: const Duration(milliseconds: 200),
             curve: Curves.easeOutBack,
             child: Material(
-              color: isHovered ? AppColors.textDark : theme.primaryColor,
+              color: isHovered && !widget.isPreview ? AppColors.textDark : theme.primaryColor,
               shape: const CircleBorder(),
-              elevation: isHovered ? 8 : 4,
+              elevation: isHovered && !widget.isPreview ? 8 : 4,
               shadowColor: AppShadows.hover.color,
               child: InkWell(
                 customBorder: const CircleBorder(),
-                onTap: () {
-                  if (widget.product.variants.length == 1 &&
-                      widget.product.variants.first.stock > 0) {
-                    final cartProvider = context.read<CartProvider>();
-                    cartProvider.addItem(
-                      widget.product,
-                      widget.product.variants.first,
-                      widget.product.variants.first.sizes.first,
-                      1,
-                    );
+                onTap: widget.isPreview
+                    ? null
+                    : () {
+                        if (widget.product.variants.length == 1 &&
+                            widget.product.variants.first.stock > 0) {
+                          final cartProvider = context.read<CartProvider>();
+                          cartProvider.addItem(
+                            widget.product,
+                            widget.product.variants.first,
+                            widget.product.variants.first.sizes.first,
+                            1,
+                          );
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: const Text("Agregado al carrito"),

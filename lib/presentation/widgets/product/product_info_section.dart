@@ -12,7 +12,12 @@ import 'package:virtual_catalog_app/presentation/widgets/quantity_selector.dart'
 
 class ProductInfoSection extends StatefulWidget {
   final Product product;
-  const ProductInfoSection({super.key, required this.product});
+  final bool isPreview;
+  const ProductInfoSection({
+    super.key,
+    required this.product,
+    this.isPreview = false,
+  });
 
   @override
   State<ProductInfoSection> createState() => _ProductInfoSectionState();
@@ -278,7 +283,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                       Expanded(
                         flex: size.width < 1200 && size.width > 900 ? 3 : 7,
                         child: FilledButton.icon(
-                          onPressed: selectedVariant.stock <= 0
+                          onPressed: selectedVariant.stock <= 0 || widget.isPreview
                               ? null
                               : () {
                                   if (selectedSize == null) {
@@ -381,7 +386,7 @@ class _ProductInfoSectionState extends State<ProductInfoSection> {
                   ),
                 ),
                 FilledButton(
-                  onPressed: selectedVariant.stock <= 0
+                  onPressed: selectedVariant.stock <= 0 || widget.isPreview
                       ? null
                       : () {
                           final product = widget.product;
