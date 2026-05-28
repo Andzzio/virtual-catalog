@@ -44,6 +44,7 @@ import 'package:virtual_catalog_app/data/datasources/sale_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/repos/sale_repository_impl.dart';
 import 'package:virtual_catalog_app/domain/usecases/create_sale.dart';
 import 'package:virtual_catalog_app/domain/usecases/get_sales.dart';
+import 'package:virtual_catalog_app/domain/usecases/update_sale_sunat_status.dart';
 import 'package:virtual_catalog_app/presentation/providers/sales_provider.dart';
 import 'package:virtual_catalog_app/data/datasources/chat_datasource_impl.dart';
 import 'package:virtual_catalog_app/data/repos/chat_repository_impl.dart';
@@ -149,6 +150,7 @@ class MainApp extends StatelessWidget {
           create: (_) => SalesProvider(
             getSalesUseCase: GetSales(saleRepo),
             createSaleUseCase: CreateSale(saleRepo),
+            updateSaleSunatStatusUseCase: UpdateSaleSunatStatus(saleRepo),
             stockMovementRepository: stockMovementRepo,
           ),
         ),

@@ -106,12 +106,12 @@ class _AdminStickersHangtagsViewState extends State<AdminStickersHangtagsView> {
     return Scaffold(
       backgroundColor: AdminTheme.surface,
       appBar: AppBar(
-        backgroundColor: AdminTheme.cardBg,
+        backgroundColor: AdminTheme.sidebarBg,
         surfaceTintColor: Colors.transparent,
         automaticallyImplyLeading: false,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AdminTheme.textPrimary),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
         ),
         title: Column(
@@ -119,14 +119,11 @@ class _AdminStickersHangtagsViewState extends State<AdminStickersHangtagsView> {
           children: [
             Text(
               'Stickers / Hang-tag',
-              style: GoogleFonts.getFont(
-                FontNames.fontNameH2,
-                textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+              style: AdminTheme.appBarTitle(),
             ),
             Text(
               'Selecciona productos y cantidad de stickers a imprimir.',
-              style: AdminTheme.bodySmall(),
+              style: AdminTheme.appBarSubtitle(),
             ),
           ],
         ),
@@ -152,7 +149,7 @@ class _AdminStickersHangtagsViewState extends State<AdminStickersHangtagsView> {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: AdminTheme.border, height: 1.0),
+          child: Container(color: Colors.white.withValues(alpha: 0.08), height: 1.0),
         ),
       ),
       body: LayoutBuilder(
@@ -295,7 +292,7 @@ class _AdminStickersHangtagsViewState extends State<AdminStickersHangtagsView> {
                                 children: [
                                   Checkbox(
                                     value: isSelected,
-                                    activeColor: AdminTheme.accent,
+                                    activeColor: AdminTheme.success,
                                     onChanged: (val) {
                                       setState(() {
                                         _selectedMap[uniqueKey] = val ?? false;

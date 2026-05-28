@@ -13,7 +13,30 @@ class SaleRepositoryImpl implements SaleRepository {
   }
 
   @override
-  Future<void> createSale(String businessSlug, Sale sale) {
+  Future<Sale> createSale(String businessSlug, Sale sale) {
     return datasource.createSale(businessSlug, sale);
+  }
+
+  @override
+  Future<void> updateSaleSunatStatus(
+    String businessSlug,
+    String saleId, {
+    required String status,
+    String? description,
+    String? hash,
+    String? pdfUrl,
+    String? xmlUrl,
+    String? cdrUrl,
+  }) {
+    return datasource.updateSaleSunatStatus(
+      businessSlug,
+      saleId,
+      status: status,
+      description: description,
+      hash: hash,
+      pdfUrl: pdfUrl,
+      xmlUrl: xmlUrl,
+      cdrUrl: cdrUrl,
+    );
   }
 }

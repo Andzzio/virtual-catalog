@@ -10,6 +10,7 @@ import 'package:virtual_catalog_app/presentation/providers/chat_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/inbox/generate_payment_dialog.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/sales/create_sale_dialog.dart';
 
 class AdminInboxView extends StatefulWidget {
   final String businessSlug;
@@ -344,6 +345,30 @@ class _AdminInboxViewState extends State<AdminInboxView> {
                   ],
                 ),
               ),
+              ElevatedButton.icon(
+                onPressed: () {
+                  showDialog(
+                    context: context,
+                    builder: (context) => CreateSaleDialog(
+                      businessSlug: widget.businessSlug,
+                      initialClientName: activeConv.clientName,
+                      initialClientPhone: activeConv.clientPhone,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.point_of_sale_rounded, size: 16),
+                label: Text(
+                  "Registrar Venta",
+                  style: GoogleFonts.getFont(FontNames.fontNameH2, fontSize: 12),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AdminTheme.accent,
+                  foregroundColor: Colors.white,
+                  elevation: 0,
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                ),
+              ),
+              const SizedBox(width: 8),
               ElevatedButton.icon(
                 onPressed: () {
                   provider.simulateIncomingMessage(

@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:go_router/go_router.dart';
@@ -106,27 +107,24 @@ class _AdminSalesViewState extends State<AdminSalesView> {
     return Scaffold(
       backgroundColor: AdminTheme.surface,
       appBar: AppBar(
-        backgroundColor: AdminTheme.cardBg,
+        backgroundColor: AdminTheme.sidebarBg,
         surfaceTintColor: Colors.transparent,
         automaticallyImplyLeading: false,
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: AdminTheme.border, height: 1.0),
+          child: Container(color: Colors.white.withValues(alpha: 0.08), height: 1.0),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               'Ventas y Comprobantes',
-              style: GoogleFonts.getFont(
-                FontNames.fontNameH2,
-                textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
+              style: AdminTheme.appBarTitle(),
             ),
             Text(
               'Historial de facturación y emisión de boletas/facturas.',
-              style: AdminTheme.bodySmall(),
+              style: AdminTheme.appBarSubtitle(),
             ),
           ],
         ),
@@ -308,13 +306,20 @@ class _AdminSalesViewState extends State<AdminSalesView> {
   }
 
   Widget _buildDesktopTable(List<Sale> items) {
+    final availableWidth = MediaQuery.sizeOf(context).width - AdminTheme.sidebarWidth - 60;
     return Container(
       width: double.infinity,
       decoration: AdminTheme.cardDecoration(),
-      child: SingleChildScrollView(
-        scrollDirection: Axis.horizontal,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
         child: SingleChildScrollView(
-          child: DataTable(
+          scrollDirection: Axis.horizontal,
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: math.max(950.0, availableWidth),
+            ),
+            child: SingleChildScrollView(
+              child: DataTable(
           showCheckboxColumn: false,
           headingRowColor: WidgetStateProperty.all(AdminTheme.surface),
           columns: [
@@ -379,8 +384,10 @@ class _AdminSalesViewState extends State<AdminSalesView> {
               ],
             );
           }).toList(),
+            ),
+          ),
+          ),
         ),
-      ),
       ),
     );
   }
@@ -393,8 +400,8 @@ class _AdminSalesViewState extends State<AdminSalesView> {
           FontNames.fontNameH2,
           textStyle: const TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: AdminTheme.textPrimary,
+            fontWeight: FontWeight.w500,
+            color: AdminTheme.textSecondary,
           ),
         ),
       ),

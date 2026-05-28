@@ -14,7 +14,15 @@ import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 
 class CreateSaleDialog extends StatefulWidget {
   final String businessSlug;
-  const CreateSaleDialog({super.key, required this.businessSlug});
+  final String? initialClientName;
+  final String? initialClientPhone;
+
+  const CreateSaleDialog({
+    super.key,
+    required this.businessSlug,
+    this.initialClientName,
+    this.initialClientPhone,
+  });
 
   @override
   State<CreateSaleDialog> createState() => _CreateSaleDialogState();
@@ -41,15 +49,20 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
   bool _isQueryingDoc = false;
   bool _isSubmitting = false;
 
-  // NC/ND fields
   String? _motivoCodigo;
   final _motivoDescCtrl = TextEditingController();
   final _refDocCtrl = TextEditingController();
-  String _refDocType = '01'; // '01' = factura, '03' = boleta
+  String _refDocType = '01';
 
   @override
   void initState() {
     super.initState();
+    if (widget.initialClientName != null) {
+      _nameCtrl.text = widget.initialClientName!;
+    }
+    if (widget.initialClientPhone != null) {
+      _phoneCtrl.text = widget.initialClientPhone!;
+    }
     final business = context.read<BusinessProvider>().business;
     final hasNubefact = business != null &&
         business.nubefactUrl != null &&

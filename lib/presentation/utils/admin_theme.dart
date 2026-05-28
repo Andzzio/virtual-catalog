@@ -2,49 +2,38 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 
-/// Design tokens for the Admin Panel — Dark Modern Theme.
-/// Following "make-interfaces-feel-better" skill principles:
-/// - Shadows over borders for depth
-/// - Concentric border radius
-/// - Tabular nums for dynamic numbers
-/// - Minimum 40×40 hit areas
 class AdminTheme {
   AdminTheme._();
 
-  // ─── Core Dark Palette ─────────────────────────────────
-  static const Color surface = Color(0xFF0F172A);       // slate-900
-  static const Color cardBg = Color(0xFF1E293B);        // slate-800
-  static const Color cardBgElevated = Color(0xFF253349); // slightly lighter
-  static const Color border = Color(0xFF334155);         // slate-700
-  static const Color inputFill = Color(0xFF1E293B);      // same as card
+  static const Color surface = Color(0xFFF2F8F5);
+  static const Color cardBg = Color(0xFFFFFFFF);
+  static const Color cardBgElevated = Color(0xFFFFFFFF);
+  static const Color border = Color(0xFFD1E2DD);
+  static const Color inputFill = Color(0xFFFFFFFF);
 
-  // ─── Sidebar Colors ───────────────────────────────────
-  static const Color sidebarBg = Color(0xFF0B1120);     // deeper than surface
-  static const Color sidebarText = Color(0xFFE2E8F0);
-  static const Color sidebarTextMuted = Color(0xFF64748B);
+  static const Color sidebarBg = Color(0xFF1E2D4A);
+  static const Color sidebarText = Color(0xFFFFFFFF);
+  static const Color sidebarTextMuted = Color(0xFF8FA3C7);
 
-  // ─── Text Colors ──────────────────────────────────────
-  static const Color textPrimary = Color(0xFFF1F5F9);   // slate-100
-  static const Color textSecondary = Color(0xFF94A3B8);  // slate-400
-  static const Color textMuted = Color(0xFF64748B);      // slate-500
+  static const Color textPrimary = Color(0xFF1E2D4A);
+  static const Color textSecondary = Color(0xFF4A7A99);
+  static const Color textMuted = Color(0xFF7A8F9E);
 
-  // ─── Semantic Colors ──────────────────────────────────
-  static const Color accent = Color(0xFF3B82F6);         // blue-500
-  static const Color accentLight = Color(0xFF60A5FA);    // blue-400
-  static const Color danger = Color(0xFFEF4444);
-  static const Color success = Color(0xFF10B981);
-  static const Color warning = Color(0xFFF59E0B);
-  static const Color info = Color(0xFF3B82F6);
+  static const Color accent = Color(0xFFE23D47);
+  static const Color accentLight = Color(0xFFFFA5A9);
+  static const Color danger = Color(0xFFE23D47);
+  static const Color success = Color(0xFF2E8B57);
+  static const Color warning = Color(0xFFD97706);
+  static const Color info = Color(0xFF4A7A99);
 
-  // ─── Shadows (skill: shadows for depth on dark) ───────
   static List<BoxShadow> get cardShadow => [
     BoxShadow(
-      color: Colors.black.withValues(alpha: 0.25),
+      color: Colors.black.withValues(alpha: 0.04),
       blurRadius: 8,
       offset: const Offset(0, 2),
     ),
     BoxShadow(
-      color: Colors.black.withValues(alpha: 0.10),
+      color: Colors.black.withValues(alpha: 0.02),
       blurRadius: 20,
       offset: const Offset(0, 6),
     ),
@@ -96,7 +85,6 @@ class AdminTheme {
     textStyle: const TextStyle(fontSize: 12, color: textMuted),
   );
 
-  /// Tabular figures style for dynamic numbers (skill: tabular-nums)
   static TextStyle kpiValue() => GoogleFonts.getFont(
     FontNames.fontNameH2,
     textStyle: const TextStyle(
@@ -107,10 +95,26 @@ class AdminTheme {
     ),
   );
 
-  // ─── Dark Theme Override for Admin Panel ──────────────
-  static ThemeData get darkTheme => ThemeData.dark().copyWith(
+  static TextStyle appBarTitle() => GoogleFonts.getFont(
+    FontNames.fontNameH2,
+    textStyle: const TextStyle(
+      fontSize: 20,
+      fontWeight: FontWeight.bold,
+      color: Colors.white,
+    ),
+  );
+
+  static TextStyle appBarSubtitle() => GoogleFonts.getFont(
+    FontNames.fontNameH2,
+    textStyle: const TextStyle(
+      fontSize: 13,
+      color: sidebarTextMuted,
+    ),
+  );
+
+  static ThemeData get darkTheme => ThemeData.light().copyWith(
     scaffoldBackgroundColor: surface,
-    colorScheme: const ColorScheme.dark(
+    colorScheme: const ColorScheme.light(
       surface: cardBg,
       primary: accent,
       error: danger,
@@ -118,26 +122,26 @@ class AdminTheme {
       onPrimary: Colors.white,
     ),
     appBarTheme: AppBarTheme(
-      backgroundColor: cardBg,
+      backgroundColor: sidebarBg,
       surfaceTintColor: Colors.transparent,
       elevation: 0,
-      titleTextStyle: heading2(),
-      iconTheme: const IconThemeData(color: textPrimary),
+      titleTextStyle: appBarTitle(),
+      iconTheme: const IconThemeData(color: Colors.white),
     ),
     dividerColor: border,
     dividerTheme: DividerThemeData(
-      color: border.withValues(alpha: 0.5),
+      color: border.withValues(alpha: 0.3),
       thickness: 0.5,
       space: 1,
     ),
     switchTheme: SwitchThemeData(
       thumbColor: WidgetStateProperty.resolveWith((states) {
-        if (states.contains(WidgetState.selected)) return accent;
+        if (states.contains(WidgetState.selected)) return success;
         return textMuted;
       }),
       trackColor: WidgetStateProperty.resolveWith((states) {
         if (states.contains(WidgetState.selected)) {
-          return accent.withValues(alpha: 0.3);
+          return success.withValues(alpha: 0.2);
         }
         return border;
       }),
@@ -160,7 +164,6 @@ class AdminTheme {
     ),
   );
 
-  // ─── Shared Input Decoration ──────────────────────────
   static InputDecoration inputDecoration({
     String hintText = "",
     Widget? prefixIcon,
@@ -200,7 +203,6 @@ class AdminTheme {
     );
   }
 
-  // ─── Card Decoration (skill: shadows over borders) ────
   static BoxDecoration cardDecoration({bool elevated = true}) {
     return BoxDecoration(
       color: elevated ? cardBgElevated : cardBg,
@@ -210,7 +212,6 @@ class AdminTheme {
     );
   }
 
-  // ─── Button Styles ────────────────────────────────────
   static ButtonStyle primaryButton() => ElevatedButton.styleFrom(
     padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
     backgroundColor: accent,

@@ -296,22 +296,25 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     return Scaffold(
       backgroundColor: AdminTheme.surface,
       appBar: AppBar(
-        backgroundColor: AdminTheme.cardBg,
+        backgroundColor: AdminTheme.sidebarBg,
         surfaceTintColor: Colors.transparent,
         automaticallyImplyLeading: false,
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: AdminTheme.border, height: 1.0),
+          child: Container(color: Colors.white.withValues(alpha: 0.08), height: 1.0),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Configuración", style: GoogleFonts.getFont(
-              FontNames.fontNameH2,
-              textStyle: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            )),
-            Text("Ajustes generales de tu negocio.", style: AdminTheme.bodySmall()),
+            Text(
+              "Configuración",
+              style: AdminTheme.appBarTitle(),
+            ),
+            Text(
+              "Ajustes generales de tu negocio.",
+              style: AdminTheme.appBarSubtitle(),
+            ),
           ],
         ),
         actions: [
@@ -1022,6 +1025,10 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
             title: Text("Mostrar logo en Escritorio", style: GoogleFonts.getFont(FontNames.fontNameH2)),
             subtitle: Text("Logo visible en la versión de PC", style: AdminTheme.caption()),
             value: _showDesktopLogo,
+            activeThumbColor: AdminTheme.success,
+            activeTrackColor: AdminTheme.success.withValues(alpha: 0.2),
+            inactiveThumbColor: AdminTheme.textMuted,
+            inactiveTrackColor: AdminTheme.border,
             onChanged: (value) => setState(() => _showDesktopLogo = value),
           ),
           const SizedBox(height: 10),
@@ -1030,6 +1037,10 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
             title: Text("Mostrar logo en Móvil", style: GoogleFonts.getFont(FontNames.fontNameH2)),
             subtitle: Text("Logo visible en celulares", style: AdminTheme.caption()),
             value: _showMobileLogo,
+            activeThumbColor: AdminTheme.success,
+            activeTrackColor: AdminTheme.success.withValues(alpha: 0.2),
+            inactiveThumbColor: AdminTheme.textMuted,
+            inactiveTrackColor: AdminTheme.border,
             onChanged: (value) => setState(() => _showMobileLogo = value),
           ),
         ],

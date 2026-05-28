@@ -208,22 +208,22 @@ class _AdminCreateProductsScreenState extends State<AdminCreateProductsScreen> {
     return Scaffold(
       backgroundColor: AdminTheme.surface,
       appBar: AppBar(
-        backgroundColor: AdminTheme.cardBg,
+        backgroundColor: AdminTheme.sidebarBg,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
           onPressed: () => context.pop(),
-          icon: const Icon(Icons.close),
+          icon: const Icon(Icons.close, color: Colors.white),
           tooltip: "Cerrar",
         ),
         title: Text(
           isEditing ? "Editar Producto" : "Nuevo Producto",
-          style: AdminTheme.heading2(),
+          style: AdminTheme.appBarTitle(),
         ),
         centerTitle: false,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: AdminTheme.border, height: 1.0),
+          child: Container(color: Colors.white.withValues(alpha: 0.08), height: 1.0),
         ),
         actions: [
           Padding(

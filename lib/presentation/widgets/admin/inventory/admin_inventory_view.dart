@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -56,30 +57,24 @@ class _AdminInventoryViewState extends State<AdminInventoryView> {
     return Scaffold(
       backgroundColor: AdminTheme.surface,
       appBar: AppBar(
-        backgroundColor: AdminTheme.cardBg,
+        backgroundColor: AdminTheme.sidebarBg,
+        elevation: 0,
         surfaceTintColor: Colors.transparent,
         automaticallyImplyLeading: false,
-        elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: AdminTheme.border, height: 1.0),
+          child: Container(color: Colors.white.withValues(alpha: 0.08), height: 1.0),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              "Inventario",
-              style: GoogleFonts.getFont(
-                FontNames.fontNameH2,
-                textStyle: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              "Kardex de Inventario",
+              style: AdminTheme.appBarTitle(),
             ),
             Text(
-              "Historial de Kardex y movimientos de mercadería.",
-              style: AdminTheme.bodySmall(),
+              "Historial de movimientos de stock.",
+              style: AdminTheme.appBarSubtitle(),
             ),
           ],
         ),
@@ -358,6 +353,7 @@ class _AdminInventoryViewState extends State<AdminInventoryView> {
   }
 
   Widget _buildDesktopTable(List<StockMovement> items) {
+    final availableWidth = MediaQuery.sizeOf(context).width - AdminTheme.sidebarWidth - 60;
     return Container(
       width: double.infinity,
       decoration: AdminTheme.cardDecoration(),
@@ -365,8 +361,12 @@ class _AdminInventoryViewState extends State<AdminInventoryView> {
         borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
         child: SingleChildScrollView(
           scrollDirection: Axis.horizontal,
-          child: SingleChildScrollView(
-            child: DataTable(
+          child: ConstrainedBox(
+            constraints: BoxConstraints(
+              minWidth: math.max(950.0, availableWidth),
+            ),
+            child: SingleChildScrollView(
+              child: DataTable(
               showCheckboxColumn: false,
               headingRowColor: WidgetStatePropertyAll(AdminTheme.cardBgElevated),
               columnSpacing: 24,
@@ -456,6 +456,7 @@ class _AdminInventoryViewState extends State<AdminInventoryView> {
             ),
           ),
         ),
+        ),
       ),
     );
   }
@@ -468,8 +469,8 @@ class _AdminInventoryViewState extends State<AdminInventoryView> {
           FontNames.fontNameH2,
           textStyle: const TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.bold,
-            color: AdminTheme.textPrimary,
+            fontWeight: FontWeight.w500,
+            color: AdminTheme.textSecondary,
           ),
         ),
       ),

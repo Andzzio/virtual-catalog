@@ -23,7 +23,6 @@ class AdminLeftSide extends StatelessWidget {
       child: SafeArea(
         child: Column(
           children: [
-            // ─── Business Header ─────────────────────────
             Padding(
               padding: const EdgeInsets.fromLTRB(20, 24, 20, 8),
               child: Row(
@@ -33,7 +32,7 @@ class AdminLeftSide extends StatelessWidget {
                     height: 40,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
-                        colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                        colors: [AdminTheme.accent, AdminTheme.textSecondary],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
@@ -49,28 +48,44 @@ class AdminLeftSide extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        RichText(
+                          text: TextSpan(
+                            style: GoogleFonts.getFont(
+                              FontNames.fontNameH2,
+                              textStyle: const TextStyle(
+                                fontSize: 18,
+                              ),
+                            ),
+                            children: const [
+                              TextSpan(
+                                text: 'Chani',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  color: Colors.white,
+                                ),
+                              ),
+                              TextSpan(
+                                text: '.pe',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w400,
+                                  color: AdminTheme.accent,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                         Text(
                           businessName,
                           style: GoogleFonts.getFont(
                             FontNames.fontNameH2,
                             textStyle: const TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.w700,
-                              color: AdminTheme.textPrimary,
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: AdminTheme.sidebarTextMuted,
                             ),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                        ),
-                        Text(
-                          "Panel de Administración",
-                          style: GoogleFonts.getFont(
-                            FontNames.fontNameH2,
-                            textStyle: const TextStyle(
-                              fontSize: 11,
-                              color: AdminTheme.sidebarTextMuted,
-                            ),
-                          ),
                         ),
                       ],
                     ),
@@ -78,7 +93,6 @@ class AdminLeftSide extends StatelessWidget {
                 ],
               ),
             ),
-
             const SizedBox(height: 16),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -86,8 +100,6 @@ class AdminLeftSide extends StatelessWidget {
                   color: Colors.white.withValues(alpha: 0.08), height: 1),
             ),
             const SizedBox(height: 16),
-
-            // ─── Navigation (scroll-safe per skill) ──────
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -195,7 +207,6 @@ class AdminLeftSide extends StatelessWidget {
               ),
             ),
 
-            // ─── Footer: User + Logout ───────────────────
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 12),
               child: Divider(
@@ -244,7 +255,6 @@ class AdminLeftSide extends StatelessWidget {
                       ],
                     ),
                   ),
-                  // Hit area 40x40 per skill
                   Tooltip(
                     message: "Cerrar sesión",
                     child: Material(
@@ -318,7 +328,6 @@ class AdminLeftSide extends StatelessWidget {
           borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
           onTap: () {
             NavigationHelper.go(context, route);
-            // Close drawer if in mobile
             if (Scaffold.maybeOf(context)?.isDrawerOpen == true) {
               Navigator.of(context).pop();
             }

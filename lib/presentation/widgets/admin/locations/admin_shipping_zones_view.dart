@@ -54,20 +54,20 @@ class _AdminShippingZonesViewState extends State<AdminShippingZonesView> {
     return Scaffold(
       backgroundColor: AdminTheme.surface,
       appBar: AppBar(
-        backgroundColor: AdminTheme.cardBg,
+        backgroundColor: AdminTheme.sidebarBg,
         elevation: 0,
         surfaceTintColor: Colors.transparent,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: AdminTheme.border, height: 1.0),
+          child: Container(color: Colors.white.withValues(alpha: 0.08), height: 1.0),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text("Zonas de Entrega", style: AdminTheme.heading2()),
+            Text("Zonas de Entrega", style: AdminTheme.appBarTitle()),
             Text(
               "Selecciona los distritos donde realizas envíos.",
-              style: AdminTheme.bodySmall(),
+              style: AdminTheme.appBarSubtitle(),
             ),
           ],
         ),
@@ -187,7 +187,7 @@ class _AdminShippingZonesViewState extends State<AdminShippingZonesView> {
             child: Checkbox(
               value: totalSelected > 0,
               tristate: true,
-              activeColor: AdminTheme.accent,
+              activeColor: AdminTheme.success,
               checkColor: Colors.white,
               side: const BorderSide(color: AdminTheme.textMuted),
               onChanged: (val) async {
@@ -547,7 +547,7 @@ class _ProvinciaTile extends StatelessWidget {
                                 ? null
                                 : false,
                         tristate: true,
-                        activeColor: AdminTheme.accent,
+                        activeColor: AdminTheme.success,
                         checkColor: Colors.white,
                         side: const BorderSide(color: AdminTheme.textMuted),
                         onChanged: (val) {
@@ -604,7 +604,7 @@ class _ProvinciaTile extends StatelessWidget {
                             height: 36,
                             child: Checkbox(
                               value: isChecked,
-                              activeColor: AdminTheme.accent,
+                              activeColor: AdminTheme.success,
                               checkColor: Colors.white,
                               side: const BorderSide(color: AdminTheme.textMuted),
                               onChanged: (val) {

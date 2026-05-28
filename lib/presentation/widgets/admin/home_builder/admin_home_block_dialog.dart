@@ -299,6 +299,10 @@ class _AdminHomeBlockDialogState extends State<AdminHomeBlockDialog> {
                                 style: AdminTheme.caption(),
                               ),
                               value: _showButton,
+                              activeThumbColor: AdminTheme.success,
+                              activeTrackColor: AdminTheme.success.withValues(alpha: 0.2),
+                              inactiveThumbColor: AdminTheme.textMuted,
+                              inactiveTrackColor: AdminTheme.border,
                               onChanged: (val) =>
                                   setState(() => _showButton = val),
                             ),

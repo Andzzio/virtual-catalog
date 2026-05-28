@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
@@ -41,30 +42,24 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     return Scaffold(
       backgroundColor: AdminTheme.surface,
       appBar: AppBar(
-        backgroundColor: AdminTheme.cardBg,
+        backgroundColor: AdminTheme.sidebarBg,
         surfaceTintColor: Colors.transparent,
         automaticallyImplyLeading: false,
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: AdminTheme.border, height: 1.0),
+          child: Container(color: Colors.white.withValues(alpha: 0.08), height: 1.0),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               "Dashboard",
-              style: GoogleFonts.getFont(
-                FontNames.fontNameH2,
-                textStyle: const TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
+              style: AdminTheme.appBarTitle(),
             ),
             Text(
               "Resumen de tu negocio en tiempo real.",
-              style: AdminTheme.bodySmall(),
+              style: AdminTheme.appBarSubtitle(),
             ),
           ],
         ),
@@ -108,29 +103,29 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         icon: Icons.attach_money,
         label: "Ventas del mes",
         value: "S/. ${orderProvider.totalSalesThisMonth.toStringAsFixed(2)}",
-        color: const Color(0xFF10B981),
-        bgColor: const Color(0xFFECFDF5),
+        color: AdminTheme.success,
+        bgColor: AdminTheme.success.withValues(alpha: 0.1),
       ),
       _KpiData(
         icon: Icons.shopping_bag_outlined,
         label: "Pedidos pagados",
         value: "${orderProvider.paidOrdersThisMonth}",
-        color: const Color(0xFF3B82F6),
-        bgColor: const Color(0xFFEFF6FF),
+        color: AdminTheme.textSecondary,
+        bgColor: AdminTheme.textSecondary.withValues(alpha: 0.1),
       ),
       _KpiData(
         icon: Icons.inventory_2_outlined,
         label: "Productos activos",
         value: "${productProvider.products.length}",
-        color: const Color(0xFF8B5CF6),
-        bgColor: const Color(0xFFF5F3FF),
+        color: AdminTheme.textPrimary,
+        bgColor: AdminTheme.textPrimary.withValues(alpha: 0.08),
       ),
       _KpiData(
         icon: Icons.hourglass_bottom,
         label: "Pendientes",
         value: "${orderProvider.pendingOrdersCount}",
-        color: const Color(0xFFF59E0B),
-        bgColor: const Color(0xFFFFFBEB),
+        color: AdminTheme.accent,
+        bgColor: AdminTheme.accent.withValues(alpha: 0.08),
       ),
     ];
 
@@ -272,10 +267,10 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
           scrollDirection: Axis.horizontal,
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minWidth:
+              minWidth: math.max(950.0,
                   MediaQuery.sizeOf(context).width -
                   AdminTheme.sidebarWidth -
-                  80,
+                  80),
             ),
             child: DataTable(
               showCheckboxColumn: false,
@@ -293,6 +288,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
               ],
               rows: orders.map((o) {
                 return DataRow(
+                  onSelectChanged: (_) => _showOrderDetailDialog(o),
                   color: WidgetStateProperty.resolveWith<Color?>((states) {
                     if (states.contains(WidgetState.hovered)) {
                       return AdminTheme.surface;
@@ -300,38 +296,33 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                     return AdminTheme.cardBg;
                   }),
                   cells: [
-                    _clickableCell(
+                    DataCell(
                       Text(
                         "#${o.id?.substring(0, 8) ?? '---'}",
                         style: _cellStyle(fontWeight: FontWeight.w600),
                       ),
-                      o,
                     ),
-                    _clickableCell(
+                    DataCell(
                       Text(
                         "${o.customerName} ${o.customerLastName}",
                         style: _cellStyle(),
                       ),
-                      o,
                     ),
-                    _clickableCell(
+                    DataCell(
                       Text(
                         "S/. ${o.total.toStringAsFixed(2)}",
                         style: _cellStyle(fontWeight: FontWeight.w600),
                       ),
-                      o,
                     ),
-                    _clickableCell(
+                    DataCell(
                       Text(o.paymentMethod, style: _cellStyle()),
-                      o,
                     ),
-                    _clickableCell(_buildStatusBadge(o.status), o),
-                    _clickableCell(
+                    DataCell(_buildStatusBadge(o.status)),
+                    DataCell(
                       Text(
                         "${o.createdAt.day.toString().padLeft(2, '0')}/${o.createdAt.month.toString().padLeft(2, '0')}/${o.createdAt.year.toString().substring(2)} ${o.createdAt.hour.toString().padLeft(2, '0')}:${o.createdAt.minute.toString().padLeft(2, '0')}",
                         style: _cellStyle(),
                       ),
-                      o,
                     ),
                   ],
                 );
@@ -923,9 +914,9 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         label,
         style: GoogleFonts.getFont(
           FontNames.fontNameH2,
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
             color: AdminTheme.textSecondary,
           ),
         ),
@@ -940,22 +931,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     );
   }
 
-  DataCell _clickableCell(Widget child, Order o) {
-    return DataCell(
-      MouseRegion(
-        cursor: SystemMouseCursors.click,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: () => _showOrderDetailDialog(o),
-          child: SizedBox(
-            width: double.infinity,
-            height: double.infinity,
-            child: Align(alignment: Alignment.centerLeft, child: child),
-          ),
-        ),
-      ),
-    );
-  }
+
 }
 
 class _KpiData {

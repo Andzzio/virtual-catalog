@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:virtual_catalog_app/config/routers/navigation_helper.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -264,11 +265,11 @@ class _AdminProductTableState extends State<AdminProductTable> {
         scrollDirection: Axis.horizontal,
         child: ConstrainedBox(
           constraints: BoxConstraints(
-            minWidth: MediaQuery.sizeOf(context).width > 800
+            minWidth: math.max(950.0, MediaQuery.sizeOf(context).width > 800
                 ? MediaQuery.sizeOf(context).width -
                       AdminTheme.sidebarWidth -
                       60
-                : MediaQuery.sizeOf(context).width - 60,
+                : MediaQuery.sizeOf(context).width - 60),
           ),
           child: ClipRRect(
             borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
@@ -281,13 +282,13 @@ class _AdminProductTableState extends State<AdminProductTable> {
                 AdminTheme.cardBgElevated,
               ),
               columns: [
-                _col("IMAGEN"),
-                _col("NOMBRE"),
-                _col("CATEGORÍA"),
-                _col("STOCK"),
-                _col("PRECIO"),
-                _col("ESTADO"),
-                _col("ACCIONES"),
+                _col("Imagen"),
+                _col("Nombre"),
+                _col("Categoría"),
+                _col("Stock"),
+                _col("Precio"),
+                _col("Estado"),
+                _col("Acciones"),
               ],
               rows: paginatedProducts.map((product) {
                 return DataRow(
@@ -368,6 +369,10 @@ class _AdminProductTableState extends State<AdminProductTable> {
                     DataCell(
                       Switch(
                         value: product.isAvailable,
+                        activeThumbColor: AdminTheme.success,
+                        activeTrackColor: AdminTheme.success.withValues(alpha: 0.2),
+                        inactiveThumbColor: AdminTheme.textMuted,
+                        inactiveTrackColor: AdminTheme.border,
                         onChanged: (value) async {
                           try {
                             final updatedProduct = Product(
@@ -394,7 +399,6 @@ class _AdminProductTableState extends State<AdminProductTable> {
                             );
                           }
                         },
-                        activeThumbColor: AdminTheme.accent,
                       ),
                     ),
                     DataCell(
@@ -533,9 +537,9 @@ class _AdminProductTableState extends State<AdminProductTable> {
         label,
         style: GoogleFonts.getFont(
           FontNames.fontNameH2,
-          textStyle: TextStyle(
+          textStyle: const TextStyle(
             fontSize: 12,
-            fontWeight: FontWeight.w600,
+            fontWeight: FontWeight.w500,
             color: AdminTheme.textSecondary,
           ),
         ),

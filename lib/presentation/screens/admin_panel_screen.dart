@@ -25,14 +25,17 @@ class AdminPanelScreen extends StatelessWidget {
             return Scaffold(
               backgroundColor: AdminTheme.surface,
               appBar: AppBar(
-                backgroundColor: AdminTheme.cardBg,
+                backgroundColor: AdminTheme.sidebarBg,
                 surfaceTintColor: Colors.transparent,
                 elevation: 0,
-                title: Text("Admin Panel", style: AdminTheme.heading2()),
-                iconTheme: const IconThemeData(color: AdminTheme.textPrimary),
+                title: Text(
+                  "Panel de Admin",
+                  style: AdminTheme.appBarTitle(),
+                ),
+                iconTheme: const IconThemeData(color: Colors.white),
                 bottom: PreferredSize(
                   preferredSize: const Size.fromHeight(1.0),
-                  child: Container(color: AdminTheme.border, height: 1.0),
+                  child: Container(color: Colors.white.withValues(alpha: 0.08), height: 1.0),
                 ),
               ),
               drawer: SizedBox(

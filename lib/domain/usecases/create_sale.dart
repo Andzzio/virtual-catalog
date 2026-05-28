@@ -6,7 +6,7 @@ class CreateSale {
 
   CreateSale(this.repository);
 
-  Future<void> call(String businessSlug, Sale sale) {
+  Future<Sale> call(String businessSlug, Sale sale) {
     return repository.createSale(businessSlug, sale);
   }
 }

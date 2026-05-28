@@ -144,7 +144,21 @@ class ChatProvider extends ChangeNotifier {
     }
 
     if (matchedProduct != null) {
-      aiSuggestion = "Hola. Sí tenemos ${matchedProduct.name} disponible en nuestro catálogo. El precio es S/ ${matchedProduct.variants.first.price.toStringAsFixed(2)}. ¿Te genero un enlace de cobro para realizar tu pedido?";
+      final availableVariants = matchedProduct.variants.where((v) => v.stock > 0).toList();
+      if (availableVariants.isEmpty) {
+        aiSuggestion = "Hola. Actualmente el producto ${matchedProduct.name} se encuentra agotado en nuestro catálogo. ¿Te gustaría consultar por otro producto similar?";
+      } else {
+        final variantNames = availableVariants.map((v) => v.name).toList();
+        final prices = availableVariants.map((v) => v.discountPrice ?? v.price).toSet().toList();
+        final String priceString;
+        if (prices.length == 1) {
+          priceString = prices.first.toStringAsFixed(2);
+        } else {
+          prices.sort();
+          priceString = "${prices.first.toStringAsFixed(2)} - S/ ${prices.last.toStringAsFixed(2)}";
+        }
+        aiSuggestion = "Hola. Sí tenemos ${matchedProduct.name} disponible en las siguientes variantes: ${variantNames.join(', ')}. El precio es S/ $priceString. ¿Te genero un enlace de cobro para realizar tu pedido?";
+      }
     } else {
       aiSuggestion = "Hola. Gracias por escribirnos. ¿En qué producto de nuestro catálogo estás interesado hoy?";
     }

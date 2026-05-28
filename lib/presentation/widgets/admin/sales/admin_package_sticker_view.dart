@@ -60,11 +60,15 @@ class _AdminPackageStickerViewState extends State<AdminPackageStickerView> {
       return Scaffold(
         backgroundColor: AdminTheme.surface,
         appBar: AppBar(
-          backgroundColor: AdminTheme.cardBg,
+          backgroundColor: AdminTheme.sidebarBg,
           elevation: 0,
           leading: IconButton(
-            icon: const Icon(Icons.arrow_back, color: AdminTheme.textPrimary),
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
             onPressed: () => context.pop(),
+          ),
+          bottom: PreferredSize(
+            preferredSize: const Size.fromHeight(1.0),
+            child: Container(color: Colors.white.withValues(alpha: 0.08), height: 1.0),
           ),
         ),
         body: const Center(
@@ -92,19 +96,16 @@ class _AdminPackageStickerViewState extends State<AdminPackageStickerView> {
     return Scaffold(
       backgroundColor: AdminTheme.surface,
       appBar: AppBar(
-        backgroundColor: AdminTheme.cardBg,
+        backgroundColor: AdminTheme.sidebarBg,
         surfaceTintColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: AdminTheme.textPrimary),
+          icon: const Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => context.pop(),
         ),
         title: Text(
           "Sticker de empaque ${sale.number}",
-          style: GoogleFonts.getFont(
-            FontNames.fontNameH2,
-            textStyle: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-          ),
+          style: AdminTheme.appBarTitle(),
         ),
         actions: [
           ElevatedButton.icon(
@@ -120,7 +121,7 @@ class _AdminPackageStickerViewState extends State<AdminPackageStickerView> {
         ],
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: AdminTheme.border, height: 1.0),
+          child: Container(color: Colors.white.withValues(alpha: 0.08), height: 1.0),
         ),
       ),
       body: SingleChildScrollView(
