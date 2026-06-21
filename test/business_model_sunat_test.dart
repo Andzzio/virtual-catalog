@@ -97,38 +97,44 @@ void main() {
       expect(json['certificateExpiresAt'], isNotNull);
     });
 
-    test('Business entity converts to/from BusinessModel with SUNAT fields', () {
-      final expiresAt = DateTime(2028, 6, 15);
-      final entity = Business(
-        slug: "test-business",
-        ownerId: "owner-123",
-        name: "Test Business",
-        description: "A test business",
-        logoUrl: "https://example.com/logo.png",
-        whatsappNumber: "51912345678",
-        banners: [],
-        deliveryMethods: [],
-        paymentMethods: [],
-        showDesktopLogo: true,
-        showMobileLogo: true,
-        ruc: "20XXXXXXXXX",
-        address: "Jr. Test 123",
-        sunatUser: "FACSIS11",
-        sunatPassword: "clave123",
-        sunatEnvironment: "beta",
-        hasCertificate: true,
-        certificateExpiresAt: expiresAt,
-      );
+    test(
+      'Business entity converts to/from BusinessModel with SUNAT fields',
+      () {
+        final expiresAt = DateTime(2028, 6, 15);
+        final entity = Business(
+          slug: "test-business",
+          ownerId: "owner-123",
+          name: "Test Business",
+          description: "A test business",
+          logoUrl: "https://example.com/logo.png",
+          whatsappNumber: "51912345678",
+          banners: [],
+          deliveryMethods: [],
+          paymentMethods: [],
+          showDesktopLogo: true,
+          showMobileLogo: true,
+          ruc: "20XXXXXXXXX",
+          address: "Jr. Test 123",
+          sunatUser: "FACSIS11",
+          sunatPassword: "clave123",
+          sunatEnvironment: "beta",
+          hasCertificate: true,
+          certificateExpiresAt: expiresAt,
+        );
 
-      final model = BusinessModel.fromEntity(entity);
-      final convertedEntity = model.toEntity();
+        final model = BusinessModel.fromEntity(entity);
+        final convertedEntity = model.toEntity();
 
-      expect(convertedEntity.sunatUser, entity.sunatUser);
-      expect(convertedEntity.sunatPassword, entity.sunatPassword);
-      expect(convertedEntity.sunatEnvironment, entity.sunatEnvironment);
-      expect(convertedEntity.hasCertificate, entity.hasCertificate);
-      expect(convertedEntity.certificateExpiresAt, entity.certificateExpiresAt);
-    });
+        expect(convertedEntity.sunatUser, entity.sunatUser);
+        expect(convertedEntity.sunatPassword, entity.sunatPassword);
+        expect(convertedEntity.sunatEnvironment, entity.sunatEnvironment);
+        expect(convertedEntity.hasCertificate, entity.hasCertificate);
+        expect(
+          convertedEntity.certificateExpiresAt,
+          entity.certificateExpiresAt,
+        );
+      },
+    );
 
     test('SUNAT fields are optional and null by default', () {
       final model = BusinessModel(

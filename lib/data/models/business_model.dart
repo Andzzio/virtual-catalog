@@ -67,7 +67,7 @@ class BusinessModel {
     this.sunatPassword,
     this.sunatPfxPassword,
     this.sunatEnvironment,
-    required this.isActive,
+    this.isActive = true,
     this.hasCertificate,
     this.certificateExpiresAt,
   });
