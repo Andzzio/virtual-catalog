@@ -1,11 +1,11 @@
 {
-    "name": "virtual_catalog_app",
-    "short_name": "virtual_catalog_app",
+    "name": "Kipux.pe",
+    "short_name": "Kipux.pe",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
     "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "description": "CRM de ventas y catálogo virtual - Kipux.pe",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

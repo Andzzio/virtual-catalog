@@ -497,7 +497,7 @@ class _AdminStickersHangtagsViewState extends State<AdminStickersHangtagsView> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
           Text(
-            businessName.isEmpty ? 'CRM' : businessName.toUpperCase(),
+            businessName.isEmpty ? 'Kipux.pe' : businessName.toUpperCase(),
             style: GoogleFonts.getFont(
               FontNames.fontNameH2,
               textStyle: const TextStyle(

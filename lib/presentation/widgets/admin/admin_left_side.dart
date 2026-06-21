@@ -30,17 +30,14 @@ class AdminLeftSide extends StatelessWidget {
                   Container(
                     width: 40,
                     height: 40,
+                    padding: const EdgeInsets.all(4),
                     decoration: BoxDecoration(
-                      gradient: const LinearGradient(
-                        colors: [AdminTheme.accent, AdminTheme.textSecondary],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: BorderRadius.circular(10),
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Center(
-                      child: Icon(Icons.storefront_rounded,
-                          color: Colors.white, size: 20),
+                    child: Image.asset(
+                      'assets/images/logo.png',
+                      fit: BoxFit.contain,
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -58,7 +55,7 @@ class AdminLeftSide extends StatelessWidget {
                             ),
                             children: const [
                               TextSpan(
-                                text: 'Chani',
+                                text: 'Kipux',
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
                                   color: Colors.white,

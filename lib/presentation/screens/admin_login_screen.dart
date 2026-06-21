@@ -68,21 +68,11 @@ class _AdminLoginScreenState extends State<AdminLoginScreen> {
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   // ── Logo / Header ────────────────────────
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: AdminTheme.accent.withValues(alpha: 0.1),
-                      shape: BoxShape.circle,
-                    ),
-                    child: const Icon(
-                      Icons.admin_panel_settings_rounded,
-                      size: 40,
-                      color: AdminTheme.accent,
-                    ),
+                  Image.asset(
+                    'assets/images/logoV.png',
+                    width: 120,
                   ),
-                  const SizedBox(height: 24),
-                  Text("Admin Panel", style: AdminTheme.heading1()),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 20),
                   Text(
                     "Inicia sesión para gestionar tu catálogo",
                     style: AdminTheme.bodySmall(),

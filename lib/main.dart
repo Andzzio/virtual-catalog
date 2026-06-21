@@ -192,7 +192,9 @@ class MainApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) {
-            final roleRepo = RoleRepositoryImpl(datasource: RoleDatasourceImpl());
+            final roleRepo = RoleRepositoryImpl(
+              datasource: RoleDatasourceImpl(),
+            );
             return RolesProvider(
               getRolesUseCase: GetRoles(roleRepo),
               createRoleUseCase: CreateRole(roleRepo),
@@ -203,9 +205,8 @@ class MainApp extends StatelessWidget {
           },
         ),
         ChangeNotifierProvider(
-          create: (_) => WhatsappSettingsProvider(
-            repository: whatsappSettingsRepo,
-          ),
+          create: (_) =>
+              WhatsappSettingsProvider(repository: whatsappSettingsRepo),
         ),
       ],
       child: Consumer2<TenantProvider, BusinessProvider>(

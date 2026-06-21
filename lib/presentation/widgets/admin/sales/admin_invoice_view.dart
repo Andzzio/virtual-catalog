@@ -644,8 +644,8 @@ class _AdminInvoiceViewState extends State<AdminInvoiceView> {
               children: [
                 Text(
                   isNotaVenta
-                      ? "Representación física de una Nota de Venta de uso interno · Emitido por CRM"
-                      : "Representación impresa del comprobante electrónico · Emitido por CRM",
+                      ? "Representación física de una Nota de Venta de uso interno · Emitido por Kipux.pe"
+                      : "Representación impresa del comprobante electrónico · Emitido por Kipux.pe",
                   style: const TextStyle(
                     fontSize: 11,
                     color: Color(0xFF64748B),

@@ -565,7 +565,7 @@ class _AdminRolesViewState extends State<AdminRolesView> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                "Así lucirá la etiqueta del usuario en las pantallas del CRM.",
+                                "Así lucirá la etiqueta del usuario en las pantallas del Kipux.pe.",
                                 style: AdminTheme.caption(),
                               ),
                             ),
@@ -778,7 +778,7 @@ class _AdminRolesViewState extends State<AdminRolesView> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: Text(
-                                "Así lucirá la etiqueta del usuario en las pantallas del CRM.",
+                                "Así lucirá la etiqueta del usuario en las pantallas del Kipux.pe.",
                                 style: AdminTheme.caption(),
                               ),
                             ),

@@ -380,7 +380,7 @@ void printSaleInvoice(Sale sale, Business business) {
         ''' : ''}
 
         <div style="margin-top: 50px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 20px;">
-          ${sale.documentType == 'nota_venta' ? 'Representación física de una Nota de Venta de uso interno · Emitido por CRM' : 'Representación impresa del comprobante electrónico · Emitido por CRM'}
+          ${sale.documentType == 'nota_venta' ? 'Representación física de una Nota de Venta de uso interno · Emitido por Kipux.pe' : 'Representación impresa del comprobante electrónico · Emitido por Kipux.pe'}
           ${sale.documentType != 'nota_venta' ? '<div style="margin-top: 15px;"><img src="$qrUrl" width="120" height="120" /></div>' : ''}
         </div>
       </div>
