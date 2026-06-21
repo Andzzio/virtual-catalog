@@ -56,17 +56,32 @@ import 'package:virtual_catalog_app/domain/usecases/create_user.dart';
 import 'package:virtual_catalog_app/domain/usecases/delete_user.dart';
 import 'package:virtual_catalog_app/domain/usecases/update_user_role.dart';
 import 'package:virtual_catalog_app/presentation/providers/users_provider.dart';
+import 'package:virtual_catalog_app/data/datasources/role_datasource_impl.dart';
+import 'package:virtual_catalog_app/data/repos/role_repository_impl.dart';
+import 'package:virtual_catalog_app/domain/usecases/get_roles.dart';
+import 'package:virtual_catalog_app/domain/usecases/create_role.dart';
+import 'package:virtual_catalog_app/domain/usecases/update_role.dart';
+import 'package:virtual_catalog_app/domain/usecases/update_role_positions.dart';
+import 'package:virtual_catalog_app/domain/usecases/delete_role.dart';
+import 'package:virtual_catalog_app/presentation/providers/roles_provider.dart';
+import 'package:virtual_catalog_app/data/datasources/whatsapp_settings_datasource_impl.dart';
+import 'package:virtual_catalog_app/data/repos/whatsapp_settings_repository_impl.dart';
+import 'package:virtual_catalog_app/presentation/providers/whatsapp_settings_provider.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  final String initialLocation = Uri.base.fragment.isNotEmpty
+      ? Uri.base.fragment
+      : '/';
   await dotenv.load(fileName: "env");
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  runApp(const MainApp());
+  runApp(MainApp(initialLocation: initialLocation));
 }
 
 class MainApp extends StatelessWidget {
-  const MainApp({super.key});
+  final String initialLocation;
+  const MainApp({super.key, required this.initialLocation});
 
   @override
   Widget build(BuildContext context) {
@@ -76,10 +91,17 @@ class MainApp extends StatelessWidget {
     final ubigeoRepo = UbigeoRepositoryImpl(datasource: ubigeoDatasource);
 
     final shippingZoneDatasource = ShippingZoneDatasourceImpl();
-    final shippingZoneRepo = ShippingZoneRepositoryImpl(datasource: shippingZoneDatasource);
-    final stockMovementRepo = StockMovementRepositoryImpl(datasource: StockMovementDatasourceImpl());
+    final shippingZoneRepo = ShippingZoneRepositoryImpl(
+      datasource: shippingZoneDatasource,
+    );
+    final stockMovementRepo = StockMovementRepositoryImpl(
+      datasource: StockMovementDatasourceImpl(),
+    );
     final saleRepo = SaleRepositoryImpl(datasource: SaleDatasourceImpl());
     final userRepo = UserRepositoryImpl(datasource: UserDatasourceImpl());
+    final whatsappSettingsRepo = WhatsappSettingsRepositoryImpl(
+      datasource: WhatsappSettingsDatasourceImpl(),
+    );
 
     return MultiProvider(
       providers: [
@@ -142,9 +164,7 @@ class MainApp extends StatelessWidget {
           ),
         ),
         ChangeNotifierProvider(
-          create: (_) => StockMovementProvider(
-            repository: stockMovementRepo,
-          ),
+          create: (_) => StockMovementProvider(repository: stockMovementRepo),
         ),
         ChangeNotifierProvider(
           create: (_) => SalesProvider(
@@ -167,7 +187,24 @@ class MainApp extends StatelessWidget {
             getUsersUseCase: GetUsers(userRepo),
             createUserUseCase: CreateUser(userRepo),
             deleteUserUseCase: DeleteUser(userRepo),
-            updateUserRoleUseCase: UpdateUserRole(userRepo),
+            updateUserRoleUseCase: UpdateUserRoles(userRepo),
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) {
+            final roleRepo = RoleRepositoryImpl(datasource: RoleDatasourceImpl());
+            return RolesProvider(
+              getRolesUseCase: GetRoles(roleRepo),
+              createRoleUseCase: CreateRole(roleRepo),
+              updateRoleUseCase: UpdateRole(roleRepo),
+              updateRolePositionsUseCase: UpdateRolePositions(roleRepo),
+              deleteRoleUseCase: DeleteRole(roleRepo),
+            );
+          },
+        ),
+        ChangeNotifierProvider(
+          create: (_) => WhatsappSettingsProvider(
+            repository: whatsappSettingsRepo,
           ),
         ),
       ],
@@ -176,9 +213,7 @@ class MainApp extends StatelessWidget {
           if (tenantProvider.isLoading) {
             return const MaterialApp(
               debugShowCheckedModeBanner: false,
-              home: Scaffold(
-                body: Center(child: CircularProgressIndicator()),
-              ),
+              home: Scaffold(body: Center(child: CircularProgressIndicator())),
             );
           }
 
@@ -210,7 +245,7 @@ class MainApp extends StatelessWidget {
               customColor: customColor,
               customBgColor: customBgColor,
             ).getTheme(),
-            routerConfig: AppRouter.create(tenantProvider),
+            routerConfig: AppRouter.create(tenantProvider, initialLocation),
           );
         },
       ),

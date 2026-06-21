@@ -32,7 +32,7 @@ class AppRouter {
 
   static GoRouter? _instance;
 
-  static GoRouter create(TenantProvider tenant) {
+  static GoRouter create(TenantProvider tenant, String initialLocation) {
     if (_instance != null) return _instance!;
 
     final isCustom = tenant.isCustomDomain;
@@ -40,6 +40,7 @@ class AppRouter {
     final String basePath = isCustom ? "/" : "/:businessSlug";
 
     _instance = GoRouter(
+      initialLocation: initialLocation,
       errorBuilder: (context, state) {
         return const Scaffold(body: Center(child: Text("404 - Página no encontrada")));
       },
