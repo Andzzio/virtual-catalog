@@ -11,6 +11,7 @@ import 'package:virtual_catalog_app/domain/entities/sale.dart';
 import 'package:virtual_catalog_app/presentation/providers/business_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/sales_provider.dart';
 import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
+import 'package:virtual_catalog_app/config/utils/number_to_words.dart';
 
 class AdminInvoiceView extends StatefulWidget {
   final String businessSlug;
@@ -115,9 +116,13 @@ class _AdminInvoiceViewState extends State<AdminInvoiceView> {
         ? "FACTURA ELECTRÓNICA"
         : sale.documentType == 'boleta'
             ? "BOLETA DE VENTA"
-            : "NOTA DE VENTA";
+            : sale.documentType == 'nota_credito'
+                ? "NOTA DE CRÉDITO ELECTRÓNICA"
+                : sale.documentType == 'nota_debito'
+                    ? "NOTA DE DÉBITO ELECTRÓNICA"
+                    : "NOTA DE VENTA";
 
-    final isNotaVenta = sale.documentType.toLowerCase().trim().contains('nota');
+    final isNotaVenta = sale.documentType == 'nota_venta';
 
     return Scaffold(
       backgroundColor: AdminTheme.surface,
@@ -353,6 +358,17 @@ class _AdminInvoiceViewState extends State<AdminInvoiceView> {
                         color: Color(0xFF0F172A),
                       ),
                     ),
+                    if (sale.documentType == 'nota_credito' || sale.documentType == 'nota_debito')
+                      if (sale.refDocSerie != null && sale.refDocSerie!.isNotEmpty) ...[
+                        const SizedBox(height: 6),
+                        Text(
+                          "Modifica: ${sale.refDocSerie}-${sale.refDocNumero?.toString().padLeft(8, '0') ?? ''}",
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Color(0xFF475569),
+                          ),
+                        ),
+                      ],
                   ],
                 ),
               ),
@@ -580,6 +596,18 @@ class _AdminInvoiceViewState extends State<AdminInvoiceView> {
               ),
             ),
           ),
+          const SizedBox(height: 12),
+          Text(
+            numberToWords(sale.total),
+            style: GoogleFonts.getFont(
+              FontNames.fontNameH2,
+              textStyle: const TextStyle(
+                fontSize: 11,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF0F172A),
+              ),
+            ),
+          ),
           if (sale.notes.isNotEmpty) ...[
             const SizedBox(height: 32),
             Container(
@@ -627,7 +655,7 @@ class _AdminInvoiceViewState extends State<AdminInvoiceView> {
                 if (!isNotaVenta) ...[
                   const SizedBox(height: 24),
                   Image.network(
-                    "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${Uri.encodeComponent("${business.ruc ?? ''}|${sale.documentType == 'factura' ? '01' : '03'}|${sale.number.split('-')[0]}|${sale.number.split('-').length > 1 ? sale.number.split('-')[1] : ''}|${sale.igv.toStringAsFixed(2)}|${sale.total.toStringAsFixed(2)}|$dateStr|${sale.customerDoc.length == 11 ? '6' : '1'}|${sale.customerDoc}|")}",
+                    "https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=${Uri.encodeComponent("${business.ruc ?? ''}|${sale.documentType == 'factura' ? '01' : sale.documentType == 'boleta' ? '03' : sale.documentType == 'nota_credito' ? '07' : sale.documentType == 'nota_debito' ? '08' : '03'}|${sale.number.split('-')[0]}|${sale.number.split('-').length > 1 ? sale.number.split('-')[1] : ''}|${sale.igv.toStringAsFixed(2)}|${sale.total.toStringAsFixed(2)}|$dateStr|${sale.customerDoc.length == 11 ? '6' : '1'}|${sale.customerDoc}|")}",
                     width: 120,
                     height: 120,
                   ),
@@ -648,7 +676,7 @@ class _AdminInvoiceViewState extends State<AdminInvoiceView> {
     String timeStr,
   ) {
     final showQr = !isNotaVenta;
-    final docTypeNum = sale.documentType == 'factura' ? '01' : '03';
+    final docTypeNum = sale.documentType == 'factura' ? '01' : sale.documentType == 'boleta' ? '03' : sale.documentType == 'nota_credito' ? '07' : sale.documentType == 'nota_debito' ? '08' : '03';
     final numberParts = sale.number.split('-');
     final series = numberParts.isNotEmpty ? numberParts[0] : '';
     final correlative = numberParts.length > 1 ? numberParts[1] : '';
@@ -725,11 +753,15 @@ class _AdminInvoiceViewState extends State<AdminInvoiceView> {
           const SizedBox(height: 6),
           Center(
             child: Text(
-              isNotaVenta
+              sale.documentType == 'nota_venta'
                   ? 'NOTA DE VENTA'
                   : sale.documentType == 'factura'
                       ? 'FACTURA ELECTRÓNICA'
-                      : 'BOLETA DE VENTA ELECTRÓNICA',
+                      : sale.documentType == 'nota_credito'
+                          ? 'NOTA DE CRÉDITO ELECTRÓNICA'
+                          : sale.documentType == 'nota_debito'
+                              ? 'NOTA DE DÉBITO ELECTRÓNICA'
+                              : 'BOLETA DE VENTA ELECTRÓNICA',
               style: GoogleFonts.courierPrime(
                 textStyle: const TextStyle(fontSize: 11, fontWeight: FontWeight.bold, color: Colors.black),
               ),
@@ -745,6 +777,17 @@ class _AdminInvoiceViewState extends State<AdminInvoiceView> {
               textAlign: TextAlign.center,
             ),
           ),
+          if (sale.documentType == 'nota_credito' || sale.documentType == 'nota_debito')
+            if (sale.refDocSerie != null && sale.refDocSerie!.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.only(top: 2),
+                child: Center(
+                  child: Text(
+                    'Doc. que modifica: ${sale.refDocSerie}-${sale.refDocNumero?.toString().padLeft(8, '0') ?? ''}',
+                    style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 10, color: Colors.black54)),
+                  ),
+                ),
+              ),
           const SizedBox(height: 6),
           _buildDashedLine(),
           const SizedBox(height: 8),
@@ -840,12 +883,12 @@ class _AdminInvoiceViewState extends State<AdminInvoiceView> {
                         textAlign: TextAlign.center,
                       ),
                       Text(
-                        item.unitPrice.toStringAsFixed(2),
+                        'S/ ${item.unitPrice.toStringAsFixed(2)}',
                         style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 10, color: Colors.black)),
                         textAlign: TextAlign.right,
                       ),
                       Text(
-                        item.lineTotal.toStringAsFixed(2),
+                        'S/ ${item.lineTotal.toStringAsFixed(2)}',
                         style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 10, color: Colors.black)),
                         textAlign: TextAlign.right,
                       ),
@@ -883,6 +926,11 @@ class _AdminInvoiceViewState extends State<AdminInvoiceView> {
             ],
           ),
           const SizedBox(height: 6),
+          Text(
+            numberToWords(sale.total),
+            style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Colors.black)),
+          ),
+          const SizedBox(height: 8),
           if (sale.notes.isNotEmpty) ...[
             const SizedBox(height: 8),
             _buildDashedLine(),

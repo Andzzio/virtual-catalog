@@ -3,11 +3,11 @@
 # Deploy with `firebase deploy`
 import base64
 import requests
-from firebase_functions import https_fn
+from firebase_functions import https_fn, firestore_fn
 from firebase_functions.options import set_global_options
 from firebase_admin import initialize_app
 import json
-from firebase_functions import https_fn, options
+from firebase_functions import https_fn, options, firestore_fn
 from firebase_functions.options import set_global_options
 import os
 
@@ -318,10 +318,15 @@ def register_user(req: https_fn.Request) -> https_fn.Response:
         email = body.get("email")
         password = body.get("password")
         name = body.get("name")
-        role = body.get("role", "vendedor")
+        role = body.get("role")
+        roles = body.get("roles")
         business_id = body.get("businessId")
         if not email or not password or not name or not business_id:
             return https_fn.Response(json.dumps({"error": "Missing parameters"}), status=400, content_type="application/json")
+        
+        if not roles:
+            roles = [role] if role else ["vendedor"]
+            
         user_record = auth.create_user(
             email=email,
             password=password,
@@ -333,7 +338,8 @@ def register_user(req: https_fn.Request) -> https_fn.Response:
             "id": uid,
             "email": email,
             "name": name,
-            "role": role,
+            "roles": roles,
+            "isOwner": body.get("isOwner", False),
             "businessId": business_id,
             "createdAt": firestore.SERVER_TIMESTAMP
         })
@@ -370,12 +376,67 @@ def update_user_role(req: https_fn.Request) -> https_fn.Response:
             return https_fn.Response(json.dumps({"error": "No data"}), status=400, content_type="application/json")
         user_id = body.get("userId")
         role = body.get("role")
-        if not user_id or not role:
+        roles = body.get("roles")
+        if not user_id:
             return https_fn.Response(json.dumps({"error": "Missing parameters"}), status=400, content_type="application/json")
+        
+        update_data = {}
+        if roles is not None:
+            update_data["roles"] = roles
+        elif role is not None:
+            update_data["roles"] = [role]
+            update_data["role"] = role
+        else:
+            return https_fn.Response(json.dumps({"error": "Missing roles or role"}), status=400, content_type="application/json")
+            
         db = firestore.client()
-        db.collection("users").document(user_id).update({
-            "role": role
-        })
+        db.collection("users").document(user_id).update(update_data)
         return https_fn.Response(json.dumps({"success": True}), status=200, content_type="application/json")
     except Exception as e:
         return https_fn.Response(json.dumps({"error": str(e)}), status=500, content_type="application/json")
+
+
+@firestore_fn.on_document_created(
+    document="businesses/{businessId}/conversations/{conversationId}/messages/{messageId}"
+)
+def send_vendor_message_to_whatsapp(
+    event: firestore_fn.Event[firestore_fn.DocumentSnapshot | None]
+) -> None:
+    snap = event.data
+    if not snap:
+        return
+
+    data = snap.to_dict()
+    sender_id = data.get("senderId")
+    conversation_id = event.params["conversationId"]
+    if sender_id == conversation_id:
+        return
+
+    business_id = event.params["businessId"]
+    content = data.get("content")
+
+    from firebase_admin import firestore
+    db = firestore.client()
+    settings_doc = db.collection("whatsapp_settings").document(business_id).get()
+    if not settings_doc.exists:
+        return
+
+    settings = settings_doc.to_dict()
+    phone_id = settings.get("phoneId")
+    if sender_id == phone_id:
+        return
+
+    bot_url = settings.get("botUrl")
+    if not bot_url:
+        print(f"Warning: botUrl not configured for business {business_id}")
+        return
+
+    response = requests.post(f"{bot_url}/send_message", json={
+        "businessId": business_id,
+        "to": conversation_id,
+        "content": content,
+        "type": data.get("type", "text"),
+        "media": data.get("media"),
+        "messageId": event.params["messageId"]
+    }, timeout=10)
+    print(f"Bot API Status: {response.status_code}")

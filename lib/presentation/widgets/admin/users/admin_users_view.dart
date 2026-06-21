@@ -5,6 +5,8 @@ import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/user_entity.dart';
 import 'package:virtual_catalog_app/presentation/providers/auth_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/users_provider.dart';
+import 'package:virtual_catalog_app/presentation/providers/roles_provider.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/roles/admin_roles_view.dart';
 import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 
 class AdminUsersView extends StatefulWidget {
@@ -21,6 +23,7 @@ class _AdminUsersViewState extends State<AdminUsersView> {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<UsersProvider>().loadUsers(widget.businessSlug);
+      context.read<RolesProvider>().loadRoles(widget.businessSlug);
     });
   }
 
@@ -54,6 +57,32 @@ class _AdminUsersViewState extends State<AdminUsersView> {
           ],
         ),
         actions: [
+          OutlinedButton.icon(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => AdminRolesView(businessSlug: widget.businessSlug),
+                ),
+              );
+            },
+            icon: const Icon(Icons.security_rounded, color: Colors.white, size: 18),
+            style: OutlinedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              foregroundColor: Colors.white,
+              side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+              ),
+            ),
+            label: Text(
+              "Gestionar Roles",
+              style: GoogleFonts.getFont(
+                FontNames.fontNameH2,
+                textStyle: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
           ElevatedButton.icon(
             onPressed: () => _showAddUserDialog(),
             icon: const Icon(Icons.person_add_alt_1_rounded),
@@ -138,23 +167,66 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                         child: Align(
                           alignment: Alignment.centerLeft,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: user.role == "admin"
-                                  ? const Color(0xFF6366F1).withValues(alpha: 0.15)
-                                  : const Color(0xFF64748B).withValues(alpha: 0.15),
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              user.role.toUpperCase(),
-                              style: TextStyle(
-                                  fontSize: 10,
-                                  fontWeight: FontWeight.bold,
-                                  color: user.role == "admin"
-                                      ? const Color(0xFF818CF8)
-                                      : const Color(0xFF94A3B8)),
-                            ),
+                          child: Wrap(
+                            spacing: 6,
+                            runSpacing: 4,
+                            children: [
+                              if (user.isOwner)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFFEF3C7),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: const Color(0xFFFBBF24)),
+                                  ),
+                                  child: const Text(
+                                    "PROPIETARIO",
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: Color(0xFFD97706),
+                                    ),
+                                  ),
+                                ),
+                              ...user.roles.map((roleId) {
+                                final roles = context.read<RolesProvider>().roles;
+                                final role = roles.where((r) => r.id == roleId).firstOrNull;
+                                if (role == null) {
+                                  return Container(
+                                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFE2E8F0),
+                                      borderRadius: BorderRadius.circular(6),
+                                    ),
+                                    child: Text(
+                                      roleId.toUpperCase(),
+                                      style: const TextStyle(
+                                        fontSize: 10,
+                                        fontWeight: FontWeight.bold,
+                                        color: Color(0xFF64748B),
+                                      ),
+                                    ),
+                                  );
+                                }
+                                final color = Color(role.colorValue);
+                                return Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                                  decoration: BoxDecoration(
+                                    color: color.withValues(alpha: 0.15),
+                                    borderRadius: BorderRadius.circular(6),
+                                    border: Border.all(color: color.withValues(alpha: 0.3)),
+                                  ),
+                                  child: Text(
+                                    role.name.toUpperCase(),
+                                    style: TextStyle(
+                                      fontSize: 10,
+                                      fontWeight: FontWeight.bold,
+                                      color: color,
+                                    ),
+                                  ),
+                                );
+                              }),
+                            ],
                           ),
                         ),
                       ),
@@ -284,7 +356,9 @@ class _AdminUsersViewState extends State<AdminUsersView> {
   }
 
   void _showEditRoleDialog(UserEntity user) {
-    String selectedRole = user.role;
+    final rolesProvider = context.read<RolesProvider>();
+    final List<String> selectedRoles = List.from(user.roles);
+
     showDialog(
       context: context,
       builder: (dialogContext) {
@@ -294,7 +368,7 @@ class _AdminUsersViewState extends State<AdminUsersView> {
               backgroundColor: AdminTheme.cardBg,
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AdminTheme.radiusLg)),
               title: Text(
-                "Modificar Permisos",
+                "Modificar Roles",
                 style: GoogleFonts.getFont(
                   FontNames.fontNameH2,
                   textStyle: const TextStyle(fontWeight: FontWeight.bold, color: AdminTheme.textPrimary),
@@ -309,24 +383,41 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                     style: AdminTheme.bodySmall(),
                   ),
                   const SizedBox(height: 16),
-                  _fieldLabel("Rol / Permiso"),
-                  DropdownButtonFormField<String>(
-                    dropdownColor: AdminTheme.cardBg,
-                    initialValue: selectedRole,
-                    style: AdminTheme.body(),
-                    decoration: AdminTheme.inputDecoration(),
-                    items: const [
-                      DropdownMenuItem(value: "admin", child: Text("Admin")),
-                      DropdownMenuItem(value: "vendedor", child: Text("Vendedor")),
-                    ],
-                    onChanged: (val) {
-                      if (val != null) {
-                        setDialogState(() {
-                          selectedRole = val;
-                        });
-                      }
-                    },
-                  ),
+                  _fieldLabel("Asignar Roles"),
+                  const SizedBox(height: 8),
+                  if (rolesProvider.roles.isEmpty)
+                    Text("No hay roles creados. Ve a la sección de Roles para configurarlos.", style: AdminTheme.caption())
+                  else
+                    SizedBox(
+                      width: 300,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: rolesProvider.roles.map((role) {
+                          final isChecked = selectedRoles.contains(role.id);
+                          return CheckboxListTile(
+                            activeColor: Color(role.colorValue),
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              role.name,
+                              style: TextStyle(
+                                color: Color(role.colorValue),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            value: isChecked,
+                            onChanged: (val) {
+                              setDialogState(() {
+                                if (val == true) {
+                                  selectedRoles.add(role.id);
+                                } else {
+                                  selectedRoles.remove(role.id);
+                                }
+                              });
+                            },
+                          );
+                        }).toList(),
+                      ),
+                    ),
                 ],
               ),
               actions: [
@@ -337,7 +428,7 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                 ElevatedButton(
                   onPressed: () async {
                     Navigator.of(dialogContext).pop();
-                    _updateRole(user.id, selectedRole);
+                    _updateUserRoles(user.id, selectedRoles);
                   },
                   style: AdminTheme.primaryButton(),
                   child: Text("Guardar", style: GoogleFonts.getFont(FontNames.fontNameH2)),
@@ -350,16 +441,16 @@ class _AdminUsersViewState extends State<AdminUsersView> {
     );
   }
 
-  void _updateRole(String userId, String role) async {
-    final success = await context.read<UsersProvider>().updateUserRole(
+  void _updateUserRoles(String userId, List<String> roles) async {
+    final success = await context.read<UsersProvider>().updateUserRoles(
           widget.businessSlug,
           userId,
-          role,
+          roles,
         );
     if (mounted) {
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Rol actualizado correctamente"), backgroundColor: AdminTheme.success),
+          const SnackBar(content: Text("Roles actualizados correctamente"), backgroundColor: AdminTheme.success),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -374,7 +465,7 @@ class _AdminUsersViewState extends State<AdminUsersView> {
     final emailCtrl = TextEditingController();
     final passCtrl = TextEditingController();
     final confirmPassCtrl = TextEditingController();
-    String selectedRole = "vendedor";
+    final List<String> selectedRoles = [];
     final formKey = GlobalKey<FormState>();
     bool obscurePass = true;
     bool obscureConfirm = true;
@@ -459,24 +550,35 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                         ),
                       ),
                       const SizedBox(height: 16),
-                      _fieldLabel("Rol"),
-                      DropdownButtonFormField<String>(
-                        dropdownColor: AdminTheme.cardBg,
-                        initialValue: selectedRole,
-                        style: AdminTheme.body(),
-                        decoration: AdminTheme.inputDecoration(),
-                        items: const [
-                          DropdownMenuItem(value: "admin", child: Text("Admin")),
-                          DropdownMenuItem(value: "vendedor", child: Text("Vendedor")),
-                        ],
-                        onChanged: (val) {
-                          if (val != null) {
-                            setDialogState(() {
-                              selectedRole = val;
-                            });
-                          }
-                        },
-                      ),
+                      _fieldLabel("Roles"),
+                      const SizedBox(height: 4),
+                      if (context.read<RolesProvider>().roles.isEmpty)
+                        Text("No hay roles creados. Ve a la sección de Roles.", style: AdminTheme.caption())
+                      else
+                        ...context.read<RolesProvider>().roles.map((role) {
+                          final isChecked = selectedRoles.contains(role.id);
+                          return CheckboxListTile(
+                            activeColor: Color(role.colorValue),
+                            contentPadding: EdgeInsets.zero,
+                            title: Text(
+                              role.name,
+                              style: TextStyle(
+                                color: Color(role.colorValue),
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                            value: isChecked,
+                            onChanged: (val) {
+                              setDialogState(() {
+                                if (val == true) {
+                                  selectedRoles.add(role.id);
+                                } else {
+                                  selectedRoles.remove(role.id);
+                                }
+                              });
+                            },
+                          );
+                        }),
                     ],
                   ),
                 ),
@@ -490,7 +592,7 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                   onPressed: () async {
                     if (formKey.currentState!.validate()) {
                       Navigator.of(dialogContext).pop();
-                      _createUser(nameCtrl.text, emailCtrl.text, passCtrl.text, selectedRole);
+                      _createUser(nameCtrl.text, emailCtrl.text, passCtrl.text, selectedRoles);
                     }
                   },
                   style: AdminTheme.primaryButton(),
@@ -504,14 +606,14 @@ class _AdminUsersViewState extends State<AdminUsersView> {
     );
   }
 
-  void _createUser(String name, String email, String password, String role) async {
+  void _createUser(String name, String email, String password, List<String> roles) async {
     final usersProvider = context.read<UsersProvider>();
     final success = await usersProvider.createUser(
           businessSlug: widget.businessSlug,
           name: name,
           email: email,
           password: password,
-          role: role,
+          roles: roles,
         );
     if (!mounted) return;
     if (success) {

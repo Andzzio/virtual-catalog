@@ -1,31 +1,32 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:virtual_catalog_app/domain/entities/chat_message.dart';
+import 'package:virtual_catalog_app/domain/entities/message_entity.dart';
+import 'package:virtual_catalog_app/domain/entities/message_type.dart';
+import 'package:virtual_catalog_app/domain/entities/contact_entity.dart';
 import 'package:virtual_catalog_app/domain/entities/conversation.dart';
-import 'package:virtual_catalog_app/domain/entities/product.dart';
-import 'package:virtual_catalog_app/domain/entities/product_variant.dart';
 import 'package:virtual_catalog_app/domain/repos/chat_repository.dart';
 import 'package:virtual_catalog_app/domain/datasources/izipay_datasource.dart';
 import 'package:virtual_catalog_app/presentation/providers/chat_provider.dart';
+import 'package:virtual_catalog_app/data/models/message_model.dart';
 
 class MockChatRepository implements ChatRepository {
-  List<Conversation> mockedConversations = [];
-  List<ChatMessage> mockedMessages = [];
+  List<ConversationEntity> mockedConversations = [];
+  List<MessageEntity> mockedMessages = [];
   bool markAsReadCalled = false;
   bool sendMessageCalled = false;
   bool simulateIncomingCalled = false;
 
   @override
-  Stream<List<Conversation>> getConversations(String businessSlug) {
+  Stream<List<ConversationEntity>> getConversations(String businessSlug) {
     return Stream.value(mockedConversations);
   }
 
   @override
-  Stream<List<ChatMessage>> getMessages(String businessSlug, String conversationId) {
+  Stream<List<MessageEntity>> getMessages(String businessSlug, String conversationId, {int? limit}) {
     return Stream.value(mockedMessages);
   }
 
   @override
-  Future<void> sendMessage(String businessSlug, String conversationId, ChatMessage message) async {
+  Future<void> sendMessage(String businessSlug, String conversationId, MessageEntity message) async {
     sendMessageCalled = true;
     mockedMessages.add(message);
   }
@@ -38,13 +39,15 @@ class MockChatRepository implements ChatRepository {
   @override
   Future<void> simulateIncomingMessage(String businessSlug, String conversationId, String content) async {
     simulateIncomingCalled = true;
-    mockedMessages.add(ChatMessage(
+    mockedMessages.add(MessageEntity(
       id: 'simulated',
+      recipientId: 'vendedor',
       senderId: conversationId,
+      senderName: 'Cliente',
       content: content,
       timestamp: DateTime.now(),
       isRead: false,
-      type: 'text',
+      type: MessageType.text,
     ));
   }
 
@@ -54,15 +57,46 @@ class MockChatRepository implements ChatRepository {
   Future<void> initializeMockData(String businessSlug) async {
     initializeMockDataCalled = true;
     mockedConversations = [
-      Conversation(
+      ConversationEntity(
         id: '+51987654321',
-        clientName: 'Carlos Mendoza',
-        clientPhone: '+51987654321',
-        lastMessage: 'Genial, mándame el enlace de pago por favor.',
-        lastMessageTime: DateTime.now(),
+        contact: ContactEntity(
+          name: 'Carlos Mendoza',
+          phoneId: '+51987654321',
+        ),
+        lastMessage: MessageEntity(
+          recipientId: 'vendedor',
+          senderId: '+51987654321',
+          senderName: 'Carlos Mendoza',
+          content: 'Genial, mándame el enlace de pago por favor.',
+          timestamp: DateTime.now(),
+          isRead: false,
+          type: MessageType.text,
+        ),
         unreadCount: 1,
       )
     ];
+  }
+
+  bool toggleBotStatusCalled = false;
+  bool toggleBotStatusLastValue = false;
+
+  @override
+  Future<void> toggleBotStatus(String businessSlug, String conversationId, bool isActive) async {
+    toggleBotStatusCalled = true;
+    toggleBotStatusLastValue = isActive;
+  }
+
+  bool getAiSuggestionCalled = false;
+  String mockAiSuggestion = 'Sugerencia mock de IA';
+  bool throwErrorOnSuggestion = false;
+
+  @override
+  Future<String> getAiSuggestion(String businessSlug, String conversationId, String clientName) async {
+    getAiSuggestionCalled = true;
+    if (throwErrorOnSuggestion) {
+      throw Exception('API Error');
+    }
+    return mockAiSuggestion;
   }
 }
 
@@ -101,12 +135,21 @@ void main() {
   group('ChatProvider Unit Tests', () {
     test('initConversations listens and updates conversations', () async {
       mockRepo.mockedConversations = [
-        Conversation(
+        ConversationEntity(
           id: 'client1',
-          clientName: 'Juan',
-          clientPhone: '999999999',
-          lastMessage: 'Hola',
-          lastMessageTime: DateTime.now(),
+          contact: ContactEntity(
+            name: 'Juan',
+            phoneId: '999999999',
+          ),
+          lastMessage: MessageEntity(
+            recipientId: 'vendedor',
+            senderId: 'client1',
+            senderName: 'Juan',
+            content: 'Hola',
+            timestamp: DateTime.now(),
+            isRead: false,
+            type: MessageType.text,
+          ),
           unreadCount: 1,
         )
       ];
@@ -115,27 +158,38 @@ void main() {
       await Future.delayed(Duration.zero);
 
       expect(provider.conversations.length, 1);
-      expect(provider.conversations.first.clientName, 'Juan');
+      expect(provider.conversations.first.contact.name, 'Juan');
     });
 
     test('selectConversation updates messages and marks as read', () async {
-      final conv = Conversation(
+      final conv = ConversationEntity(
         id: 'client1',
-        clientName: 'Juan',
-        clientPhone: '999999999',
-        lastMessage: 'Hola',
-        lastMessageTime: DateTime.now(),
+        contact: ContactEntity(
+          name: 'Juan',
+          phoneId: '999999999',
+        ),
+        lastMessage: MessageEntity(
+          recipientId: 'vendedor',
+          senderId: 'client1',
+          senderName: 'Juan',
+          content: 'Hola',
+          timestamp: DateTime.now(),
+          isRead: false,
+          type: MessageType.text,
+        ),
         unreadCount: 1,
       );
 
       mockRepo.mockedMessages = [
-        ChatMessage(
+        MessageEntity(
           id: 'msg1',
+          recipientId: 'vendedor',
           senderId: 'client1',
+          senderName: 'Juan',
           content: 'Hola',
           timestamp: DateTime.now(),
           isRead: false,
-          type: 'text',
+          type: MessageType.text,
         )
       ];
 
@@ -185,63 +239,36 @@ void main() {
       expect(mockIzipay.createPaymentLinkCalled, isTrue);
       expect(mockRepo.sendMessageCalled, isTrue);
       expect(mockRepo.mockedMessages.last.content, mockIzipay.expectedLink);
-      expect(mockRepo.mockedMessages.last.type, 'payment_link');
+      expect(mockRepo.mockedMessages.last.type, MessageType.paymentLink);
     });
 
-    test('getAiSuggestion matches catalog product by name and returns suggestion', () async {
-      final catalog = [
-        Product(
-          id: 'prod1',
-          name: 'Polo Negro',
-          description: 'Polo de algodón',
-          businessId: 'test-business',
-          category: 'Ropa',
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-          imageUrl: [],
-          variants: [
-            ProductVariant(
-              name: 'Estándar',
-              price: 39.90,
-              stock: 10,
-              sizes: [],
-            ),
-          ],
-        ),
-      ];
+    test('getAiSuggestion calls repository and returns suggestion', () async {
+      mockRepo.mockAiSuggestion = 'Hola, sí tenemos Polo Negro disponible.';
 
-      await provider.getAiSuggestion('¿Tienes polo negro en stock?', catalog);
+      await provider.getAiSuggestion(
+        businessSlug: 'test-business',
+        conversationId: '+51987654321',
+        clientName: 'Carlos Mendoza',
+      );
 
-      expect(provider.aiSuggestion, contains('Polo Negro'));
-      expect(provider.aiSuggestion, contains('S/ 39.90'));
-      expect(provider.aiSuggestion, contains('¿Te genero un enlace de cobro'));
+      expect(mockRepo.getAiSuggestionCalled, isTrue);
+      expect(provider.aiSuggestion, 'Hola, sí tenemos Polo Negro disponible.');
     });
 
-    test('getAiSuggestion returns generic suggestion if product is not in catalog', () async {
-      final catalog = [
-        Product(
-          id: 'prod1',
-          name: 'Polo Negro',
-          description: 'Polo de algodón',
-          businessId: 'test-business',
-          category: 'Ropa',
-          createdAt: DateTime.now(),
-          updatedAt: DateTime.now(),
-          imageUrl: [],
-          variants: [
-            ProductVariant(
-              name: 'Estándar',
-              price: 39.90,
-              stock: 10,
-              sizes: [],
-            ),
-          ],
+    test('getAiSuggestion handles repository error gracefully', () async {
+      mockRepo.throwErrorOnSuggestion = true;
+
+      expect(
+        () => provider.getAiSuggestion(
+          businessSlug: 'test-business',
+          conversationId: '+51987654321',
+          clientName: 'Carlos Mendoza',
         ),
-      ];
+        throwsA(isA<Exception>()),
+      );
 
-      await provider.getAiSuggestion('¿Hacen envíos a Lima?', catalog);
-
-      expect(provider.aiSuggestion, contains('¿En qué producto de nuestro catálogo estás interesado hoy?'));
+      expect(mockRepo.getAiSuggestionCalled, isTrue);
+      expect(provider.aiSuggestion, isNull);
     });
 
     test('initializeMockData calls repository and loads mock conversations', () async {
@@ -250,6 +277,105 @@ void main() {
       await provider.initializeMockData('test-business');
 
       expect(mockRepo.initializeMockDataCalled, isTrue);
+    });
+
+    test('toggleBot calls repository and updates state optimistically', () async {
+      final conv = ConversationEntity(
+        id: 'client1',
+        contact: ContactEntity(
+          name: 'Juan',
+          phoneId: '999999999',
+        ),
+        unreadCount: 0,
+        isBotActive: true,
+      );
+      provider.conversations = [conv];
+      provider.selectedConversation = conv;
+
+      await provider.toggleBot('test-business', 'client1', false);
+
+      expect(provider.selectedConversation?.isBotActive, isFalse);
+      expect(provider.conversations.first.isBotActive, isFalse);
+      expect(mockRepo.toggleBotStatusCalled, isTrue);
+      expect(mockRepo.toggleBotStatusLastValue, isFalse);
+    });
+
+    test('sendMessage passes senderName correct to repository', () async {
+      await provider.sendMessage(
+        businessSlug: 'test-business',
+        conversationId: 'client1',
+        content: 'Hola cliente',
+        senderId: 'merchant',
+        senderName: 'Vendedor Especializado',
+      );
+
+      expect(mockRepo.sendMessageCalled, isTrue);
+      expect(mockRepo.mockedMessages.last.senderName, 'Vendedor Especializado');
+    });
+
+    test('loadMoreMessages increments limit and fetches messages again', () async {
+      final conv = ConversationEntity(
+        id: 'client1',
+        contact: ContactEntity(
+          name: 'Juan',
+          phoneId: '999999999',
+        ),
+        lastMessage: MessageEntity(
+          recipientId: 'vendedor',
+          senderId: 'client1',
+          senderName: 'Juan',
+          content: 'Hola',
+          timestamp: DateTime.now(),
+          isRead: false,
+          type: MessageType.text,
+        ),
+        unreadCount: 1,
+      );
+
+      provider.selectConversation('test-business', conv);
+      expect(provider.messagesLimit, 30);
+
+      provider.loadMoreMessages('test-business');
+      expect(provider.messagesLimit, 60);
+    });
+
+    test('MessageModel serializes and deserializes status and whatsappMessageId correctly', () async {
+      final now = DateTime.now();
+      final model = MessageModel(
+        recipientId: 'r1',
+        senderId: 's1',
+        senderName: 'n1',
+        content: 'c1',
+        timestamp: now,
+        status: 'delivered',
+        whatsappMessageId: 'wamid.123',
+      );
+
+      final map = model.toFirestore();
+      expect(map['status'], 'delivered');
+      expect(map['whatsappMessageId'], 'wamid.123');
+
+      final deserialized = MessageModel.fromMap(map, id: 'id1');
+      expect(deserialized.id, 'id1');
+      expect(deserialized.status, 'delivered');
+      expect(deserialized.whatsappMessageId, 'wamid.123');
+    });
+
+    test('MessageEntity copyWith copies status and whatsappMessageId correctly', () async {
+      final entity = MessageEntity(
+        recipientId: 'r1',
+        senderId: 's1',
+        senderName: 'n1',
+        content: 'c1',
+      );
+
+      final copied = entity.copyWith(
+        status: 'read',
+        whatsappMessageId: 'wamid.456',
+      );
+
+      expect(copied.status, 'read');
+      expect(copied.whatsappMessageId, 'wamid.456');
     });
   });
 }

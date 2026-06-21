@@ -23,7 +23,7 @@ void printSaleTicket(Sale sale, Business business) {
 
   final dateStr = "${sale.createdAt.day.toString().padLeft(2, '0')}/${sale.createdAt.month.toString().padLeft(2, '0')}/${sale.createdAt.year}";
   final timeStr = "${sale.createdAt.hour.toString().padLeft(2, '0')}:${sale.createdAt.minute.toString().padLeft(2, '0')}";
-  final docTypeNum = sale.documentType == 'factura' ? '01' : '03';
+  final docTypeNum = sale.documentType == 'factura' ? '01' : sale.documentType == 'boleta' ? '03' : sale.documentType == 'nota_credito' ? '07' : sale.documentType == 'nota_debito' ? '08' : '03';
   final numberParts = sale.number.split('-');
   final series = numberParts.isNotEmpty ? numberParts[0] : '';
   final correlative = numberParts.length > 1 ? numberParts[1] : '';
@@ -41,10 +41,10 @@ void printSaleTicket(Sale sale, Business business) {
         ${item.quantity.toStringAsFixed(1)}
       </td>
       <td style="text-align: right; padding: 4px 0; vertical-align: top;">
-        ${item.unitPrice.toStringAsFixed(2)}
+        S/ ${item.unitPrice.toStringAsFixed(2)}
       </td>
       <td style="text-align: right; padding: 4px 0; vertical-align: top;">
-        ${item.lineTotal.toStringAsFixed(2)}
+        S/ ${item.lineTotal.toStringAsFixed(2)}
       </td>
     </tr>
   ''').join('');
@@ -120,8 +120,9 @@ void printSaleTicket(Sale sale, Business business) {
       <div class="divider"></div>
       
       <div class="text-center" style="margin: 5px 0;">
-        <div class="bold" style="font-size: 12px;">${sale.documentType == 'nota_venta' ? 'NOTA DE VENTA' : sale.documentType == 'factura' ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA'}</div>
+        <div class="bold" style="font-size: 12px;">${sale.documentType == 'nota_venta' ? 'NOTA DE VENTA' : sale.documentType == 'factura' ? 'FACTURA ELECTRÓNICA' : sale.documentType == 'nota_credito' ? 'NOTA DE CRÉDITO ELECTRÓNICA' : sale.documentType == 'nota_debito' ? 'NOTA DE DÉBITO ELECTRÓNICA' : 'BOLETA DE VENTA ELECTRÓNICA'}</div>
         <div class="bold" style="font-size: 12px;">NRO: ${sale.number}</div>
+        ${(sale.documentType == 'nota_credito' || sale.documentType == 'nota_debito') && sale.refDocSerie != null && sale.refDocSerie!.isNotEmpty ? '<div style="font-size: 10px; color: #000; margin-top: 2px;">Doc. que modifica: ${sale.refDocSerie}-${sale.refDocNumero?.toString().padLeft(8, '0') ?? ''}</div>' : ''}
       </div>
       
       <div class="divider"></div>
@@ -181,7 +182,7 @@ void printSaleTicket(Sale sale, Business business) {
       
       <div class="text-center" style="font-size: 10px; margin-top: 10px;">
         <div>VENDEDOR(A): ${sale.userName.toUpperCase()}</div>
-        <div style="margin: 5px 0;">${sale.documentType == 'nota_venta' ? 'Representación física de una Nota de Venta de uso interno.' : 'Representación impresa de la ${sale.documentType == 'factura' ? 'Factura' : 'Boleta'} Electrónica.'}</div>
+        <div style="margin: 5px 0;">${sale.documentType == 'nota_venta' ? 'Representación física de una Nota de Venta de uso interno.' : sale.documentType == 'nota_credito' ? 'Representación impresa de la Nota de Crédito Electrónica.' : sale.documentType == 'nota_debito' ? 'Representación impresa de la Nota de Débito Electrónica.' : 'Representación impresa de la ${sale.documentType == 'factura' ? 'Factura' : 'Boleta'} Electrónica.'}</div>
         ${sale.documentType == 'nota_venta' ? '<div style="margin: 3px 0;">Sin valor tributario.</div>' : ''}
         <div style="margin: 5px 0;">Gracias por su preferencia.</div>
         ${sale.documentType != 'nota_venta' ? '<div style="margin-top: 12px;"><img src="$qrUrl" width="120" height="120" style="display: block; margin: 0 auto;" /></div>' : ''}
@@ -202,7 +203,7 @@ void printSaleInvoice(Sale sale, Business business) {
 
   final dateStr = "${sale.createdAt.day.toString().padLeft(2, '0')}/${sale.createdAt.month.toString().padLeft(2, '0')}/${sale.createdAt.year}";
   final timeStr = "${sale.createdAt.hour.toString().padLeft(2, '0')}:${sale.createdAt.minute.toString().padLeft(2, '0')}";
-  final docTypeNum = sale.documentType == 'factura' ? '01' : '03';
+  final docTypeNum = sale.documentType == 'factura' ? '01' : sale.documentType == 'boleta' ? '03' : sale.documentType == 'nota_credito' ? '07' : sale.documentType == 'nota_debito' ? '08' : '03';
   final numberParts = sale.number.split('-');
   final series = numberParts.isNotEmpty ? numberParts[0] : '';
   final correlative = numberParts.length > 1 ? numberParts[1] : '';
@@ -218,8 +219,8 @@ void printSaleInvoice(Sale sale, Business business) {
         <div style="font-weight: bold; color: #1e293b;">${item.productName}</div>
         ${item.variantName.isNotEmpty ? '<div style="font-size: 10px; color: #64748b;">${item.variantName}</div>' : ''}
       </td>
-      <td style="padding: 10px 8px; text-align: right; font-family: monospace;">${item.unitPrice.toStringAsFixed(2)}</td>
-      <td style="padding: 10px 8px; text-align: right; font-family: monospace; font-weight: bold;">${item.lineTotal.toStringAsFixed(2)}</td>
+      <td style="padding: 10px 8px; text-align: right; font-family: monospace;">S/ ${item.unitPrice.toStringAsFixed(2)}</td>
+      <td style="padding: 10px 8px; text-align: right; font-family: monospace; font-weight: bold;">S/ ${item.lineTotal.toStringAsFixed(2)}</td>
     </tr>
   ''').join('');
 
@@ -311,15 +312,16 @@ void printSaleInvoice(Sale sale, Business business) {
         <div class="header">
           <div class="header-left">
             <h1 style="margin: 0; font-size: 22px; font-weight: 900; color: #0f172a;">${business.name.toUpperCase()}</h1>
-            <div style="margin-top: 5px; color: #475569;">${business.address ?? ''}</div>
+            <div style="margin-top: 5px; color: #475569;">${business.address ?? 'Dirección no especificada'}</div>
             <div style="color: #475569;">WhatsApp: ${business.whatsappNumber}</div>
             ${business.ruc != null ? '<div style="font-family: monospace; margin-top: 8px; font-weight: bold;">RUC: ${business.ruc}</div>' : ''}
           </div>
           <div class="header-right">
             <div style="font-size: 14px; font-weight: bold; color: #0f172a; letter-spacing: 1px;">
-              ${sale.documentType == 'factura' ? 'FACTURA ELECTRÓNICA' : 'BOLETA DE VENTA'}
+              ${sale.documentType == 'factura' ? 'FACTURA ELECTRÓNICA' : sale.documentType == 'boleta' ? 'BOLETA DE VENTA' : sale.documentType == 'nota_credito' ? 'NOTA DE CRÉDITO ELECTRÓNICA' : sale.documentType == 'nota_debito' ? 'NOTA DE DÉBITO ELECTRÓNICA' : 'NOTA DE VENTA'}
             </div>
             <div style="font-size: 20px; font-weight: bold; font-family: monospace; margin-top: 5px;">${sale.number}</div>
+            ${(sale.documentType == 'nota_credito' || sale.documentType == 'nota_debito') && sale.refDocSerie != null && sale.refDocSerie!.isNotEmpty ? '<div style="font-size: 10px; color: #475569; margin-top: 5px;">Modifica: ${sale.refDocSerie}-${sale.refDocNumero?.toString().padLeft(8, '0') ?? ''}</div>' : ''}
           </div>
         </div>
 
@@ -335,7 +337,7 @@ void printSaleInvoice(Sale sale, Business business) {
             <div style="margin-top: 4px;">Fecha: $dateStr</div>
             <div>Hora: $timeStr</div>
             <div style="font-size: 10px; text-transform: uppercase; letter-spacing: 0.5px; color: #64748b; font-weight: bold; margin-top: 12px;">Método de Pago</div>
-            <div style="margin-top: 4px; font-weight: bold; text-transform: capitalize;">${sale.paymentMethod}</div>
+            <div style="margin-top: 4px; font-weight: bold; text-transform: uppercase;">${sale.paymentMethod}</div>
           </div>
         </div>
 
@@ -367,7 +369,7 @@ void printSaleInvoice(Sale sale, Business business) {
         </div>
 
         <div style="margin-top: 10px; font-weight: bold; font-size: 11px;">
-          SON: $amountInWords
+          $amountInWords
         </div>
 
         ${sale.notes.isNotEmpty ? '''
@@ -378,7 +380,7 @@ void printSaleInvoice(Sale sale, Business business) {
         ''' : ''}
 
         <div style="margin-top: 50px; text-align: center; font-size: 11px; color: #64748b; border-top: 1px solid #cbd5e1; padding-top: 20px;">
-          Representación impresa del comprobante electrónico · Emitido por CRM
+          ${sale.documentType == 'nota_venta' ? 'Representación física de una Nota de Venta de uso interno · Emitido por CRM' : 'Representación impresa del comprobante electrónico · Emitido por CRM'}
           ${sale.documentType != 'nota_venta' ? '<div style="margin-top: 15px;"><img src="$qrUrl" width="120" height="120" /></div>' : ''}
         </div>
       </div>

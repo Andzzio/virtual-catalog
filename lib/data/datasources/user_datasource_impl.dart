@@ -40,14 +40,14 @@ class UserDatasourceImpl implements UserDatasource {
     required String name,
     required String email,
     required String password,
-    required String role,
+    required List<String> roles,
   }) async {
     final url = _getFunctionUrl("register_user");
     final response = await _dio.post(url, data: {
       "email": email,
       "password": password,
       "name": name,
-      "role": role,
+      "roles": roles,
       "businessId": businessSlug,
     });
     if (response.statusCode != 200 || response.data["success"] != true) {
@@ -67,14 +67,14 @@ class UserDatasourceImpl implements UserDatasource {
   }
 
   @override
-  Future<void> updateUserRole(String userId, String role) async {
+  Future<void> updateUserRoles(String userId, List<String> roles) async {
     final url = _getFunctionUrl("update_user_role");
     final response = await _dio.post(url, data: {
       "userId": userId,
-      "role": role,
+      "roles": roles,
     });
     if (response.statusCode != 200 || response.data["success"] != true) {
-      throw Exception(response.data["error"] ?? "Error al actualizar rol");
+      throw Exception(response.data["error"] ?? "Error al actualizar roles");
     }
   }
 }

@@ -7,8 +7,8 @@ abstract class UserRepository {
     required String name,
     required String email,
     required String password,
-    required String role,
+    required List<String> roles,
   });
   Future<void> deleteUser(String userId);
-  Future<void> updateUserRole(String userId, String role);
+  Future<void> updateUserRoles(String userId, List<String> roles);
 }

@@ -6,18 +6,23 @@ class UserModel extends UserEntity {
     required super.id,
     required super.email,
     required super.name,
-    required super.role,
+    required super.roles,
+    required super.isOwner,
     required super.businessId,
     required super.createdAt,
   });
 
   factory UserModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
+    final rolesList = data['roles'] != null 
+        ? List<String>.from(data['roles'] as List)
+        : (data['role'] != null ? [data['role'] as String] : <String>[]);
     return UserModel(
       id: doc.id,
       email: data['email'] as String? ?? '',
       name: data['name'] as String? ?? '',
-      role: data['role'] as String? ?? 'vendedor',
+      roles: rolesList,
+      isOwner: data['isOwner'] as bool? ?? false,
       businessId: data['businessId'] as String? ?? '',
       createdAt: (data['createdAt'] is Timestamp)
           ? (data['createdAt'] as Timestamp).toDate()
@@ -30,7 +35,8 @@ class UserModel extends UserEntity {
       'id': id,
       'email': email,
       'name': name,
-      'role': role,
+      'roles': roles,
+      'isOwner': isOwner,
       'businessId': businessId,
       'createdAt': Timestamp.fromDate(createdAt),
     };

@@ -1,48 +1,60 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:virtual_catalog_app/data/models/contact_model.dart';
+import 'package:virtual_catalog_app/data/models/message_model.dart';
 import 'package:virtual_catalog_app/domain/entities/conversation.dart';
 
-class ConversationModel extends Conversation {
+class ConversationModel extends ConversationEntity {
   ConversationModel({
     required super.id,
-    required super.clientName,
-    required super.clientPhone,
+    required super.contact,
     super.lastMessage,
-    required super.lastMessageTime,
     required super.unreadCount,
+    super.messages,
+    super.isBotActive,
   });
 
   factory ConversationModel.fromFirestore(DocumentSnapshot doc) {
     final data = doc.data() as Map<String, dynamic>? ?? {};
-    DateTime parsedTime;
-    try {
-      final rawTime = data['lastMessageTime'];
-      if (rawTime is Timestamp) {
-        parsedTime = rawTime.toDate();
-      } else if (rawTime is String) {
-        parsedTime = DateTime.tryParse(rawTime) ?? DateTime.now();
-      } else {
-        parsedTime = DateTime.now();
-      }
-    } catch (_) {
-      parsedTime = DateTime.now();
-    }
+    final contactData = data['contact'] as Map<String, dynamic>? ?? {};
+    final lastMessageData = data['lastMessage'] as Map<String, dynamic>?;
+
     return ConversationModel(
       id: doc.id,
-      clientName: data['clientName'] ?? '',
-      clientPhone: data['clientPhone'] ?? '',
-      lastMessage: data['lastMessage'],
-      lastMessageTime: parsedTime,
+      contact: ContactModel.fromMap(contactData),
+      lastMessage: lastMessageData != null ? MessageModel.fromMap(lastMessageData) : null,
       unreadCount: data['unreadCount'] ?? 0,
+      isBotActive: data['isBotActive'] ?? true,
+    );
+  }
+
+  factory ConversationModel.fromEntity(ConversationEntity entity) {
+    return ConversationModel(
+      id: entity.id,
+      contact: entity.contact,
+      lastMessage: entity.lastMessage,
+      unreadCount: entity.unreadCount,
+      messages: entity.messages,
+      isBotActive: entity.isBotActive,
+    );
+  }
+
+  ConversationEntity toEntity() {
+    return ConversationEntity(
+      id: id,
+      contact: contact,
+      lastMessage: lastMessage,
+      unreadCount: unreadCount,
+      messages: messages,
+      isBotActive: isBotActive,
     );
   }
 
   Map<String, dynamic> toFirestore() {
     return {
-      'clientName': clientName,
-      'clientPhone': clientPhone,
-      'lastMessage': lastMessage,
-      'lastMessageTime': Timestamp.fromDate(lastMessageTime),
+      'contact': (contact as ContactModel).toMap(),
+      'lastMessage': lastMessage != null ? (lastMessage as MessageModel).toFirestore() : null,
       'unreadCount': unreadCount,
+      'isBotActive': isBotActive,
     };
   }
 }

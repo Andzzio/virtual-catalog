@@ -1,35 +1,38 @@
-class Conversation {
+import 'package:virtual_catalog_app/domain/entities/contact_entity.dart';
+import 'package:virtual_catalog_app/domain/entities/message_entity.dart';
+
+class ConversationEntity {
   final String id;
-  final String clientName;
-  final String clientPhone;
-  final String? lastMessage;
-  final DateTime lastMessageTime;
+  final ContactEntity contact;
+  final MessageEntity? lastMessage;
   final int unreadCount;
+  final List<MessageEntity> messages;
+  final bool isBotActive;
 
-  Conversation({
+  ConversationEntity({
     required this.id,
-    required this.clientName,
-    required this.clientPhone,
+    required this.contact,
     this.lastMessage,
-    required this.lastMessageTime,
     required this.unreadCount,
-  });
+    List<MessageEntity>? messages,
+    this.isBotActive = true,
+  }) : messages = messages ?? [];
 
-  Conversation copyWith({
+  ConversationEntity copyWith({
     String? id,
-    String? clientName,
-    String? clientPhone,
-    String? lastMessage,
-    DateTime? lastMessageTime,
+    ContactEntity? contact,
+    MessageEntity? lastMessage,
     int? unreadCount,
+    List<MessageEntity>? messages,
+    bool? isBotActive,
   }) {
-    return Conversation(
+    return ConversationEntity(
       id: id ?? this.id,
-      clientName: clientName ?? this.clientName,
-      clientPhone: clientPhone ?? this.clientPhone,
+      contact: contact ?? this.contact,
       lastMessage: lastMessage ?? this.lastMessage,
-      lastMessageTime: lastMessageTime ?? this.lastMessageTime,
       unreadCount: unreadCount ?? this.unreadCount,
+      messages: messages ?? this.messages,
+      isBotActive: isBotActive ?? this.isBotActive,
     );
   }
 }

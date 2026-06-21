@@ -288,12 +288,12 @@ class TicketPrintView extends StatelessWidget {
                                     textAlign: TextAlign.center,
                                   ),
                                   Text(
-                                    item.unitPrice.toStringAsFixed(2),
+                                    'S/ ${item.unitPrice.toStringAsFixed(2)}',
                                     style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 10, color: Colors.black)),
                                     textAlign: TextAlign.right,
                                   ),
                                   Text(
-                                    item.lineTotal.toStringAsFixed(2),
+                                    'S/ ${item.lineTotal.toStringAsFixed(2)}',
                                     style: GoogleFonts.courierPrime(textStyle: const TextStyle(fontSize: 10, color: Colors.black)),
                                     textAlign: TextAlign.right,
                                   ),

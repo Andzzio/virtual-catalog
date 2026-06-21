@@ -19,6 +19,9 @@ import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/settings/admin_settings_delivery_section.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/settings/admin_settings_payment_section.dart';
 import 'package:markdown_editor_plus/markdown_editor_plus.dart';
+import 'package:virtual_catalog_app/domain/entities/whatsapp_settings.dart';
+import 'package:virtual_catalog_app/presentation/providers/whatsapp_settings_provider.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/settings/admin_settings_whatsapp_section.dart';
 
 class AdminSettingsView extends StatefulWidget {
   final String businessSlug;
@@ -69,6 +72,8 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   bool _isUploadingCertificate = false;
   bool _hasCertificate = false;
   DateTime? _certificateExpiresAt;
+  WhatsappSettings? _whatsappSettings;
+  bool _whatsappInitialized = false;
 
   void _initFromBusiness(Business business) {
     if (_initialized) return;
@@ -101,6 +106,16 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     _hasCertificate = business.hasCertificate ?? false;
     _certificateExpiresAt = business.certificateExpiresAt;
     _initialized = true;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) {
+        context.read<WhatsappSettingsProvider>().loadSettings(widget.businessSlug);
+      }
+    });
   }
 
   @override
@@ -181,6 +196,14 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
 
       if (!mounted) return;
       await context.read<BusinessProvider>().updateBusiness(updated);
+
+      if (!mounted) return;
+      if (_whatsappSettings != null) {
+        final whatsappUpdated = _whatsappSettings!.copyWith(
+          updatedAt: DateTime.now(),
+        );
+        await context.read<WhatsappSettingsProvider>().saveSettings(widget.businessSlug, whatsappUpdated);
+      }
 
       if (!mounted) return;
       setState(() => _isSaving = false);
@@ -281,8 +304,9 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
   Widget build(BuildContext context) {
     final provider = context.watch<BusinessProvider>();
     final business = provider.business;
+    final whatsappProvider = context.watch<WhatsappSettingsProvider>();
 
-    if (provider.isLoading) {
+    if (provider.isLoading || whatsappProvider.isLoading || !whatsappProvider.hasLoaded) {
       return const Center(
         child: CircularProgressIndicator(color: AdminTheme.accent),
       );
@@ -292,6 +316,11 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
     }
 
     _initFromBusiness(business);
+
+    if (!_whatsappInitialized && whatsappProvider.hasLoaded) {
+      _whatsappSettings = whatsappProvider.settings ?? WhatsappSettings();
+      _whatsappInitialized = true;
+    }
 
     return Scaffold(
       backgroundColor: AdminTheme.surface,
@@ -364,6 +393,17 @@ class _AdminSettingsViewState extends State<AdminSettingsView> {
                     _buildSectionHeader(Icons.phone_outlined, "Contacto"),
                     const SizedBox(height: 16),
                     _buildContactSection(),
+                    const SizedBox(height: 30),
+                    const Divider(),
+                    const SizedBox(height: 30),
+                    AdminSettingsWhatsappSection(
+                      settings: _whatsappSettings,
+                      onSettingsChanged: (val) {
+                        setState(() {
+                          _whatsappSettings = val;
+                        });
+                      },
+                    ),
                     const SizedBox(height: 30),
                     const Divider(),
                     const SizedBox(height: 30),

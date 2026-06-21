@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'dart:async';
 import 'package:virtual_catalog_app/domain/entities/conversation.dart';
-import 'package:virtual_catalog_app/domain/entities/chat_message.dart';
-import 'package:virtual_catalog_app/domain/entities/product.dart';
+import 'package:virtual_catalog_app/domain/entities/message_entity.dart';
+import 'package:virtual_catalog_app/domain/entities/message_type.dart';
 import 'package:virtual_catalog_app/domain/repos/chat_repository.dart';
 import 'package:virtual_catalog_app/domain/datasources/izipay_datasource.dart';
 
@@ -15,15 +15,15 @@ class ChatProvider extends ChangeNotifier {
     required this.izipayDataSource,
   });
 
-  List<Conversation> conversations = [];
-  List<ChatMessage> messages = [];
-  Conversation? selectedConversation;
+  List<ConversationEntity> conversations = [];
+  List<MessageEntity> messages = [];
+  ConversationEntity? selectedConversation;
   bool isLoading = false;
   bool isAiLoading = false;
   String? aiSuggestion;
 
-  StreamSubscription<List<Conversation>>? _conversationsSub;
-  StreamSubscription<List<ChatMessage>>? _messagesSub;
+  StreamSubscription<List<ConversationEntity>>? _conversationsSub;
+  StreamSubscription<List<MessageEntity>>? _messagesSub;
 
   void initConversations(String businessSlug) {
     _conversationsSub?.cancel();
@@ -33,19 +33,34 @@ class ChatProvider extends ChangeNotifier {
     });
   }
 
-  void selectConversation(String businessSlug, Conversation conversation) {
+  int messagesLimit = 30;
+
+  void selectConversation(String businessSlug, ConversationEntity conversation) {
     selectedConversation = conversation;
     messages = [];
     aiSuggestion = null;
+    messagesLimit = 30;
     notifyListeners();
 
+    _subscribeToMessages(businessSlug, conversation.id);
+
+    chatRepository.markAsRead(businessSlug, conversation.id);
+  }
+
+  void _subscribeToMessages(String businessSlug, String conversationId) {
     _messagesSub?.cancel();
-    _messagesSub = chatRepository.getMessages(businessSlug, conversation.id).listen((list) {
+    _messagesSub = chatRepository
+        .getMessages(businessSlug, conversationId, limit: messagesLimit)
+        .listen((list) {
       messages = list;
       notifyListeners();
     });
+  }
 
-    chatRepository.markAsRead(businessSlug, conversation.id);
+  void loadMoreMessages(String businessSlug) {
+    if (selectedConversation == null) return;
+    messagesLimit += 30;
+    _subscribeToMessages(businessSlug, selectedConversation!.id);
   }
 
   Future<void> sendMessage({
@@ -53,15 +68,20 @@ class ChatProvider extends ChangeNotifier {
     required String conversationId,
     required String content,
     required String senderId,
-    String type = 'text',
+    String? senderName,
+    MessageType type = MessageType.text,
+    String? media,
   }) async {
-    final message = ChatMessage(
+    final message = MessageEntity(
       id: '',
+      recipientId: conversationId,
       senderId: senderId,
+      senderName: senderName ?? 'Vendedor',
       content: content,
       timestamp: DateTime.now(),
       isRead: false,
       type: type,
+      media: media,
     );
     await chatRepository.sendMessage(businessSlug, conversationId, message);
   }
@@ -72,6 +92,31 @@ class ChatProvider extends ChangeNotifier {
     required String content,
   }) async {
     await chatRepository.simulateIncomingMessage(businessSlug, conversationId, content);
+  }
+
+  Future<void> toggleBot(String businessSlug, String conversationId, bool isActive) async {
+    final originalConversations = List<ConversationEntity>.from(conversations);
+    final originalSelected = selectedConversation;
+
+    if (selectedConversation != null && selectedConversation!.id == conversationId) {
+      selectedConversation = selectedConversation!.copyWith(isBotActive: isActive);
+    }
+    conversations = conversations.map((c) {
+      if (c.id == conversationId) {
+        return c.copyWith(isBotActive: isActive);
+      }
+      return c;
+    }).toList();
+    notifyListeners();
+
+    try {
+      await chatRepository.toggleBotStatus(businessSlug, conversationId, isActive);
+    } catch (_) {
+      conversations = originalConversations;
+      selectedConversation = originalSelected;
+      notifyListeners();
+      rethrow;
+    }
   }
 
   Future<void> initializeMockData(String businessSlug) async {
@@ -112,7 +157,7 @@ class ChatProvider extends ChangeNotifier {
         conversationId: conversationId,
         content: paymentUrl,
         senderId: senderId,
-        type: 'payment_link',
+        type: MessageType.paymentLink,
       );
     } catch (_) {
       rethrow;
@@ -127,44 +172,27 @@ class ChatProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> getAiSuggestion(String lastClientMessage, List<Product> catalog) async {
+  Future<void> getAiSuggestion({
+    required String businessSlug,
+    required String conversationId,
+    required String clientName,
+  }) async {
     isAiLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(milliseconds: 600));
-
-    final query = lastClientMessage.toLowerCase();
-    Product? matchedProduct;
-    for (var prod in catalog) {
-      if (query.contains(prod.name.toLowerCase()) ||
-          (prod.sku != null && query.contains(prod.sku!.toLowerCase()))) {
-        matchedProduct = prod;
-        break;
-      }
+    try {
+      aiSuggestion = await chatRepository.getAiSuggestion(
+        businessSlug,
+        conversationId,
+        clientName,
+      );
+    } catch (e) {
+      aiSuggestion = null;
+      rethrow;
+    } finally {
+      isAiLoading = false;
+      notifyListeners();
     }
-
-    if (matchedProduct != null) {
-      final availableVariants = matchedProduct.variants.where((v) => v.stock > 0).toList();
-      if (availableVariants.isEmpty) {
-        aiSuggestion = "Hola. Actualmente el producto ${matchedProduct.name} se encuentra agotado en nuestro catálogo. ¿Te gustaría consultar por otro producto similar?";
-      } else {
-        final variantNames = availableVariants.map((v) => v.name).toList();
-        final prices = availableVariants.map((v) => v.discountPrice ?? v.price).toSet().toList();
-        final String priceString;
-        if (prices.length == 1) {
-          priceString = prices.first.toStringAsFixed(2);
-        } else {
-          prices.sort();
-          priceString = "${prices.first.toStringAsFixed(2)} - S/ ${prices.last.toStringAsFixed(2)}";
-        }
-        aiSuggestion = "Hola. Sí tenemos ${matchedProduct.name} disponible en las siguientes variantes: ${variantNames.join(', ')}. El precio es S/ $priceString. ¿Te genero un enlace de cobro para realizar tu pedido?";
-      }
-    } else {
-      aiSuggestion = "Hola. Gracias por escribirnos. ¿En qué producto de nuestro catálogo estás interesado hoy?";
-    }
-
-    isAiLoading = false;
-    notifyListeners();
   }
 
   @override

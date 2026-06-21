@@ -10,14 +10,14 @@ class CreateUser {
     required String name,
     required String email,
     required String password,
-    required String role,
+    required List<String> roles,
   }) {
     return repository.createUser(
       businessSlug: businessSlug,
       name: name,
       email: email,
       password: password,
-      role: role,
+      roles: roles,
     );
   }
 }

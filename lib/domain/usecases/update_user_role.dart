@@ -1,11 +1,11 @@
 import 'package:virtual_catalog_app/domain/repos/user_repository.dart';
 
-class UpdateUserRole {
+class UpdateUserRoles {
   final UserRepository repository;
 
-  UpdateUserRole(this.repository);
+  UpdateUserRoles(this.repository);
 
-  Future<void> call(String userId, String role) {
-    return repository.updateUserRole(userId, role);
+  Future<void> call(String userId, List<String> roles) {
+    return repository.updateUserRoles(userId, roles);
   }
 }

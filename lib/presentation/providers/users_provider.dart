@@ -9,7 +9,7 @@ class UsersProvider extends ChangeNotifier {
   final GetUsers getUsersUseCase;
   final CreateUser createUserUseCase;
   final DeleteUser deleteUserUseCase;
-  final UpdateUserRole updateUserRoleUseCase;
+  final UpdateUserRoles updateUserRoleUseCase;
 
   List<UserEntity> _users = [];
   bool _isLoading = false;
@@ -45,7 +45,7 @@ class UsersProvider extends ChangeNotifier {
     required String name,
     required String email,
     required String password,
-    required String role,
+    required List<String> roles,
   }) async {
     _isLoading = true;
     _errorMsg = '';
@@ -56,7 +56,7 @@ class UsersProvider extends ChangeNotifier {
         name: name,
         email: email,
         password: password,
-        role: role,
+        roles: roles,
       );
       await loadUsers(businessSlug);
       return true;
@@ -86,12 +86,12 @@ class UsersProvider extends ChangeNotifier {
     }
   }
 
-  Future<bool> updateUserRole(String businessSlug, String userId, String role) async {
+  Future<bool> updateUserRoles(String businessSlug, String userId, List<String> roles) async {
     _isLoading = true;
     _errorMsg = '';
     notifyListeners();
     try {
-      await updateUserRoleUseCase(userId, role);
+      await updateUserRoleUseCase(userId, roles);
       await loadUsers(businessSlug);
       return true;
     } catch (e) {

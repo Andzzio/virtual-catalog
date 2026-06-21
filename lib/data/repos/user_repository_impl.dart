@@ -18,14 +18,14 @@ class UserRepositoryImpl implements UserRepository {
     required String name,
     required String email,
     required String password,
-    required String role,
+    required List<String> roles,
   }) {
     return datasource.createUser(
       businessSlug: businessSlug,
       name: name,
       email: email,
       password: password,
-      role: role,
+      roles: roles,
     );
   }
 
@@ -35,7 +35,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<void> updateUserRole(String userId, String role) {
-    return datasource.updateUserRole(userId, role);
+  Future<void> updateUserRoles(String userId, List<String> roles) {
+    return datasource.updateUserRoles(userId, roles);
   }
 }

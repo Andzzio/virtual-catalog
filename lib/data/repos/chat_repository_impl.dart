@@ -1,6 +1,6 @@
 import 'package:virtual_catalog_app/domain/datasources/chat_datasource.dart';
-import 'package:virtual_catalog_app/domain/entities/chat_message.dart';
 import 'package:virtual_catalog_app/domain/entities/conversation.dart';
+import 'package:virtual_catalog_app/domain/entities/message_entity.dart';
 import 'package:virtual_catalog_app/domain/repos/chat_repository.dart';
 
 class ChatRepositoryImpl implements ChatRepository {
@@ -9,17 +9,17 @@ class ChatRepositoryImpl implements ChatRepository {
   ChatRepositoryImpl({required this.datasource});
 
   @override
-  Stream<List<Conversation>> getConversations(String businessSlug) {
+  Stream<List<ConversationEntity>> getConversations(String businessSlug) {
     return datasource.getConversations(businessSlug);
   }
 
   @override
-  Stream<List<ChatMessage>> getMessages(String businessSlug, String conversationId) {
-    return datasource.getMessages(businessSlug, conversationId);
+  Stream<List<MessageEntity>> getMessages(String businessSlug, String conversationId, {int? limit}) {
+    return datasource.getMessages(businessSlug, conversationId, limit: limit);
   }
 
   @override
-  Future<void> sendMessage(String businessSlug, String conversationId, ChatMessage message) {
+  Future<void> sendMessage(String businessSlug, String conversationId, MessageEntity message) {
     return datasource.sendMessage(businessSlug, conversationId, message);
   }
 
@@ -36,5 +36,15 @@ class ChatRepositoryImpl implements ChatRepository {
   @override
   Future<void> initializeMockData(String businessSlug) {
     return datasource.initializeMockData(businessSlug);
+  }
+
+  @override
+  Future<void> toggleBotStatus(String businessSlug, String conversationId, bool isActive) {
+    return datasource.toggleBotStatus(businessSlug, conversationId, isActive);
+  }
+
+  @override
+  Future<String> getAiSuggestion(String businessSlug, String conversationId, String clientName) {
+    return datasource.getAiSuggestion(businessSlug, conversationId, clientName);
   }
 }
