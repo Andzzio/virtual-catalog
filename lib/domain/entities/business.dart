@@ -32,6 +32,7 @@ class Business {
   final String? sunatPassword;
   final String? sunatPfxPassword;
   final String? sunatEnvironment;
+  final bool isActive;
   final bool? hasCertificate;
   final DateTime? certificateExpiresAt;
 
@@ -64,6 +65,7 @@ class Business {
     this.sunatPassword,
     this.sunatPfxPassword,
     this.sunatEnvironment,
+    this.isActive = true,
     this.hasCertificate,
     this.certificateExpiresAt,
   });
@@ -97,6 +99,7 @@ class Business {
     String? sunatPassword,
     String? sunatPfxPassword,
     String? sunatEnvironment,
+    bool? isActive,
     bool? hasCertificate,
     DateTime? certificateExpiresAt,
   }) {
@@ -129,6 +132,7 @@ class Business {
       sunatPassword: sunatPassword ?? this.sunatPassword,
       sunatPfxPassword: sunatPfxPassword ?? this.sunatPfxPassword,
       sunatEnvironment: sunatEnvironment ?? this.sunatEnvironment,
+      isActive: isActive ?? this.isActive,
       hasCertificate: hasCertificate ?? this.hasCertificate,
       certificateExpiresAt: certificateExpiresAt ?? this.certificateExpiresAt,
     );

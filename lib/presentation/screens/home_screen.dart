@@ -31,6 +31,33 @@ class _HomeScreenState extends State<HomeScreen> {
     final business = businessProvider.business;
     final blocks = business?.homeBlocks ?? [];
 
+    if (business != null && !business.isActive) {
+      return const Scaffold(
+        body: Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.storefront_rounded, size: 72, color: Colors.grey),
+                SizedBox(height: 16),
+                Text(
+                  "Tienda no disponible",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 8),
+                Text(
+                  "Esta tienda se encuentra temporalmente inactiva o fuera de servicio.",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(color: Colors.grey),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       drawer: MenuDrawer(),

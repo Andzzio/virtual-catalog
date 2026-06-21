@@ -34,6 +34,7 @@ class BusinessModel {
   final String? sunatPassword;
   final String? sunatPfxPassword;
   final String? sunatEnvironment;
+  final bool isActive;
   final bool? hasCertificate;
   final DateTime? certificateExpiresAt;
 
@@ -66,6 +67,7 @@ class BusinessModel {
     this.sunatPassword,
     this.sunatPfxPassword,
     this.sunatEnvironment,
+    required this.isActive,
     this.hasCertificate,
     this.certificateExpiresAt,
   });
@@ -90,6 +92,7 @@ class BusinessModel {
           .toList(),
       showDesktopLogo: json['showDesktopLogo'] ?? true,
       showMobileLogo: json['showMobileLogo'] ?? true,
+      isActive: json['isActive'] ?? true,
       termsAndConditions: json['termsAndConditions'],
       homeBlocks: (json['homeBlocks'] as List? ?? [])
           .map((b) => HomeBlockModel.fromJson(b as Map<String, dynamic>))
@@ -137,6 +140,7 @@ class BusinessModel {
           .toList(),
       showDesktopLogo: json['showDesktopLogo'] ?? true,
       showMobileLogo: json['showMobileLogo'] ?? true,
+      isActive: json['isActive'] ?? true,
       termsAndConditions: json['termsAndConditions'],
       homeBlocks: (json['homeBlocks'] as List? ?? [])
           .map((b) => HomeBlockModel.fromJson(b))
@@ -175,6 +179,7 @@ class BusinessModel {
     "paymentMethods": paymentMethods.map((p) => p.toJson()).toList(),
     "showDesktopLogo": showDesktopLogo,
     "showMobileLogo": showMobileLogo,
+    "isActive": isActive,
     "termsAndConditions": termsAndConditions,
     "homeBlocks": homeBlocks.map((b) => b.toJson()).toList(),
     if (izipayUsername != null) "izipayUsername": izipayUsername,
@@ -225,6 +230,7 @@ class BusinessModel {
     sunatPassword: sunatPassword,
     sunatPfxPassword: sunatPfxPassword,
     sunatEnvironment: sunatEnvironment,
+    isActive: isActive,
     hasCertificate: hasCertificate,
     certificateExpiresAt: certificateExpiresAt,
   );
@@ -267,6 +273,7 @@ class BusinessModel {
       sunatPassword: entity.sunatPassword,
       sunatPfxPassword: entity.sunatPfxPassword,
       sunatEnvironment: entity.sunatEnvironment,
+      isActive: entity.isActive,
       hasCertificate: entity.hasCertificate,
       certificateExpiresAt: entity.certificateExpiresAt,
     );
