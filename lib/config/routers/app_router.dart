@@ -40,7 +40,6 @@ class AppRouter {
     final String basePath = isCustom ? "/" : "/:businessSlug";
 
     _instance = GoRouter(
-      initialLocation: isCustom ? "/" : "/shurumba",
       errorBuilder: (context, state) {
         return const Scaffold(body: Center(child: Text("404 - Página no encontrada")));
       },
