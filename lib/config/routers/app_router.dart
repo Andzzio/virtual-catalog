@@ -39,8 +39,13 @@ class AppRouter {
     final String adminPath = isCustom ? "/admin" : "/:businessSlug/admin";
     final String basePath = isCustom ? "/" : "/:businessSlug";
 
+    final String defaultLocation = isCustom ? "/" : "/shurumba";
+    final String resolvedInitialLocation = (initialLocation == '/' || initialLocation.isEmpty)
+        ? defaultLocation
+        : initialLocation;
+
     _instance = GoRouter(
-      initialLocation: initialLocation,
+      initialLocation: resolvedInitialLocation,
       errorBuilder: (context, state) {
         return const Scaffold(body: Center(child: Text("404 - Página no encontrada")));
       },
