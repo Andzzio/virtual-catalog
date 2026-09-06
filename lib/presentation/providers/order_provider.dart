@@ -18,7 +18,7 @@ class OrderProvider extends ChangeNotifier {
     final now = DateTime.now();
     return _orders
         .where((o) =>
-            o.status == 'paid' &&
+            o.status == 'completed' &&
             o.createdAt.month == now.month &&
             o.createdAt.year == now.year)
         .fold(0.0, (sum, o) => sum + o.total);
@@ -28,7 +28,7 @@ class OrderProvider extends ChangeNotifier {
     final now = DateTime.now();
     return _orders
         .where((o) =>
-            o.status == 'paid' &&
+            o.status == 'completed' &&
             o.createdAt.month == now.month &&
             o.createdAt.year == now.year)
         .length;

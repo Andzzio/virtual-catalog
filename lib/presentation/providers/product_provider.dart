@@ -16,8 +16,8 @@ class ProductProvider extends ChangeNotifier {
     products.sort((a, b) => a.category.compareTo(b.category));
   }
 
-  Future<void> loadProducts(String businessSlug) async {
-    if (_currentSlug == businessSlug && products.isNotEmpty) return;
+  Future<void> loadProducts(String businessSlug, {bool force = false}) async {
+    if (!force && _currentSlug == businessSlug && products.isNotEmpty) return;
     isLoading = true;
     notifyListeners();
     _currentSlug = businessSlug;

@@ -334,6 +334,12 @@ class _AdminHomeBuilderViewState extends State<AdminHomeBuilderView> {
 
     final blocks = business.homeBlocks;
 
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+    final padding = isMobile
+        ? const EdgeInsets.symmetric(horizontal: 12.0, vertical: 12.0)
+        : const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20.0);
+
     return Scaffold(
       backgroundColor: AdminTheme.surface,
       appBar: AppBar(
@@ -345,6 +351,13 @@ class _AdminHomeBuilderViewState extends State<AdminHomeBuilderView> {
           preferredSize: const Size.fromHeight(1.0),
           child: Container(color: Colors.white.withValues(alpha: 0.08), height: 1.0),
         ),
+        leading: _showEditor
+            ? IconButton(
+                onPressed: _cancelEditor,
+                icon: const Icon(Icons.arrow_back, color: Colors.white),
+                tooltip: "Volver a la lista",
+              )
+            : null,
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -381,29 +394,32 @@ class _AdminHomeBuilderViewState extends State<AdminHomeBuilderView> {
             ),
           if (!_showEditor)
             Padding(
-              padding: const EdgeInsets.only(right: 20),
-              child: ElevatedButton.icon(
-                onPressed: () => _openEditor(),
-                style: AdminTheme.primaryButton().copyWith(
-                  padding: const WidgetStatePropertyAll(
-                    EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  ),
-                ),
-                icon: const Icon(Icons.add, size: 16),
-                label: Text(
-                  "Añadir sección",
-                  style: GoogleFonts.getFont(FontNames.fontNameH2),
-                ),
-              ),
-            )
-          else
-            Padding(
-              padding: const EdgeInsets.only(right: 20),
-              child: IconButton(
-                onPressed: _cancelEditor,
-                icon: const Icon(Icons.arrow_back, color: Colors.white),
-                tooltip: "Volver a la lista",
-              ),
+              padding: EdgeInsets.only(right: isMobile ? 12 : 20),
+              child: isMobile
+                  ? IconButton(
+                      onPressed: () => _openEditor(),
+                      icon: const Icon(Icons.add, color: Colors.white),
+                      style: IconButton.styleFrom(
+                        backgroundColor: AdminTheme.accent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                      tooltip: "Añadir sección",
+                    )
+                  : ElevatedButton.icon(
+                      onPressed: () => _openEditor(),
+                      style: AdminTheme.primaryButton().copyWith(
+                        padding: const WidgetStatePropertyAll(
+                          EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                        ),
+                      ),
+                      icon: const Icon(Icons.add, size: 16),
+                      label: Text(
+                        "Añadir sección",
+                        style: GoogleFonts.getFont(FontNames.fontNameH2),
+                      ),
+                    ),
             ),
         ],
       ),
@@ -416,12 +432,12 @@ class _AdminHomeBuilderViewState extends State<AdminHomeBuilderView> {
             ? SingleChildScrollView(
                 key: const ValueKey("editor_view"),
                 controller: _scrollCtrl,
-                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20),
+                padding: padding,
                 child: _buildEditorInline(context),
               )
             : SingleChildScrollView(
                 key: const ValueKey("list_view"),
-                padding: const EdgeInsets.symmetric(horizontal: 40.0, vertical: 20),
+                padding: padding,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -488,6 +504,234 @@ class _AdminHomeBuilderViewState extends State<AdminHomeBuilderView> {
   Widget _buildBlockCard(HomeBlock block, int index, int totalCount) {
     final layoutName = _getLayoutName(block.layout);
     final sortName = _getSortName(block.sortCriteria);
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
+
+    Widget cardContent;
+
+    if (isMobile) {
+      cardContent = Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              ReorderableDragStartListener(
+                index: index,
+                child: const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 8),
+                  child: Icon(
+                    Icons.drag_indicator,
+                    color: AdminTheme.textMuted,
+                    size: 20,
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: Text(
+                  block.title,
+                  style: AdminTheme.body().copyWith(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 15,
+                  ),
+                ),
+              ),
+              PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: AdminTheme.textSecondary),
+                color: AdminTheme.cardBgElevated,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+                  side: const BorderSide(color: AdminTheme.border),
+                ),
+                onSelected: (value) {
+                  if (value == 'edit') {
+                    _openEditor(block, index);
+                  } else if (value == 'delete') {
+                    _deleteBlock(index);
+                  } else if (value == 'up') {
+                    _moveBlock(index, -1);
+                  } else if (value == 'down') {
+                    _moveBlock(index, 1);
+                  }
+                },
+                itemBuilder: (context) => [
+                  if (totalCount > 1 && index > 0)
+                    const PopupMenuItem(
+                      value: 'up',
+                      child: Row(
+                        children: [
+                          Icon(Icons.arrow_upward, size: 18),
+                          SizedBox(width: 8),
+                          Text("Subir"),
+                        ],
+                      ),
+                    ),
+                  if (totalCount > 1 && index < totalCount - 1)
+                    const PopupMenuItem(
+                      value: 'down',
+                      child: Row(
+                        children: [
+                          Icon(Icons.arrow_downward, size: 18),
+                          SizedBox(width: 8),
+                          Text("Bajar"),
+                        ],
+                      ),
+                    ),
+                  const PopupMenuItem(
+                    value: 'edit',
+                    child: Row(
+                      children: [
+                        Icon(Icons.edit_outlined, size: 18),
+                        SizedBox(width: 8),
+                        Text("Editar"),
+                      ],
+                    ),
+                  ),
+                  PopupMenuItem(
+                    value: 'delete',
+                    child: Row(
+                      children: [
+                        Icon(Icons.delete_outline, color: AdminTheme.danger, size: 18),
+                        SizedBox(width: 8),
+                        Text(
+                          "Eliminar",
+                          style: TextStyle(color: AdminTheme.danger),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          Padding(
+            padding: const EdgeInsets.only(left: 36),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildMiniature(block.layout),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          _buildLayoutBadge(layoutName),
+                          _buildCriteriaBadge(sortName),
+                        ],
+                      ),
+                      const SizedBox(height: 6),
+                      Text(
+                        block.sortCriteria == BlockSortCriteria.manual
+                            ? "1 producto seleccionado manualmente"
+                            : "${block.subtitle ?? 'Orden automático'} · ${block.itemsLimit} productos",
+                        style: AdminTheme.bodySmall(),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      );
+    } else {
+      cardContent = Row(
+        children: [
+          ReorderableDragStartListener(
+            index: index,
+            child: const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 8),
+              child: Icon(
+                Icons.drag_indicator,
+                color: AdminTheme.textMuted,
+                size: 20,
+              ),
+            ),
+          ),
+          const SizedBox(width: 8),
+          _buildMiniature(block.layout),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 6,
+                  runSpacing: 4,
+                  crossAxisAlignment: WrapCrossAlignment.center,
+                  children: [
+                    Text(
+                      block.title,
+                      style: AdminTheme.body().copyWith(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15,
+                      ),
+                    ),
+                    _buildLayoutBadge(layoutName),
+                    _buildCriteriaBadge(sortName),
+                  ],
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  block.sortCriteria == BlockSortCriteria.manual
+                      ? "1 producto seleccionado manualmente"
+                      : "${block.subtitle ?? 'Orden automático'} · ${block.itemsLimit} productos",
+                  style: AdminTheme.bodySmall(),
+                ),
+              ],
+            ),
+          ),
+          const SizedBox(width: 8),
+          if (totalCount > 1) ...[
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.arrow_upward, size: 18),
+              onPressed: index == 0 ? null : () => _moveBlock(index, -1),
+              tooltip: "Subir",
+            ),
+            IconButton(
+              visualDensity: VisualDensity.compact,
+              icon: const Icon(Icons.arrow_downward, size: 18),
+              onPressed: index == totalCount - 1
+                  ? null
+                  : () => _moveBlock(index, 1),
+              tooltip: "Bajar",
+            ),
+            const SizedBox(width: 8),
+          ],
+          IconButton(
+            onPressed: () => _openEditor(block, index),
+            icon: const Icon(Icons.edit_outlined, size: 18),
+            style: IconButton.styleFrom(
+              backgroundColor: AdminTheme.surface,
+              side: const BorderSide(color: AdminTheme.border),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AdminTheme.radiusSm),
+              ),
+              padding: const EdgeInsets.all(10),
+            ),
+          ),
+          const SizedBox(width: 8),
+          IconButton(
+            onPressed: () => _deleteBlock(index),
+            icon: const Icon(Icons.delete_outline, color: AdminTheme.danger, size: 18),
+            style: IconButton.styleFrom(
+              backgroundColor: AdminTheme.danger.withValues(alpha: 0.1),
+              side: const BorderSide(color: AdminTheme.danger),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(AdminTheme.radiusSm),
+              ),
+              padding: const EdgeInsets.all(10),
+            ),
+          ),
+        ],
+      );
+    }
 
     return Container(
       key: ValueKey(block.id),
@@ -495,95 +739,7 @@ class _AdminHomeBuilderViewState extends State<AdminHomeBuilderView> {
       decoration: AdminTheme.cardDecoration(),
       child: Padding(
         padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            ReorderableDragStartListener(
-              index: index,
-              child: const Padding(
-                padding: EdgeInsets.symmetric(horizontal: 8),
-                child: Icon(
-                  Icons.drag_indicator,
-                  color: AdminTheme.textMuted,
-                  size: 20,
-                ),
-              ),
-            ),
-            const SizedBox(width: 8),
-            _buildMiniature(block.layout),
-            const SizedBox(width: 16),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text(
-                        block.title,
-                        style: AdminTheme.body().copyWith(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 15,
-                        ),
-                      ),
-                      const SizedBox(width: 8),
-                      _buildLayoutBadge(layoutName),
-                      const SizedBox(width: 6),
-                      _buildCriteriaBadge(sortName),
-                    ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    block.sortCriteria == BlockSortCriteria.manual
-                        ? "1 producto seleccionado manualmente"
-                        : "${block.subtitle ?? 'Orden automático'} · ${block.itemsLimit} productos",
-                    style: AdminTheme.bodySmall(),
-                  ),
-                ],
-              ),
-            ),
-            if (totalCount > 1) ...[
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.arrow_upward, size: 18),
-                onPressed: index == 0 ? null : () => _moveBlock(index, -1),
-                tooltip: "Subir",
-              ),
-              IconButton(
-                visualDensity: VisualDensity.compact,
-                icon: const Icon(Icons.arrow_downward, size: 18),
-                onPressed: index == totalCount - 1
-                    ? null
-                    : () => _moveBlock(index, 1),
-                tooltip: "Bajar",
-              ),
-              const SizedBox(width: 8),
-            ],
-            IconButton(
-              onPressed: () => _openEditor(block, index),
-              icon: const Icon(Icons.edit_outlined, size: 18),
-              style: IconButton.styleFrom(
-                backgroundColor: AdminTheme.surface,
-                side: const BorderSide(color: AdminTheme.border),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AdminTheme.radiusSm),
-                ),
-                padding: const EdgeInsets.all(10),
-              ),
-            ),
-            const SizedBox(width: 8),
-            IconButton(
-              onPressed: () => _deleteBlock(index),
-              icon: const Icon(Icons.delete_outline, color: AdminTheme.danger, size: 18),
-              style: IconButton.styleFrom(
-                backgroundColor: AdminTheme.danger.withValues(alpha: 0.1),
-                side: const BorderSide(color: AdminTheme.danger),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(AdminTheme.radiusSm),
-                ),
-                padding: const EdgeInsets.all(10),
-              ),
-            ),
-          ],
-        ),
+        child: cardContent,
       ),
     );
   }
@@ -794,9 +950,11 @@ class _AdminHomeBuilderViewState extends State<AdminHomeBuilderView> {
   }
 
   Widget _buildEditorInline(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 600;
     return Container(
       key: ValueKey(_editingBlock?.id ?? 'new_section_form'),
-      padding: const EdgeInsets.all(24),
+      padding: EdgeInsets.all(isMobile ? 12 : 24),
       decoration: AdminTheme.cardDecoration(),
       child: Form(
         key: _formKey,
@@ -841,7 +999,7 @@ class _AdminHomeBuilderViewState extends State<AdminHomeBuilderView> {
                       mainAxisSpacing: 8,
                       shrinkWrap: true,
                       physics: const NeverScrollableScrollPhysics(),
-                      childAspectRatio: 1.1,
+                      childAspectRatio: isMobile ? 0.85 : 1.1,
                       children: [
                         _buildLayoutCard(
                           layout: BlockLayout.list,
@@ -1314,6 +1472,7 @@ class _AdminHomeBuilderViewState extends State<AdminHomeBuilderView> {
     required GlobalKey targetKey,
   }) {
     final theme = AdminTheme.accent;
+    final isMobile = MediaQuery.of(context).size.width < 600;
     Color bgColor;
     Color borderColor;
     Color textColor;
@@ -1399,16 +1558,18 @@ class _AdminHomeBuilderViewState extends State<AdminHomeBuilderView> {
                   ),
                 ),
               ),
-              const SizedBox(width: 8),
-              Text(
-                label,
-                style: AdminTheme.caption().copyWith(
-                  fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
-                  color: isActive
-                      ? AdminTheme.textPrimary
-                      : (isDone ? AdminTheme.success : AdminTheme.textMuted),
+              if (!isMobile) ...[
+                const SizedBox(width: 8),
+                Text(
+                  label,
+                  style: AdminTheme.caption().copyWith(
+                    fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
+                    color: isActive
+                        ? AdminTheme.textPrimary
+                        : (isDone ? AdminTheme.success : AdminTheme.textMuted),
+                  ),
                 ),
-              ),
+              ],
             ],
           ),
         ),

@@ -30,6 +30,7 @@ class SaleModel extends Sale {
     super.motivoDescripcion,
     super.refDocSerie,
     super.refDocNumero,
+    super.orderId,
   });
 
   Map<String, dynamic> toFirestore() {
@@ -72,6 +73,7 @@ class SaleModel extends Sale {
       if (motivoDescripcion != null) 'motivoDescripcion': motivoDescripcion,
       if (refDocSerie != null) 'refDocSerie': refDocSerie,
       if (refDocNumero != null) 'refDocNumero': refDocNumero,
+      if (orderId != null) 'orderId': orderId,
     };
   }
 
@@ -108,6 +110,7 @@ class SaleModel extends Sale {
       motivoDescripcion: json['motivoDescripcion'],
       refDocSerie: json['refDocSerie'],
       refDocNumero: json['refDocNumero'],
+      orderId: json['orderId'],
     );
   }
 }

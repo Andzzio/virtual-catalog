@@ -17,6 +17,8 @@ import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/inbox/generate_payment_dialog.dart';
 import 'package:virtual_catalog_app/presentation/widgets/admin/sales/create_sale_dialog.dart';
 import 'package:virtual_catalog_app/config/utils/chat_media_helper.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/inbox/order_parser.dart';
+import 'package:virtual_catalog_app/domain/entities/sale_item.dart';
 
 class AdminInboxView extends StatefulWidget {
   final String businessSlug;
@@ -499,6 +501,8 @@ class _AdminInboxViewState extends State<AdminInboxView> {
     }
 
     final catalog = context.watch<ProductProvider>().products;
+    final screenWidth = MediaQuery.of(context).size.width;
+    final isMobile = screenWidth < 650;
 
     return Column(
       children: [
@@ -579,56 +583,58 @@ class _AdminInboxViewState extends State<AdminInboxView> {
                 },
               ),
               const SizedBox(width: 8),
-              ElevatedButton.icon(
-                onPressed: () {
-                  showDialog(
-                    context: context,
-                    builder: (context) => CreateSaleDialog(
-                      businessSlug: widget.businessSlug,
-                      initialClientName: activeConv.contact.name,
-                      initialClientPhone: activeConv.contact.phoneId,
-                    ),
-                  );
-                },
-                icon: const Icon(Icons.point_of_sale_rounded, size: 16),
-                label: Text(
-                  "Registrar Venta",
-                  style: GoogleFonts.getFont(
-                    FontNames.fontNameH2,
-                    fontSize: 12,
-                  ),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AdminTheme.accent,
-                  foregroundColor: Colors.white,
-                  elevation: 0,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 12,
-                    vertical: 8,
-                  ),
-                ),
-              ),
-              if (!kReleaseMode) ...[
-                const SizedBox(width: 8),
-                ElevatedButton.icon(
+              if (isMobile) ...[
+                IconButton(
+                  icon: const Icon(Icons.point_of_sale_rounded, color: AdminTheme.accent),
+                  tooltip: "Registrar Venta",
                   onPressed: () {
-                    provider.simulateIncomingMessage(
-                      businessSlug: widget.businessSlug,
-                      conversationId: activeConv.id,
-                      content: "Hola, quisiera consultar stock de este producto.",
+                    showDialog(
+                      context: context,
+                      builder: (context) => CreateSaleDialog(
+                        businessSlug: widget.businessSlug,
+                        initialClientName: activeConv.contact.name,
+                        initialClientPhone: activeConv.contact.phoneId,
+                      ),
                     );
                   },
-                  icon: const Icon(Icons.psychology_outlined, size: 16),
+                ),
+                if (!kReleaseMode) ...[
+                  const SizedBox(width: 4),
+                  IconButton(
+                    icon: const Icon(Icons.psychology_outlined, color: AdminTheme.textPrimary),
+                    tooltip: "Simular Recibir",
+                    onPressed: () {
+                      provider.simulateIncomingMessage(
+                        businessSlug: widget.businessSlug,
+                        conversationId: activeConv.id,
+                        content: "Hola, quisiera consultar stock de este producto.",
+                      );
+                    },
+                  ),
+                ],
+              ] else ...[
+                ElevatedButton.icon(
+                  onPressed: () {
+                    showDialog(
+                      context: context,
+                      builder: (context) => CreateSaleDialog(
+                        businessSlug: widget.businessSlug,
+                        initialClientName: activeConv.contact.name,
+                        initialClientPhone: activeConv.contact.phoneId,
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.point_of_sale_rounded, size: 16),
                   label: Text(
-                    "Simular Recibir",
+                    "Registrar Venta",
                     style: GoogleFonts.getFont(
                       FontNames.fontNameH2,
                       fontSize: 12,
                     ),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AdminTheme.border,
-                    foregroundColor: AdminTheme.textPrimary,
+                    backgroundColor: AdminTheme.accent,
+                    foregroundColor: Colors.white,
                     elevation: 0,
                     padding: const EdgeInsets.symmetric(
                       horizontal: 12,
@@ -636,6 +642,35 @@ class _AdminInboxViewState extends State<AdminInboxView> {
                     ),
                   ),
                 ),
+                if (!kReleaseMode) ...[
+                  const SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      provider.simulateIncomingMessage(
+                        businessSlug: widget.businessSlug,
+                        conversationId: activeConv.id,
+                        content: "Hola, quisiera consultar stock de este producto.",
+                      );
+                    },
+                    icon: const Icon(Icons.psychology_outlined, size: 16),
+                    label: Text(
+                      "Simular Recibir",
+                      style: GoogleFonts.getFont(
+                        FontNames.fontNameH2,
+                        fontSize: 12,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AdminTheme.border,
+                      foregroundColor: AdminTheme.textPrimary,
+                      elevation: 0,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ],
           ),
@@ -722,8 +757,63 @@ class _AdminInboxViewState extends State<AdminInboxView> {
             _buildVideoBubble(msg, isMerchant)
           else if (msg.type == MessageType.file)
             _buildFileBubble(msg, isMerchant)
-          else
+          else ...[
             Text(msg.content, style: textStyle),
+            if (!isMerchant &&
+                (msg.content.contains('🛒 *Nuevo Pedido') ||
+                    msg.content.contains('*Nuevo Pedido -'))) ...[
+              const SizedBox(height: 8),
+              ElevatedButton.icon(
+                onPressed: () {
+                  final orderData = OrderParser.parse(msg.content);
+                  final saleItems = <SaleItem>[];
+                  final parsedItems =
+                      orderData['items'] as List<Map<String, dynamic>>? ?? [];
+                  for (final item in parsedItems) {
+                    saleItems.add(
+                      SaleItem(
+                        productId: 'order_parsed',
+                        productName: item['productName'] as String,
+                        variantName: item['variantName'] as String,
+                        quantity: item['quantity'] as int,
+                        unitPrice: item['unitPrice'] as double,
+                        lineTotal: (item['unitPrice'] as double) *
+                            (item['quantity'] as int),
+                      ),
+                    );
+                  }
+                  showDialog(
+                    context: context,
+                    builder: (context) => CreateSaleDialog(
+                      businessSlug: widget.businessSlug,
+                      initialClientName: orderData['name'] as String?,
+                      initialClientPhone: orderData['phone'] as String?,
+                      initialDoc: orderData['dni'] as String?,
+                      initialAddress: orderData['address'] as String?,
+                      initialNotes: orderData['notes'] as String?,
+                      initialPaymentMethod: orderData['paymentMethod'] as String?,
+                      initialItems: saleItems,
+                      orderTextPreview: msg.content,
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.receipt_long_rounded, size: 14),
+                label: const Text(
+                  "Registrar Venta de Pedido",
+                  style: TextStyle(fontSize: 11, fontWeight: FontWeight.bold),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AdminTheme.accent,
+                  foregroundColor: Colors.white,
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                ),
+              ),
+            ],
+          ],
           const SizedBox(height: 4),
           Align(
             alignment: Alignment.bottomRight,

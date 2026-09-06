@@ -2159,7 +2159,9 @@ class _CheckoutFormViewState extends State<CheckoutFormView> {
         builder: (context) => StreamBuilder<Order>(
           stream: orderProvider.listenToOrder(orderId),
           builder: (context, snapshot) {
-            if (snapshot.hasData && snapshot.data!.status == 'paid') {
+            if (snapshot.hasData &&
+                (snapshot.data!.paymentStatus == 'paid' ||
+                    snapshot.data!.status == 'completed')) {
               return AlertDialog(
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(16),

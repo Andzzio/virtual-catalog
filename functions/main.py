@@ -10,6 +10,7 @@ import json
 from firebase_functions import https_fn, options, firestore_fn
 from firebase_functions.options import set_global_options
 import os
+from functools import wraps
 
 from data.business_repository import get_business_credentials
 from services.izipay_service import create_payment_form_url
@@ -113,7 +114,32 @@ def izipay_webhook(req: https_fn.Request) -> https_fn.Response:
 # FUNCIONES SUNAT - Facturación Electrónica Directa
 # ============================================================================
 
+def check_auth(func):
+    @wraps(func)
+    def wrapper(req: https_fn.Request, *args, **kwargs) -> https_fn.Response:
+        auth_header = req.headers.get("Authorization")
+        if not auth_header or not auth_header.startswith("Bearer "):
+            return https_fn.Response(
+                json.dumps({"error": "Unauthorized"}),
+                status=401,
+                content_type="application/json"
+            )
+        token = auth_header.split("Bearer ")[1]
+        try:
+            from firebase_admin import auth
+            auth.verify_id_token(token)
+        except Exception:
+            return https_fn.Response(
+                json.dumps({"error": "Unauthorized"}),
+                status=401,
+                content_type="application/json"
+            )
+        return func(req, *args, **kwargs)
+    return wrapper
+
+
 @https_fn.on_request(cors=options.CorsOptions(cors_origins="*", cors_methods=["post"]))
+@check_auth
 def upload_certificate(req: https_fn.Request) -> https_fn.Response:
     """
     Sube un certificado digital (.pfx) a Secret Manager.
@@ -256,6 +282,8 @@ def emit_to_sunat(req: https_fn.Request) -> https_fn.Response:
         sunat_user = business.get("sunatUser")
         sunat_password = business.get("sunatPassword")
         environment = business.get("sunatEnvironment", "beta")
+        razon_social = business.get("razonSocial", "TU EMPRESA SAC")
+        direccion = business.get("direccion", "DIRECCIÓN")
 
         if not ruc or not sunat_user or not sunat_password:
             return https_fn.Response(
@@ -282,9 +310,14 @@ def emit_to_sunat(req: https_fn.Request) -> https_fn.Response:
             )
         else:
             result = emitter.emit_invoice(
-                ruc=ruc, sunat_user=sunat_user, sunat_password=sunat_password,
-                invoice_data=invoice_data, certificate_password=cert_password,
+                ruc=ruc,
+                sunat_user=sunat_user,
+                sunat_password=sunat_password,
+                invoice_data=invoice_data,
+                certificate_password=cert_password,
                 environment=environment,
+                razon_social_emisor=razon_social,
+                direccion_emisor=direccion,
             )
 
         status_code = 200 if result.get("success") else 400
@@ -309,6 +342,7 @@ def emit_to_sunat(req: https_fn.Request) -> https_fn.Response:
 
 
 @https_fn.on_request(cors=options.CorsOptions(cors_origins="*", cors_methods=["post"]))
+@check_auth
 def register_user(req: https_fn.Request) -> https_fn.Response:
     try:
         from firebase_admin import auth, firestore
@@ -348,6 +382,7 @@ def register_user(req: https_fn.Request) -> https_fn.Response:
         return https_fn.Response(json.dumps({"error": str(e)}), status=500, content_type="application/json")
 
 @https_fn.on_request(cors=options.CorsOptions(cors_origins="*", cors_methods=["post"]))
+@check_auth
 def delete_user(req: https_fn.Request) -> https_fn.Response:
     try:
         from firebase_admin import auth, firestore

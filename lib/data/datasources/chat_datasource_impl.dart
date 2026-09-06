@@ -298,9 +298,18 @@ class ChatDatasourceImpl implements ChatDatasource {
       throw Exception("URL del Bot no configurada");
     }
 
+    final cleanBotUrl = botUrl.endsWith('/')
+        ? botUrl.substring(0, botUrl.length - 1)
+        : botUrl;
+
     final dioClient = Dio();
     final response = await dioClient.post<Map<String, dynamic>>(
-      "$botUrl/generate_suggestion",
+      "$cleanBotUrl/generate_suggestion",
+      options: Options(
+        headers: {
+          'ngrok-skip-browser-warning': 'true',
+        },
+      ),
       data: {
         "businessId": businessSlug,
         "conversationId": conversationId,

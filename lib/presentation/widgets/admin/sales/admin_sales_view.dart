@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/sale.dart';
+import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/sales_provider.dart';
 import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
 import 'create_sale_dialog.dart';
@@ -51,6 +52,7 @@ class _AdminSalesViewState extends State<AdminSalesView> {
     );
     if (result == true && mounted) {
       context.read<SalesProvider>().loadSales(widget.businessSlug);
+      context.read<ProductProvider>().loadProducts(widget.businessSlug, force: true);
     }
   }
 

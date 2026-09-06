@@ -27,6 +27,7 @@ class Sale {
   final String? motivoDescripcion;
   final String? refDocSerie;
   final int? refDocNumero;
+  final String? orderId;
 
   Sale({
     required this.id,
@@ -55,5 +56,6 @@ class Sale {
     this.motivoDescripcion,
     this.refDocSerie,
     this.refDocNumero,
+    this.orderId,
   });
 }

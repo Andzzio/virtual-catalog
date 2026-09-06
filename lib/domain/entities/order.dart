@@ -34,6 +34,10 @@ class Order {
   final String? billingDistrito;
   final String? billingZip;
   final String? billingPhone;
+  final String? saleId;
+  final String? saleNumber;
+  final String? saleStatus;
+  final String? paymentStatus;
 
   Order({
     this.id,
@@ -69,5 +73,9 @@ class Order {
     this.billingDistrito,
     this.billingZip,
     this.billingPhone,
+    this.saleId,
+    this.saleNumber,
+    this.saleStatus,
+    this.paymentStatus,
   });
 }

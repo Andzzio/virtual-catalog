@@ -62,6 +62,53 @@ class TestSunatEmitter:
         assert emitter.project_id == "test-project"
         assert emitter.cert_manager is not None
 
+    def test_emit_invoice_dynamic_emisor(self, emitter):
+        emitter.cert_manager.get_certificate.return_value = "mock_pfx_base64"
+        invoice_data = {
+            "tipo_documento": "01",
+            "serie": "F001",
+            "numero": 1,
+            "fecha_emision": "2026-05-08",
+            "moneda": "PEN",
+            "receptor": {
+                "tipo_doc": "6",
+                "numero_doc": "20512345678",
+                "razon_social": "Cliente SAC",
+                "direccion": "Calle Test"
+            },
+            "lines": [
+                {
+                    "codigo": "P001",
+                    "descripcion": "Producto",
+                    "unidad": "ZZ",
+                    "cantidad": "1.00",
+                    "precio_unitario": "100.00",
+                    "igv_afectacion": "10"
+                }
+            ]
+        }
+        with patch("services.sunat_service.build_invoice_xml") as mock_build_xml, \
+             patch("services.sunat_service.load_cert_from_base64"), \
+             patch("services.sunat_service.sign_invoice_xml"), \
+             patch("services.sunat_service.pack_invoice"), \
+             patch("services.sunat_service.build_zeep_client"), \
+             patch("services.sunat_service.send_bill") as mock_send_bill:
+            mock_send_bill.return_value = MagicMock(status="accepted", code="0", description="Aceptado")
+            emitter.emit_invoice(
+                ruc="20123456789",
+                sunat_user="user",
+                sunat_password="password",
+                invoice_data=invoice_data,
+                certificate_password="cert_password",
+                environment="beta",
+                razon_social_emisor="EMPRESA INVENTADA SAC",
+                direccion_emisor="AV. CONQUISTADORES 123"
+            )
+            mock_build_xml.assert_called_once()
+            ubl_input = mock_build_xml.call_args[0][0]
+            assert ubl_input.emisor.razon_social == "EMPRESA INVENTADA SAC"
+            assert ubl_input.emisor.direccion == "AV. CONQUISTADORES 123"
+
     def test_invoice_data_structure(self):
         """Verifica la estructura esperada de datos de factura"""
         invoice_data = {

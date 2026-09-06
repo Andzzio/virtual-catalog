@@ -156,7 +156,9 @@ class SunatEmitter:
         sunat_password: str,
         invoice_data: Dict[str, Any],
         certificate_password: str,
-        environment: str = "beta"
+        environment: str = "beta",
+        razon_social_emisor: str = "TU EMPRESA SAC",
+        direccion_emisor: str = "DIRECCIÓN"
     ) -> Dict[str, Any]:
         """
         Emite una factura o boleta a SUNAT.
@@ -235,10 +237,7 @@ class SunatEmitter:
                     )
                 )
 
-            # Calcular totales
             totals = compute_totals(invoice_lines)
-            razon_social_emisor = "TU EMPRESA SAC"  # TODO: traer de Firestore Business
-            direccion_emisor = "DIRECCIÓN"  # TODO: traer de Firestore Business
 
             ubl_input = InvoiceInput(
                 tipo_documento=invoice_data["tipo_documento"],

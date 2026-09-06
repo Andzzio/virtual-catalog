@@ -109,15 +109,21 @@ class _AdminRolesViewState extends State<AdminRolesView> {
           ],
         ),
         actions: [
-          ElevatedButton.icon(
-            onPressed: () => _showAddRoleDialog(),
-            icon: const Icon(Icons.add_moderator_rounded),
-            style: AdminTheme.primaryButton(),
-            label: Text(
-              "Nuevo Rol",
-              style: GoogleFonts.getFont(FontNames.fontNameH2),
-            ),
-          ),
+          MediaQuery.of(context).size.width < 600
+              ? IconButton(
+                  onPressed: () => _showAddRoleDialog(),
+                  icon: const Icon(Icons.add_moderator_rounded, color: Colors.white),
+                  tooltip: "Nuevo Rol",
+                )
+              : ElevatedButton.icon(
+                  onPressed: () => _showAddRoleDialog(),
+                  icon: const Icon(Icons.add_moderator_rounded),
+                  style: AdminTheme.primaryButton(),
+                  label: Text(
+                    "Nuevo Rol",
+                    style: GoogleFonts.getFont(FontNames.fontNameH2),
+                  ),
+                ),
           const SizedBox(width: 10),
         ],
       ),
@@ -390,8 +396,9 @@ class _AdminRolesViewState extends State<AdminRolesView> {
             return AlertDialog(
               title: Text("Crear Nuevo Rol", style: AdminTheme.heading2()),
               content: SingleChildScrollView(
-                child: SizedBox(
-                  width: 500,
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  width: MediaQuery.of(context).size.width * 0.85,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -540,7 +547,10 @@ class _AdminRolesViewState extends State<AdminRolesView> {
                             color: selectedColor.withValues(alpha: 0.3),
                           ),
                         ),
-                        child: Row(
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -562,12 +572,9 @@ class _AdminRolesViewState extends State<AdminRolesView> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                "Así lucirá la etiqueta del usuario en las pantallas del Kipux.pe.",
-                                style: AdminTheme.caption(),
-                              ),
+                            Text(
+                              "Así lucirá la etiqueta del usuario en las pantallas del Kipux.pe.",
+                              style: AdminTheme.caption(),
                             ),
                           ],
                         ),
@@ -680,8 +687,9 @@ class _AdminRolesViewState extends State<AdminRolesView> {
             return AlertDialog(
               title: Text("Editar Rol", style: AdminTheme.heading2()),
               content: SingleChildScrollView(
-                child: SizedBox(
-                  width: 500,
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 500),
+                  width: MediaQuery.of(context).size.width * 0.85,
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -753,7 +761,10 @@ class _AdminRolesViewState extends State<AdminRolesView> {
                             color: selectedColor.withValues(alpha: 0.3),
                           ),
                         ),
-                        child: Row(
+                        child: Wrap(
+                          spacing: 12,
+                          runSpacing: 8,
+                          crossAxisAlignment: WrapCrossAlignment.center,
                           children: [
                             Container(
                               padding: const EdgeInsets.symmetric(
@@ -775,12 +786,9 @@ class _AdminRolesViewState extends State<AdminRolesView> {
                                 ),
                               ),
                             ),
-                            const SizedBox(width: 12),
-                            Expanded(
-                              child: Text(
-                                "Así lucirá la etiqueta del usuario en las pantallas del Kipux.pe.",
-                                style: AdminTheme.caption(),
-                              ),
+                            Text(
+                              "Así lucirá la etiqueta del usuario en las pantallas del Kipux.pe.",
+                              style: AdminTheme.caption(),
                             ),
                           ],
                         ),

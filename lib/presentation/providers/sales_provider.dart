@@ -58,6 +58,7 @@ class SalesProvider extends ChangeNotifier {
     String? refDocSerie,
     int? refDocNumero,
     String? refDocType,
+    String? orderId,
   }) async {
     if (items.isEmpty) throw Exception("La venta requiere al menos un item");
     if (documentType == 'factura' && customerDoc.trim().length != 11) {
@@ -68,7 +69,7 @@ class SalesProvider extends ChangeNotifier {
     final double igv;
     final double subtotal;
 
-    if (documentType == 'nota_venta') {
+    if (documentType == 'nota_venta' || documentType == 'devolucion') {
       igv = 0.0;
       subtotal = total;
     } else {
@@ -93,16 +94,17 @@ class SalesProvider extends ChangeNotifier {
       userName: userName,
       createdAt: DateTime.now(),
       items: items,
-      sunatStatus: documentType == 'nota_venta' ? null : 'pending',
+      sunatStatus: (documentType == 'nota_venta' || documentType == 'devolucion') ? 'accepted' : 'pending',
       motivoCodigo: motivoCodigo,
       motivoDescripcion: motivoDescripcion,
       refDocSerie: refDocSerie,
       refDocNumero: refDocNumero,
+      orderId: orderId,
     );
 
     final savedSale = await createSaleUseCase(businessSlug, initialSale);
 
-    if (documentType != 'nota_venta') {
+    if (documentType != 'nota_venta' && documentType != 'devolucion') {
       final hasNubefact = business != null &&
           business.nubefactUrl != null &&
           business.nubefactUrl!.isNotEmpty &&
@@ -288,4 +290,38 @@ class SalesProvider extends ChangeNotifier {
 
     await loadSales(businessSlug);
   }
+
+  SaleDraft? activeDraft;
+
+  void updateDraft(SaleDraft? draft) {
+    activeDraft = draft;
+    notifyListeners();
+  }
+
+  void clearDraft() {
+    activeDraft = null;
+    notifyListeners();
+  }
+}
+
+class SaleDraft {
+  final String documentType;
+  final String doc;
+  final String name;
+  final String address;
+  final String phone;
+  final String notes;
+  final String? paymentMethod;
+  final List<SaleItem> items;
+
+  SaleDraft({
+    required this.documentType,
+    required this.doc,
+    required this.name,
+    required this.address,
+    required this.phone,
+    required this.notes,
+    this.paymentMethod,
+    required this.items,
+  });
 }

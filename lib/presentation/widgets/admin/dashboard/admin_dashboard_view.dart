@@ -4,9 +4,11 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:provider/provider.dart';
 import 'package:virtual_catalog_app/config/themes/font_names.dart';
 import 'package:virtual_catalog_app/domain/entities/order.dart';
+import 'package:virtual_catalog_app/domain/entities/sale_item.dart';
 import 'package:virtual_catalog_app/presentation/providers/order_provider.dart';
 import 'package:virtual_catalog_app/presentation/providers/product_provider.dart';
 import 'package:virtual_catalog_app/presentation/utils/admin_theme.dart';
+import 'package:virtual_catalog_app/presentation/widgets/admin/sales/create_sale_dialog.dart';
 
 class AdminDashboardView extends StatefulWidget {
   final String businessSlug;
@@ -48,15 +50,15 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
         elevation: 0,
         bottom: PreferredSize(
           preferredSize: const Size.fromHeight(1.0),
-          child: Container(color: Colors.white.withValues(alpha: 0.08), height: 1.0),
+          child: Container(
+            color: Colors.white.withValues(alpha: 0.08),
+            height: 1.0,
+          ),
         ),
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(
-              "Dashboard",
-              style: AdminTheme.appBarTitle(),
-            ),
+            Text("Dashboard", style: AdminTheme.appBarTitle()),
             Text(
               "Resumen de tu negocio en tiempo real.",
               style: AdminTheme.appBarSubtitle(),
@@ -267,10 +269,10 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
           scrollDirection: Axis.horizontal,
           child: ConstrainedBox(
             constraints: BoxConstraints(
-              minWidth: math.max(950.0,
-                  MediaQuery.sizeOf(context).width -
-                  AdminTheme.sidebarWidth -
-                  80),
+              minWidth: math.max(
+                950.0,
+                MediaQuery.sizeOf(context).width - AdminTheme.sidebarWidth - 80,
+              ),
             ),
             child: DataTable(
               showCheckboxColumn: false,
@@ -314,9 +316,7 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                         style: _cellStyle(fontWeight: FontWeight.w600),
                       ),
                     ),
-                    DataCell(
-                      Text(o.paymentMethod, style: _cellStyle()),
-                    ),
+                    DataCell(Text(o.paymentMethod, style: _cellStyle())),
                     DataCell(_buildStatusBadge(o.status)),
                     DataCell(
                       Text(
@@ -514,7 +514,10 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                                       .trim(),
                                 ),
                               if (o.billingDepartamento != null)
-                                _infoRow("Departamento:", o.billingDepartamento!),
+                                _infoRow(
+                                  "Departamento:",
+                                  o.billingDepartamento!,
+                                ),
                               if (o.billingProvincia != null)
                                 _infoRow("Provincia:", o.billingProvincia!),
                               if (o.billingDistrito != null)
@@ -690,47 +693,40 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                             if (o.deliveryMethod != null &&
                                 o.deliveryMethod!.isNotEmpty)
                               _infoRow("Método de envío:", o.deliveryMethod!),
+                            if (o.saleNumber != null) ...[
+                              const SizedBox(height: 8),
+                              _infoRow(
+                                "Comprobante:",
+                                "${o.saleNumber!} (${o.saleStatus == 'accepted'
+                                    ? 'Aceptado'
+                                    : o.saleStatus == 'pending'
+                                    ? 'Pendiente'
+                                    : 'Rechazado'})",
+                              ),
+                            ],
                             const SizedBox(height: 12),
                             const Divider(),
                             const SizedBox(height: 8),
-                            SwitchListTile(
-                              contentPadding: EdgeInsets.zero,
-                              title: Text(
-                                isPaid
-                                    ? "Marcado como Pagado"
-                                    : "Pendiente de Pago",
-                                style: GoogleFonts.getFont(
-                                  FontNames.fontNameH2,
-                                  textStyle: TextStyle(
-                                    fontSize: 14,
-                                    fontWeight: FontWeight.bold,
-                                    color: isPaid
-                                        ? const Color(0xFF059669)
-                                        : const Color(0xFFD97706),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  "Estado del Pedido:",
+                                  style: GoogleFonts.getFont(
+                                    FontNames.fontNameH2,
+                                    textStyle: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
-                              ),
-                              value: isPaid,
-                              activeThumbColor: const Color(0xFF10B981),
-                              onChanged: (val) async {
-                                setStateLocal(() {
-                                  isPaid = val;
-                                });
-                                final newStatus = val ? 'paid' : 'pending';
-                                await context
-                                    .read<OrderProvider>()
-                                    .updateOrderStatus(
-                                      widget.businessSlug,
-                                      o.id!,
-                                      newStatus,
-                                    );
-                              },
+                                _buildStatusBadge(o.status),
+                              ],
                             ),
                           ],
                         ),
                       ),
                     ),
-                    // Footer
                     Container(
                       padding: const EdgeInsets.symmetric(
                         horizontal: 20,
@@ -813,6 +809,132 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
                             ),
                           ),
                           const Spacer(),
+                          if (o.status != 'completed' &&
+                              o.status != 'reverted') ...[
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.of(dialogContext).pop();
+                                final saleItems = o.items.map((item) {
+                                  return SaleItem(
+                                    productId: item.product.id,
+                                    productName: item.product.name,
+                                    productSku:
+                                        item.variant.sku ?? item.product.sku,
+                                    variantName:
+                                        '${item.variant.name}${item.size.isNotEmpty ? ", ${item.size}" : ""}',
+                                    quantity: item.quantity,
+                                    unitPrice: item.unitPrice,
+                                    lineTotal: item.subTotal,
+                                  );
+                                }).toList();
+
+                                final productProvider = context.read<ProductProvider>();
+
+                                showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => CreateSaleDialog(
+                                    businessSlug: widget.businessSlug,
+                                    orderId: o.id,
+                                    initialClientName:
+                                        '${o.customerName} ${o.customerLastName}',
+                                    initialClientPhone: o.customerPhone,
+                                    initialDoc: o.customerDni,
+                                    initialAddress: o.customerAddress,
+                                    initialNotes: o.notes,
+                                    initialPaymentMethod: o.paymentMethod,
+                                    initialItems: saleItems,
+                                  ),
+                                ).then((result) {
+                                  if (result == true && mounted) {
+                                    productProvider.loadProducts(widget.businessSlug, force: true);
+                                  }
+                                });
+                              },
+                              icon: const Icon(
+                                Icons.point_of_sale_rounded,
+                                size: 16,
+                              ),
+                              label: const Text("Generar Comprobante"),
+                              style: AdminTheme.primaryButton(),
+                            ),
+                            const SizedBox(width: 8),
+                          ] else if (o.status == 'completed' &&
+                              o.saleStatus == 'accepted') ...[
+                            ElevatedButton.icon(
+                              onPressed: () {
+                                Navigator.of(dialogContext).pop();
+                                final saleItems = o.items.map((item) {
+                                  return SaleItem(
+                                    productId: item.product.id,
+                                    productName: item.product.name,
+                                    productSku:
+                                        item.variant.sku ?? item.product.sku,
+                                    variantName:
+                                        '${item.variant.name}${item.size.isNotEmpty ? ", ${item.size}" : ""}',
+                                    quantity: item.quantity,
+                                    unitPrice: item.unitPrice,
+                                    lineTotal: item.subTotal,
+                                  );
+                                }).toList();
+
+                                final isNotaVenta =
+                                    o.saleNumber?.startsWith('NV01') ?? false;
+                                final productProvider = context.read<ProductProvider>();
+
+                                showDialog<bool>(
+                                  context: context,
+                                  builder: (context) => CreateSaleDialog(
+                                    businessSlug: widget.businessSlug,
+                                    orderId: o.id,
+                                    initialClientName:
+                                        '${o.customerName} ${o.customerLastName}',
+                                    initialClientPhone: o.customerPhone,
+                                    initialDoc: o.customerDni,
+                                    initialAddress: o.customerAddress,
+                                    initialNotes: o.notes,
+                                    initialPaymentMethod: o.paymentMethod,
+                                    initialItems: saleItems,
+                                    initialDocumentType: isNotaVenta
+                                        ? 'devolucion'
+                                        : 'nota_credito',
+                                    initialRefDocNumber: o.saleNumber,
+                                    initialRefDocType:
+                                        o.saleNumber?.startsWith('F') ?? false
+                                        ? '01'
+                                        : '03',
+                                  ),
+                                ).then((result) {
+                                  if (result == true && mounted) {
+                                    productProvider.loadProducts(widget.businessSlug, force: true);
+                                  }
+                                });
+                              },
+                              icon: const Icon(
+                                Icons.settings_backup_restore_rounded,
+                                size: 16,
+                              ),
+                              label: Text(
+                                o.saleNumber?.startsWith('NV01') ?? false
+                                    ? "Registrar Devolución"
+                                    : "Emitir Nota de Crédito",
+                              ),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: const Color(0xFF7E22CE),
+                                foregroundColor: Colors.white,
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(
+                                    AdminTheme.radiusMd,
+                                  ),
+                                ),
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 16,
+                                  vertical: 12,
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                          ],
                           ElevatedButton(
                             onPressed: () => Navigator.of(dialogContext).pop(),
                             style: AdminTheme.primaryButton(),
@@ -873,9 +995,19 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
     Color fg;
     String label;
     switch (status) {
-      case 'paid':
+      case 'completed':
         bg = const Color(0xFFECFDF5);
         fg = const Color(0xFF059669);
+        label = "Completado";
+        break;
+      case 'reverted':
+        bg = const Color(0xFFF3E8FF);
+        fg = const Color(0xFF7E22CE);
+        label = "Revertido";
+        break;
+      case 'paid':
+        bg = const Color(0xFFEFF6FF);
+        fg = const Color(0xFF1D4ED8);
         label = "Pagado";
         break;
       case 'pending':
@@ -930,8 +1062,6 @@ class _AdminDashboardViewState extends State<AdminDashboardView> {
       textStyle: TextStyle(fontSize: 13, fontWeight: fontWeight),
     );
   }
-
-
 }
 
 class _KpiData {

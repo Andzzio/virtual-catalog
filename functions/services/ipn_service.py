@@ -47,11 +47,11 @@ def process_ipn_webhook(form_data: dict) -> str:
         db = get_db()
         order_ref = db.collection("orders").document(order_id)
         if order_ref.get().exists:
-            order_ref.update({"status": "paid", "paymentMethod": "izipay"})
+            order_ref.update({"paymentStatus": "paid", "paymentMethod": "izipay"})
         
         business_order_ref = db.collection("businesses").document(business_id).collection("orders").document(order_id)
         if business_order_ref.get().exists:
-            business_order_ref.update({"status": "paid", "paymentMethod": "izipay"})
+            business_order_ref.update({"paymentStatus": "paid", "paymentMethod": "izipay"})
             
         return f"Pedido {order_id} pagado exitosamente"
     

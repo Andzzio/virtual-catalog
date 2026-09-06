@@ -29,6 +29,12 @@ class ChatProvider extends ChangeNotifier {
     _conversationsSub?.cancel();
     _conversationsSub = chatRepository.getConversations(businessSlug).listen((list) {
       conversations = list;
+      if (selectedConversation != null) {
+        selectedConversation = list.firstWhere(
+          (c) => c.id == selectedConversation!.id,
+          orElse: () => selectedConversation!,
+        );
+      }
       notifyListeners();
     });
   }

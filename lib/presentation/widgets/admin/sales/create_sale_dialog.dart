@@ -16,12 +16,33 @@ class CreateSaleDialog extends StatefulWidget {
   final String businessSlug;
   final String? initialClientName;
   final String? initialClientPhone;
+  final String? initialDoc;
+  final String? initialAddress;
+  final String? initialNotes;
+  final String? initialPaymentMethod;
+  final List<SaleItem>? initialItems;
+  final String? orderTextPreview;
+
+  final String? orderId;
+  final String? initialDocumentType;
+  final String? initialRefDocNumber;
+  final String? initialRefDocType;
 
   const CreateSaleDialog({
     super.key,
     required this.businessSlug,
     this.initialClientName,
     this.initialClientPhone,
+    this.initialDoc,
+    this.initialAddress,
+    this.initialNotes,
+    this.initialPaymentMethod,
+    this.initialItems,
+    this.orderTextPreview,
+    this.orderId,
+    this.initialDocumentType,
+    this.initialRefDocNumber,
+    this.initialRefDocType,
   });
 
   @override
@@ -49,6 +70,9 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
   bool _isQueryingDoc = false;
   bool _isSubmitting = false;
 
+  late SalesProvider _salesProvider;
+  bool get _isFromOrder => widget.orderTextPreview != null;
+
   String? _motivoCodigo;
   final _motivoDescCtrl = TextEditingController();
   final _refDocCtrl = TextEditingController();
@@ -57,12 +81,41 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
   @override
   void initState() {
     super.initState();
-    if (widget.initialClientName != null) {
-      _nameCtrl.text = widget.initialClientName!;
+    _salesProvider = context.read<SalesProvider>();
+    final draft = _salesProvider.activeDraft;
+
+    if (!_isFromOrder && draft != null) {
+      _docCtrl.text = draft.doc;
+      _nameCtrl.text = draft.name;
+      _addressCtrl.text = draft.address;
+      _phoneCtrl.text = draft.phone;
+      _notesCtrl.text = draft.notes;
+      _selectedPaymentMethod = draft.paymentMethod;
+      _items.addAll(draft.items);
+    } else {
+      if (widget.initialClientName != null) {
+        _nameCtrl.text = widget.initialClientName!;
+      }
+      if (widget.initialClientPhone != null) {
+        _phoneCtrl.text = widget.initialClientPhone!;
+      }
+      if (widget.initialDoc != null) {
+        _docCtrl.text = widget.initialDoc!;
+      }
+      if (widget.initialAddress != null) {
+        _addressCtrl.text = widget.initialAddress!;
+      }
+      if (widget.initialNotes != null) {
+        _notesCtrl.text = widget.initialNotes!;
+      }
+      if (widget.initialPaymentMethod != null) {
+        _selectedPaymentMethod = widget.initialPaymentMethod;
+      }
+      if (widget.initialItems != null) {
+        _items.addAll(widget.initialItems!);
+      }
     }
-    if (widget.initialClientPhone != null) {
-      _phoneCtrl.text = widget.initialClientPhone!;
-    }
+
     final business = context.read<BusinessProvider>().business;
     final hasNubefact = business != null &&
         business.nubefactUrl != null &&
@@ -79,11 +132,38 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
         business.sunatPassword!.isNotEmpty &&
         business.sunatPfxPassword != null &&
         business.sunatPfxPassword!.isNotEmpty;
-    _documentType = (hasNubefact || hasSunatDirect) ? 'boleta' : 'nota_venta';
+
+    if (widget.initialDocumentType != null) {
+      _documentType = widget.initialDocumentType!;
+      if (_documentType == 'nota_credito' || _documentType == 'devolucion') {
+        _refDocCtrl.text = widget.initialRefDocNumber ?? '';
+        _refDocType = widget.initialRefDocType ?? '03';
+        _motivoCodigo = '01';
+        _motivoDescCtrl.text = 'Anulación de la operación';
+      }
+    } else if (!_isFromOrder && draft != null) {
+      _documentType = draft.documentType;
+    } else {
+      _documentType = (hasNubefact || hasSunatDirect) ? 'boleta' : 'nota_venta';
+    }
   }
 
   @override
   void dispose() {
+    if (!_isSubmitting && !_isFromOrder && widget.orderId == null) {
+      _salesProvider.updateDraft(
+        SaleDraft(
+          documentType: _documentType,
+          doc: _docCtrl.text,
+          name: _nameCtrl.text,
+          address: _addressCtrl.text,
+          phone: _phoneCtrl.text,
+          notes: _notesCtrl.text,
+          paymentMethod: _selectedPaymentMethod,
+          items: List.from(_items),
+        ),
+      );
+    }
     _docCtrl.dispose();
     _nameCtrl.dispose();
     _addressCtrl.dispose();
@@ -304,14 +384,16 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
         currentProducts: productProvider.products,
         onUpdateProduct: (p) => productProvider.updateProduct(widget.businessSlug, p),
         business: businessProvider.business,
-        motivoCodigo: (_documentType == 'nota_credito' || _documentType == 'nota_debito') ? _motivoCodigo : null,
-        motivoDescripcion: (_documentType == 'nota_credito' || _documentType == 'nota_debito') ? _motivoDescCtrl.text.trim() : null,
+        motivoCodigo: (_documentType == 'nota_credito' || _documentType == 'devolucion' || _documentType == 'nota_debito') ? _motivoCodigo : null,
+        motivoDescripcion: (_documentType == 'nota_credito' || _documentType == 'devolucion' || _documentType == 'nota_debito') ? _motivoDescCtrl.text.trim() : null,
         refDocSerie: _extractRefSerie(),
         refDocNumero: _extractRefNumero(),
-        refDocType: (_documentType == 'nota_credito' || _documentType == 'nota_debito') ? _refDocType : null,
+        refDocType: (_documentType == 'nota_credito' || _documentType == 'devolucion' || _documentType == 'nota_debito') ? _refDocType : null,
+        orderId: widget.orderId,
       );
 
       if (mounted) {
+        _salesProvider.clearDraft();
         Navigator.pop(context, true);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Venta registrada con éxito')),
@@ -356,8 +438,21 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
     final canEmitElectronic = hasNubefact || hasSunatDirect;
     final paymentMethods = business?.paymentMethods ?? [];
 
-    if (_selectedPaymentMethod == null && paymentMethods.isNotEmpty) {
+    if (_selectedPaymentMethod != null && paymentMethods.isNotEmpty) {
+      final matched = paymentMethods.firstWhere(
+        (p) => p.name.toLowerCase() == _selectedPaymentMethod!.toLowerCase(),
+        orElse: () => paymentMethods.first,
+      );
+      _selectedPaymentMethod = matched.name;
+    } else if (_selectedPaymentMethod == null && paymentMethods.isNotEmpty) {
       _selectedPaymentMethod = paymentMethods.first.name;
+    } else if (_selectedPaymentMethod != null) {
+      final fallbackOptions = ['efectivo', 'transferencia'];
+      if (!fallbackOptions.contains(_selectedPaymentMethod!.toLowerCase())) {
+        _selectedPaymentMethod = 'efectivo';
+      } else {
+        _selectedPaymentMethod = _selectedPaymentMethod!.toLowerCase();
+      }
     }
 
     final total = _items.fold<double>(0.0, (acc, item) => acc + item.lineTotal);
@@ -366,13 +461,60 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(AdminTheme.radiusLg)),
       backgroundColor: AdminTheme.cardBg,
       child: Container(
-        width: 900,
+        width: widget.orderTextPreview != null ? 1250 : 900,
         height: 700,
         padding: const EdgeInsets.all(24),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+        child: Row(
+          children: [
+            if (widget.orderTextPreview != null) ...[
+              SizedBox(
+                width: 320,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Resumen Original de WhatsApp',
+                      style: GoogleFonts.getFont(
+                        FontNames.fontNameH2,
+                        textStyle: const TextStyle(
+                          fontSize: 14,
+                          fontWeight: FontWeight.bold,
+                          color: AdminTheme.textSecondary,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    Expanded(
+                      child: Container(
+                        padding: const EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: AdminTheme.cardBgElevated,
+                          borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+                          border: Border.all(color: AdminTheme.border),
+                        ),
+                        child: SingleChildScrollView(
+                          child: SelectableText(
+                            widget.orderTextPreview!,
+                            style: GoogleFonts.courierPrime(
+                              textStyle: const TextStyle(
+                                fontSize: 12,
+                                color: AdminTheme.textPrimary,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const VerticalDivider(width: 32, thickness: 1, color: AdminTheme.border),
+            ],
+            Expanded(
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -825,6 +967,9 @@ class _CreateSaleDialogState extends State<CreateSaleDialog> {
           ),
         ),
       ),
-    );
+    ],
+  ),
+),
+);
   }
 }

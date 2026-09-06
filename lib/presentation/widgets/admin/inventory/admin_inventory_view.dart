@@ -122,14 +122,17 @@ class _AdminInventoryViewState extends State<AdminInventoryView> {
                         style: GoogleFonts.getFont(FontNames.fontNameH2),
                       ),
                       const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          _buildTab("Todos", 'all'),
-                          const SizedBox(width: 8),
-                          _buildTab("Ingresos", 'ingreso'),
-                          const SizedBox(width: 8),
-                          _buildTab("Egresos", 'egreso'),
-                        ],
+                      SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            _buildTab("Todos", 'all'),
+                            const SizedBox(width: 8),
+                            _buildTab("Ingresos", 'ingreso'),
+                            const SizedBox(width: 8),
+                            _buildTab("Egresos", 'egreso'),
+                          ],
+                        ),
                       ),
                     ],
                   ),
@@ -286,10 +289,15 @@ class _AdminInventoryViewState extends State<AdminInventoryView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "Var: ${m.variantName}",
-                    style: AdminTheme.bodySmall(),
+                  Expanded(
+                    child: Text(
+                      "Var: ${m.variantName}",
+                      style: AdminTheme.bodySmall(),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
                   ),
+                  const SizedBox(width: 8),
                   Text(
                     "Sku: ${m.productSku ?? '—'}",
                     style: AdminTheme.caption(),

@@ -31,6 +31,7 @@ class _AdminUsersViewState extends State<AdminUsersView> {
   Widget build(BuildContext context) {
     final usersProvider = context.watch<UsersProvider>();
     final currentFirebaseUser = context.watch<AuthProvider>().user;
+    final isMobile = MediaQuery.of(context).size.width < 700;
 
     return Scaffold(
       backgroundColor: AdminTheme.surface,
@@ -57,41 +58,59 @@ class _AdminUsersViewState extends State<AdminUsersView> {
           ],
         ),
         actions: [
-          OutlinedButton.icon(
-            onPressed: () {
-              Navigator.of(context).push(
-                MaterialPageRoute(
-                  builder: (context) => AdminRolesView(businessSlug: widget.businessSlug),
+          isMobile
+              ? IconButton(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AdminRolesView(businessSlug: widget.businessSlug),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.security_rounded, color: Colors.white),
+                  tooltip: "Gestionar Roles",
+                )
+              : OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => AdminRolesView(businessSlug: widget.businessSlug),
+                      ),
+                    );
+                  },
+                  icon: const Icon(Icons.security_rounded, color: Colors.white, size: 18),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    foregroundColor: Colors.white,
+                    side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
+                    ),
+                  ),
+                  label: Text(
+                    "Gestionar Roles",
+                    style: GoogleFonts.getFont(
+                      FontNames.fontNameH2,
+                      textStyle: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
+                    ),
+                  ),
                 ),
-              );
-            },
-            icon: const Icon(Icons.security_rounded, color: Colors.white, size: 18),
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              foregroundColor: Colors.white,
-              side: BorderSide(color: Colors.white.withValues(alpha: 0.3)),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(AdminTheme.radiusMd),
-              ),
-            ),
-            label: Text(
-              "Gestionar Roles",
-              style: GoogleFonts.getFont(
-                FontNames.fontNameH2,
-                textStyle: const TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.bold),
-              ),
-            ),
-          ),
           const SizedBox(width: 8),
-          ElevatedButton.icon(
-            onPressed: () => _showAddUserDialog(),
-            icon: const Icon(Icons.person_add_alt_1_rounded),
-            style: AdminTheme.primaryButton(),
-            label: Text(
-              "Nuevo Usuario",
-              style: GoogleFonts.getFont(FontNames.fontNameH2),
-            ),
-          ),
+          isMobile
+              ? IconButton(
+                  onPressed: () => _showAddUserDialog(),
+                  icon: const Icon(Icons.person_add_alt_1_rounded, color: Colors.white),
+                  tooltip: "Nuevo Usuario",
+                )
+              : ElevatedButton.icon(
+                  onPressed: () => _showAddUserDialog(),
+                  icon: const Icon(Icons.person_add_alt_1_rounded),
+                  style: AdminTheme.primaryButton(),
+                  label: Text(
+                    "Nuevo Usuario",
+                    style: GoogleFonts.getFont(FontNames.fontNameH2),
+                  ),
+                ),
           const SizedBox(width: 10),
         ],
       ),
@@ -99,7 +118,9 @@ class _AdminUsersViewState extends State<AdminUsersView> {
           ? const Center(child: CircularProgressIndicator(color: AdminTheme.accent))
           : usersProvider.users.isEmpty
               ? _buildEmptyState()
-              : _buildUsersList(usersProvider.users, currentFirebaseUser?.uid),
+              : isMobile
+                  ? _buildMobileUsersList(usersProvider.users, currentFirebaseUser?.uid)
+                  : _buildUsersList(usersProvider.users, currentFirebaseUser?.uid),
     );
   }
 
@@ -263,6 +284,95 @@ class _AdminUsersViewState extends State<AdminUsersView> {
     );
   }
 
+  Widget _buildMobileUsersList(List<UserEntity> users, String? currentUid) {
+    return ListView.builder(
+      padding: const EdgeInsets.all(16),
+      itemCount: users.length,
+      itemBuilder: (context, index) {
+        return _buildUserCard(users[index], currentUid);
+      },
+    );
+  }
+
+
+  Widget _buildUserCard(UserEntity user, String? currentUid) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
+      decoration: AdminTheme.cardDecoration(),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Expanded(child: Text(user.name, style: const TextStyle(fontWeight: FontWeight.bold))),
+              if (user.id != currentUid)
+                Row(
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit_rounded, color: AdminTheme.accent),
+                      onPressed: () => _showEditRoleDialog(user),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete_outline_rounded, color: AdminTheme.danger),
+                      onPressed: () => _confirmDelete(user),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(user.email, style: const TextStyle(color: AdminTheme.textSecondary)),
+          const SizedBox(height: 12),
+          _roleCell(user),
+        ],
+      ),
+    );
+  }
+
+  Widget _roleCell(UserEntity user) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        child: Wrap(
+          spacing: 6,
+          runSpacing: 4,
+          children: [
+            if (user.isOwner)
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFFEF3C7),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: const Color(0xFFFBBF24)),
+                ),
+                child: const Text("PROPIETARIO", style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: Color(0xFFD97706))),
+              ),
+            ...user.roles.map((roleId) {
+              final roles = context.read<RolesProvider>().roles;
+              final role = roles.where((r) => r.id == roleId).firstOrNull;
+              final color = role != null ? Color(role.colorValue) : const Color(0xFF64748B);
+              return Container(
+                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.15),
+                  borderRadius: BorderRadius.circular(6),
+                  border: Border.all(color: color.withValues(alpha: 0.3)),
+                ),
+                child: Text(
+                  role?.name.toUpperCase() ?? roleId.toUpperCase(),
+                  style: TextStyle(fontSize: 10, fontWeight: FontWeight.bold, color: color),
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _headerCell(String text) {
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -388,8 +498,9 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                   if (rolesProvider.roles.isEmpty)
                     Text("No hay roles creados. Ve a la sección de Roles para configurarlos.", style: AdminTheme.caption())
                   else
-                    SizedBox(
-                      width: 300,
+                    Container(
+                      constraints: const BoxConstraints(maxWidth: 300),
+                      width: MediaQuery.of(context).size.width * 0.8,
                       child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: rolesProvider.roles.map((role) {
@@ -486,9 +597,12 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                 ),
               ),
               content: SingleChildScrollView(
-                child: Form(
-                  key: formKey,
-                  child: Column(
+                child: Container(
+                  constraints: const BoxConstraints(maxWidth: 450),
+                  width: MediaQuery.of(context).size.width * 0.85,
+                  child: Form(
+                    key: formKey,
+                    child: Column(
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -583,7 +697,8 @@ class _AdminUsersViewState extends State<AdminUsersView> {
                   ),
                 ),
               ),
-              actions: [
+            ),
+            actions: [
                 TextButton(
                   onPressed: () => Navigator.of(dialogContext).pop(),
                   child: Text("Cancelar", style: GoogleFonts.getFont(FontNames.fontNameH2)),

@@ -37,6 +37,10 @@ class OrderModel extends Order {
     super.billingDistrito,
     super.billingZip,
     super.billingPhone,
+    super.saleId,
+    super.saleNumber,
+    super.saleStatus,
+    super.paymentStatus,
   });
 
   Map<String, dynamic> toJson() {
@@ -73,6 +77,10 @@ class OrderModel extends Order {
       if (billingDistrito != null) 'billingDistrito': billingDistrito,
       if (billingZip != null) 'billingZip': billingZip,
       if (billingPhone != null) 'billingPhone': billingPhone,
+      if (saleId != null) 'saleId': saleId,
+      if (saleNumber != null) 'saleNumber': saleNumber,
+      if (saleStatus != null) 'saleStatus': saleStatus,
+      if (paymentStatus != null) 'paymentStatus': paymentStatus,
     };
   }
 
@@ -113,6 +121,10 @@ class OrderModel extends Order {
       billingDistrito: json['billingDistrito'] ?? json['billingDistrict'],
       billingZip: json['billingZip'],
       billingPhone: json['billingPhone'],
+      saleId: json['saleId'],
+      saleNumber: json['saleNumber'],
+      saleStatus: json['saleStatus'],
+      paymentStatus: json['paymentStatus'],
     );
   }
 
@@ -151,6 +163,10 @@ class OrderModel extends Order {
       billingDistrito: order.billingDistrito,
       billingZip: order.billingZip,
       billingPhone: order.billingPhone,
+      saleId: order.saleId,
+      saleNumber: order.saleNumber,
+      saleStatus: order.saleStatus,
+      paymentStatus: order.paymentStatus,
     );
   }
 }
